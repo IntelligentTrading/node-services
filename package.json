@@ -1,0 +1,25 @@
+{
+  "name": "itt-node-services",
+  "version": "1.0.0",
+  "description": "ITT Node Services",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IntelligentTrading/node-services.git"
+  },
+  "keywords": [
+    "itt",
+    "trading",
+    "AI",
+    "crypto"
+  ],
+  "author": "Francesco De Lisi @ ITT",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/IntelligentTrading/node-services/issues"
+  },
+  "homepage": "https://github.com/IntelligentTrading/node-services#readme"
+}
