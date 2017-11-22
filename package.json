@@ -24,6 +24,8 @@
   },
   "homepage": "https://github.com/IntelligentTrading/node-services#readme",
   "dependencies": {
-    "ccxt": "^1.10.187"
+    "ccxt": "^1.10.187",
+    "express": "^4.16.2",
+    "body-parser": "^1.18.2"
   }
 }
