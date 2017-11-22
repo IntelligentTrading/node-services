@@ -22,5 +22,8 @@
   "bugs": {
     "url": "https://github.com/IntelligentTrading/node-services/issues"
   },
-  "homepage": "https://github.com/IntelligentTrading/node-services#readme"
+  "homepage": "https://github.com/IntelligentTrading/node-services#readme",
+  "dependencies": {
+    "ccxt": "^1.10.187"
+  }
 }
