@@ -2,7 +2,9 @@ var express = require('express');
 var path = require('path');
 var app = express();
 var bodyParser = require('body-parser');
-var api = require('./api/ccxt-api').api;
+var market_api = require('./api/ccxt-api').api;
+var feedback_api = require('./api/feedback').feedback;
+
 
 app.use(bodyParser.json());
 
@@ -14,7 +16,7 @@ app.get('/', function (request, response) {
 
 app.get('/tickers', function (req, res) {
     try {
-        api.tickers()
+        market_api.tickers()
             .then((tickers) => { res.send(tickers) })
             .catch((reason) => {
                 console.log(reason.message);
@@ -30,7 +32,7 @@ app.get('/tickers', function (req, res) {
 app.get('/ticker', function (req, res) {
     try {
         var symbol = req.query.symbol;
-        api.ticker(symbol)
+        market_api.ticker(symbol)
             .then((ticker) => { res.send(ticker) })
             .catch((reason) => {
                 console.log(reason.message);
@@ -46,7 +48,7 @@ app.get('/ticker', function (req, res) {
 app.get('/feedback', function (req, res) {
     try {
         console.log('Trying to GET...');
-        api.addFeedback(req.query)
+        feedback_api.addFeedback(req.query)
             .then((feedback) => { return res.send(feedback) })
             .catch((reason) => {
                 console.log(reason.message);
