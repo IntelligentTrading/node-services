@@ -14,7 +14,7 @@ app.get('/', function (request, response) {
 
 app.post('/feedback', function (req, res) {
     try {
-        
+        console.log('Trying to POST...');
         api.addFeedback(req.body)
             .then((feedback) => { return res.send(feedback) })
             .catch((reason) => {
