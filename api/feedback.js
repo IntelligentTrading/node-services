@@ -24,6 +24,7 @@ var feedback = {
                     });
             })
             .catch(reason => {
+                console.log(reason);
                 return reason
             });
     }
