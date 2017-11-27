@@ -1,2 +1,1 @@
-web: node --debug=5858 index.js
-feedback-service: node feedback-service.js
+web: node index.js
