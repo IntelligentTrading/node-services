@@ -12,10 +12,10 @@ app.get('/', function (request, response) {
     response.sendStatus(200)
 });
 
-app.post('/feedback', function (req, res) {
+app.get('/feedback', function (req, res) {
     try {
         console.log('Trying to POST...');
-        api.addFeedback(req.body)
+        api.addFeedback(req.query)
             .then((feedback) => { return res.send(feedback) })
             .catch((reason) => {
                 console.log(reason.message);
