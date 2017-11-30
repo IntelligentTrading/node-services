@@ -45,7 +45,7 @@ app.get('/ticker', function (req, res) {
     }
 });
 
-app.get('/feedback', function (req, res) {
+/*app.get('/feedback', function (req, res) {
     try {
         console.log('Trying to GET...');
         feedback_api.addFeedback(req.query)
@@ -59,7 +59,7 @@ app.get('/feedback', function (req, res) {
         console.log(err);
         return res.sendStatus(500).send(err);
     }
-});
+});*/
 
 app.listen(app.get('port'), function () {
     console.log('ITT Node Service is running on port', app.get('port'));
