@@ -49,7 +49,9 @@ app.post('/feedback', function (req, res) {
     try {
         console.log('Trying to POST...');
         feedback_api.addFeedback(req.body)
-            .then((feedback) => { return res.send(feedback) })
+            .then((card_result) => { 
+                return res.send(card_result) 
+            })
             .catch((reason) => {
                 console.log(reason.message);
                 return res.status(500).send(reason.message);

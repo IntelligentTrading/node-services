@@ -23,11 +23,18 @@ var feedback = {
                 */
                 return trello.addCard(cardName, `${feedback.content}`, issueList.id)
                     .then(card => {
-                        trello.updateCardName(card.id,cardName + card.shortLink)
-                            .then(() => { return card })
-                            .catch(reason => { return reason });
+                        trello.updateCardName(card.id, cardName + card.shortLink)
+                            .catch(reason => {
+                                console.log(reason);
+                                return reason
+                            });
+                        return card;
+                    })
+                    .then(card => {
+                        return card
                     })
                     .catch(reason => {
+                        console.log(reason);
                         return reason
                     });
             })
