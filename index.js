@@ -64,5 +64,6 @@ app.post('/feedback', function (req, res) {
 });
 
 app.listen(app.get('port'), function () {
+    market_api.init();
     console.log('ITT Node Service is running on port', app.get('port'));
 });

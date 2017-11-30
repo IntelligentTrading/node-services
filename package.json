@@ -27,6 +27,7 @@
     "ccxt": "^1.10.187",
     "express": "^4.16.2",
     "body-parser": "^1.18.2",
-    "trello": "^0.8.0"
+    "trello": "^0.8.0",
+    "node-cache": "^4.1.1"
   }
 }
