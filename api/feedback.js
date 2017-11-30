@@ -15,7 +15,7 @@ var feedback = {
             }).then(issueList => {
 
                 console.log(feedback);
-                return trello.addCard(`Feedback @ ${feedback.chat_id}`, `${feedback.content}`, issueList.id)
+                return trello.addCard(`User feedback @ ${feedback.chat_id}`, `${feedback.content}`, issueList.id)
                     .then(card => {
                         return card;
                     })

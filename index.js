@@ -45,10 +45,10 @@ app.get('/ticker', function (req, res) {
     }
 });
 
-app.get('/feedback', function (req, res) {
+app.post('/feedback', function (req, res) {
     try {
-        console.log('Trying to GET...');
-        feedback_api.addFeedback(req.query)
+        console.log('Trying to POST...');
+        feedback_api.addFeedback(req.body)
             .then((feedback) => { return res.send(feedback) })
             .catch((reason) => {
                 console.log(reason.message);
