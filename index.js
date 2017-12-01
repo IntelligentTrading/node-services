@@ -29,6 +29,17 @@ app.get('/tickers', function (req, res) {
     }
 });
 
+app.get('/tickersInfo', function (req, res) {
+    try {
+        var tInfo = market_api.tickersInfo();
+        res.send(tInfo)
+    }
+    catch (err) {
+        console.log(err);
+        return res.sendStatus(500).send(err);
+    }
+});
+
 app.get('/ticker', function (req, res) {
     try {
         var symbol = req.query.symbol;
@@ -49,8 +60,8 @@ app.post('/feedback', function (req, res) {
     try {
         console.log('Trying to POST...');
         feedback_api.addFeedback(req.body)
-            .then((card_result) => { 
-                return res.send(card_result) 
+            .then((card_result) => {
+                return res.send(card_result)
             })
             .catch((reason) => {
                 console.log(reason.message);
