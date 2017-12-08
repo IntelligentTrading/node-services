@@ -12,7 +12,7 @@ const bot = new TelegramBot(token, { polling: false });
 
 app.use(bodyParser.json());
 
-app.use(function (req, res, next) {
+app.use('/api',function (req, res, next) {
     if (!isAuthorized(req))
         res.sendStatus(401);
     else
@@ -46,7 +46,7 @@ app.get('/eula_confirm', function (request, response) {
         });
 });
 
-app.get('/tickers', function (req, res) {
+app.get('/api/tickers', function (req, res) {
     try {
         market_api.tickers()
             .then((tickers) => { res.send(tickers) })
@@ -61,7 +61,7 @@ app.get('/tickers', function (req, res) {
     }
 });
 
-app.get('/tickersInfo', function (req, res) {
+app.get('/api/tickersInfo', function (req, res) {
     try {
         var tInfo = market_api.tickersInfo();
         res.send(tInfo)
@@ -72,7 +72,7 @@ app.get('/tickersInfo', function (req, res) {
     }
 });
 
-app.get('/ticker', function (req, res) {
+app.get('/api/ticker', function (req, res) {
     try {
         var symbol = req.query.symbol;
         market_api.ticker(symbol)
@@ -88,7 +88,7 @@ app.get('/ticker', function (req, res) {
     }
 });
 
-app.post('/feedback', function (req, res) {
+app.post('/api/feedback', function (req, res) {
     try {
         console.log('Trying to POST...');
         feedback_api.addFeedback(req.body)
