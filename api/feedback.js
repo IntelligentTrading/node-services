@@ -15,15 +15,31 @@ var feedback = {
             }).then(issueList => {
 
                 console.log(feedback);
-                return trello.addCard(`Feedback @ ${feedback.chat_id}`, `${feedback.content}`, issueList.id)
+                var cardName = `Feedback from ${feedback.user}`;
+
+                /*
+                    ? Is there a better way to get the ticket code?
+                    ? are we using another service?
+                */
+                return trello.addCard(cardName, `[Chat #${feedback.chat_id}]\n${feedback.content}`, issueList.id)
                     .then(card => {
+                        trello.updateCardName(card.id, `[${card.shortLink}] ${cardName}`)
+                            .catch(reason => {
+                                console.log(reason);
+                                return reason
+                            });
                         return card;
                     })
+                    .then(card => {
+                        return card
+                    })
                     .catch(reason => {
+                        console.log(reason);
                         return reason
                     });
             })
             .catch(reason => {
+                console.log(reason);
                 return reason
             });
     }
