@@ -11,12 +11,20 @@ const token = process.env.TELEGRAM_BOT_TOKEN;
 const bot = new TelegramBot(token, { polling: false });
 
 app.use(bodyParser.json());
+
+app.use(function (req, res, next) {
+    if (!isAuthorized(req))
+        res.sendStatus(401);
+    else
+        next();
+});
+
 app.set('view engine', 'ejs');
 
 app.set('port', (process.env.PORT || 5002));
 
 app.get('/', function (request, response) {
-    response.sendStatus(200)
+    response.sendStatus(200);
 });
 
 app.get('/eula', function (request, response) {
@@ -29,11 +37,11 @@ app.get('/eula_confirm', function (request, response) {
     var chat_id = request.query.u;
     bot_api.eula(chat_id)
         .then(() => {
-            bot.sendMessage(chat_id,'Thanks for accepting EULA, you can now subscribe with /token user_token');
+            bot.sendMessage(chat_id, 'Thanks for accepting EULA, you can now subscribe with /token user_token');
             response.send('Thanks for accepting.');
         })
         .catch(reason => {
-            bot.sendMessage(chat_id,'Something went wrong while accepting EULA, please retry or contact us!');
+            bot.sendMessage(chat_id, 'Something went wrong while accepting EULA, please retry or contact us!');
             console.log(reason)
         });
 });
@@ -102,3 +110,8 @@ app.listen(app.get('port'), function () {
     market_api.init();
     console.log('ITT Node Service is running on port', app.get('port'));
 });
+
+var isAuthorized = (request) => {
+    var nsvc_api_key = request.header('NSVC-API-KEY');
+    return nsvc_api_key == process.env.NODE_SVC_API_KEY;
+}
