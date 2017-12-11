@@ -38,7 +38,7 @@ app.get('/eula_confirm', function (request, response) {
     bot_api.eula(chat_id)
         .then(() => {
             bot.sendMessage(chat_id, 'Thanks for accepting EULA, you can now subscribe with /token user_token');
-            response.send('Thanks for accepting.');
+            response.render('eula_done');
         })
         .catch(reason => {
             bot.sendMessage(chat_id, 'Something went wrong while accepting EULA, please retry or contact us!');
