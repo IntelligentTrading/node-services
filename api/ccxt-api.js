@@ -5,7 +5,7 @@ var cache = new NodeCache({ stdTTL: 6000, checkperiod: 6000 });
 let coinmarketcap = new ccxt.coinmarketcap({ 'timeout': 20000 });
 
 var api = {
-    tickers: () => {
+    tickers: () => { 
         var values = cache.get('tickers');
 
         if (values != undefined) {
