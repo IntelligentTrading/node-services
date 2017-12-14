@@ -1,11 +1,11 @@
 var ccxt = require('ccxt');
 var NodeCache = require('node-cache');
-var cache = new NodeCache({ stdTTL: 6000, checkperiod: 6000 });
+var cache = new NodeCache({ stdTTL: 600, checkperiod: 600 });
 
 let coinmarketcap = new ccxt.coinmarketcap({ 'timeout': 20000 });
 
 var api = {
-    tickers: () => { 
+    tickers: () => {
         var values = cache.get('tickers');
 
         if (values != undefined) {
@@ -15,7 +15,7 @@ var api = {
         return coinmarketcap.fetchTickers().then((tkrs) => {
             var tickersInfo = initTickerInfoList(tkrs);
             cache.set('tickers', tkrs);
-            cache.set('tickersInfo',tickersInfo)
+            cache.set('tickersInfo', tickersInfo)
             return tkrs;
         });
     },
@@ -24,7 +24,15 @@ var api = {
         if (tkr != undefined) return new Promise((resolve, reject) => resolve(tkr));
     },
     tickersInfo: () => {
-        return cache.get('tickersInfo');
+        var tickersInfo = cache.get('tickersInfo');
+        if (tickersInfo == null || tickersInfo == undefined) {
+            return api.tickers().then(tkrs => {
+                return cache.get('tickersInfo');
+            })
+        }
+        else {
+            return new Promise((resolve, reject) => resolve(tickersInfo));
+        }
     }
 }
 
@@ -54,7 +62,8 @@ api.init = function () {
 }
 
 cache.on('expired', (key, value) => {
-    key == 'tickers' ? api.tickers().catch(reason => console.log(reason)) : {};
+    console.log(`${key} expired, reloading cache...`);
+    key == 'tickers' || key == 'tickersInfo' ? api.tickers().catch(reason => console.log(reason)) : {};
 });
 
 exports.api = api;

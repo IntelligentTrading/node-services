@@ -12,7 +12,7 @@ const bot = new TelegramBot(token, { polling: false });
 
 app.use(bodyParser.json());
 
-app.use('/api',function (req, res, next) {
+app.use('/api', function (req, res, next) {
     if (!isAuthorized(req))
         res.sendStatus(401);
     else
@@ -63,8 +63,12 @@ app.get('/api/tickers', function (req, res) {
 
 app.get('/api/tickersInfo', function (req, res) {
     try {
-        var tInfo = market_api.tickersInfo();
-        res.send(tInfo)
+        market_api.tickersInfo()
+            .then((tInfo) => res.send(tInfo))
+            .catch(error => {
+                console.log(error)
+                res.status(500).send(error);
+            })
     }
     catch (err) {
         console.log(err);
