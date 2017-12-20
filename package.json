@@ -32,6 +32,7 @@
     "ejs": "2.5.6",
     "request": "^2.81.0",
     "request-promise": "^4.2.2",
-    "node-telegram-bot-api": "^0.29.0"
+    "node-telegram-bot-api": "^0.29.0",
+    "mongoose": "^4.13.7"
   }
 }
