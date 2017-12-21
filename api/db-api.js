@@ -76,6 +76,25 @@ var database = {
             user.updateUserCounterCurrencies(data.settings.counter_currencies);
             return user;
         })
+    },
+    isITTMember:(token) => {
+        return true;
+    },
+    verifyUser: (chat_id, token) => {
+        return database.findUserByChatId(chat_id).then(users => {
+            var user = users[0];
+            if (user.verify(token)) {
+                var settings = {};
+                settings.is_subscribed = true;
+                settings.beta_token_valid = true;
+                if ( database.isITTMember(token))
+                    settings.is_ITT_team = true;
+                user.updateSettings(settings);
+                return user;
+            }
+
+            throw new Error('Invalid token');
+        })
     }
 }
 

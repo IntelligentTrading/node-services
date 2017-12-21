@@ -4,19 +4,34 @@ var Schema = mongoose.Schema;
 var userSchema = new Schema({
     chat_id: Number,
     settings: {
-        horizon: String,
-        is_subscribed: Boolean,
-        risk: String,
-        is_muted: Boolean,
-        beta_token_valid: Boolean,
-        is_ITT_team: Boolean,
+        horizon: {
+            type: String, default: 'medium'
+        },
+        is_subscribed: {
+            type: Boolean, default: false
+        },
+        risk: {
+            type: String, default: 'medium'
+        },
+        is_muted: {
+            type: Boolean, default: false
+        },
+        beta_token_valid: {
+            type: Boolean, default: false
+        },
+        is_ITT_team: {
+            type: Boolean, default: false
+        },
         counter_currencies: { type: [Number], default: [0] }, //0,1,2,3 => [BTC,ETH,USD,XMR]
         transaction_currencies: [String]
     },
-    eula: Boolean
+    eula: Boolean,
+    created: { type: Date, default: Date.now() }
 });
 
+
 var User = mongoose.model('User', userSchema);
+
 User.prototype.updateSettings = function (settings) {
 
     if (settings) {
@@ -28,6 +43,11 @@ User.prototype.updateSettings = function (settings) {
         });
         _user.save();
     }
+}
+
+User.prototype.verify = (token) => {
+    //some method to verify the token
+    return true;
 }
 
 User.prototype.updateUserTransactionCurrencies = function (transaction_currencies) {

@@ -145,6 +145,18 @@ app.route('/api/users')
             });
     });
 
+app.route('/api/users/verify')
+    .post((req, res) => {
+        db_api.verifyUser(req.body.chat_id, req.body.token)
+            .then(user => {
+                res.send(user);
+            })
+            .catch(reason => {
+                console.log(reason);
+                res.sendStatus(500)
+            })
+    })
+
 app.route('/api/users/:id')
     .get((req, res) => {
         db_api.findUserByChatId(req.params.id).then(user => {
