@@ -48,4 +48,22 @@ User.prototype.updateUserTransactionCurrencies = function (transaction_currencie
     _user.save();
 }
 
+User.prototype.updateUserCounterCurrencies = function (counter_currencies) {
+
+    var _user = this;
+    counter_currencies.forEach((currency) => {
+        if (currency.follow == 'True' || currency.follow == 'true') {
+            _user.settings.counter_currencies.push(currency.index)
+        }
+        else {
+            var index_of_victim = _user.settings.counter_currencies.indexOf(currency.index);
+
+            if (index_of_victim >= 0)
+                _user.settings.counter_currencies.splice(index_of_victim, 1);
+        }
+    })
+
+    _user.save();
+}
+
 module.exports = User;

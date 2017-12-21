@@ -22,8 +22,20 @@ var database = {
     getUsers: (filters) => {
         var filters_key = Object.keys(filters);
         var query = {};
+
         filters_key.forEach((key) => {
-            query['settings.'+key] = filters[key];
+            var or_conditions = filters[key].split(',');
+            if (or_conditions.length <= 1) {
+                query['settings.' + key] = filters[key];
+            } else {
+                var or_query_array = [];
+                or_conditions.forEach(or_condition => {
+                    var or_query = {};
+                    or_query['settings.' + key] = or_condition;
+                    or_query_array.push(or_query);
+                })
+                query['$or'] = or_query_array;
+            }
         });
 
         return User.find(query)
@@ -54,6 +66,14 @@ var database = {
         return database.findUserByChatId(chat_id).then(users => {
             var user = users[0];
             user.updateUserTransactionCurrencies(data.settings.transaction_currencies);
+            return user;
+        })
+    },
+    updateUserCounterCurrencies: (chat_id, data) => {
+
+        return database.findUserByChatId(chat_id).then(users => {
+            var user = users[0];
+            user.updateUserCounterCurrencies(data.settings.counter_currencies);
             return user;
         })
     }

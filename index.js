@@ -94,6 +94,11 @@ app.get('/api/ticker', function (req, res) {
     }
 });
 
+app.get('/api/counter_currencies', (req, res) => {
+    var cc = market_api.counterCurrencies();
+    return res.send(cc);
+})
+
 app.post('/api/feedback', function (req, res) {
     try {
         console.log('Trying to POST...');
@@ -163,6 +168,16 @@ app.route('/api/users/:id')
 app.route('/api/users/:id/transaction_currencies').
     put((req, res) => {
         db_api.updateUserTransactionCurrencies(req.params.id, req.body)
+            .then((user) => {
+                res.send(user);
+            }).catch(reason => {
+                res.sendStatus(500).send(reason)
+            });
+    });
+
+app.route('/api/users/:id/counter_currencies').
+    put((req, res) => {
+        db_api.updateUserCounterCurrencies(req.params.id, req.body)
             .then((user) => {
                 res.send(user);
             }).catch(reason => {

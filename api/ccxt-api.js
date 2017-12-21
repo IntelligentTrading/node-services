@@ -33,6 +33,28 @@ var api = {
         else {
             return new Promise((resolve, reject) => resolve(tickersInfo));
         }
+    },
+    counterCurrencies: () => {
+        var counter_currencies = [
+            {
+                "symbol": "BTC",
+                "enabled": true
+            },
+            {
+                "symbol": "ETH",
+                "enabled": false
+            },
+            {
+                "symbol": "USDT",
+                "enabled": true
+            },
+            {
+                "symbol": "XMR",
+                "enabled": false
+            }
+        ];
+
+        return counter_currencies;
     }
 }
 
