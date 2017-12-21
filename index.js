@@ -4,7 +4,6 @@ var app = express();
 var bodyParser = require('body-parser');
 var market_api = require('./api/ccxt-api').api;
 var feedback_api = require('./api/feedback').feedback;
-var bot_api = require('./api/bot-api').bot_api;
 var db_api = require('./api/db-api').database;
 
 const TelegramBot = require('node-telegram-bot-api');
@@ -37,15 +36,18 @@ app.get('/eula', function (request, response) {
 
 app.get('/eula_confirm', function (request, response) {
     var chat_id = request.query.u;
-    bot_api.eula(chat_id)
-        .then(() => {
-            bot.sendMessage(chat_id, 'Thanks for accepting EULA, you can now subscribe with /token user_token');
-            response.render('eula_done');
-        })
-        .catch(reason => {
-            bot.sendMessage(chat_id, 'Something went wrong while accepting EULA, please retry or contact us!');
-            console.log(reason)
-        });
+
+    db_api.addUser({
+        chat_id: chat_id,
+        settings: {},
+        eula: true
+    }).then(() => {
+        bot.sendMessage(chat_id, 'Thanks for accepting EULA, you can now subscribe with /token user_token');
+        response.render('eula_done');
+    }).catch(reason => {
+        bot.sendMessage(chat_id, 'Something went wrong while accepting EULA, please retry or contact us!');
+        console.log(reason)
+    });
 });
 
 app.get('/api/tickers', function (req, res) {
