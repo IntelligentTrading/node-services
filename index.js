@@ -5,12 +5,14 @@ var bodyParser = require('body-parser');
 var market_api = require('./api/ccxt-api').api;
 var feedback_api = require('./api/feedback').feedback;
 var bot_api = require('./api/bot-api').bot_api;
+var db_api = require('./api/db-api').database;
 
 const TelegramBot = require('node-telegram-bot-api');
 const token = process.env.TELEGRAM_BOT_TOKEN;
 const bot = new TelegramBot(token, { polling: false });
 
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded());
 
 app.use('/api', function (req, res, next) {
     if (!isAuthorized(req))
@@ -92,6 +94,11 @@ app.get('/api/ticker', function (req, res) {
     }
 });
 
+app.get('/api/counter_currencies', (req, res) => {
+    var cc = market_api.counterCurrencies();
+    return res.send(cc);
+})
+
 app.post('/api/feedback', function (req, res) {
     try {
         console.log('Trying to POST...');
@@ -109,6 +116,75 @@ app.post('/api/feedback', function (req, res) {
         return res.sendStatus(500).send(err);
     }
 });
+
+
+// users api
+
+app.route('/api/users')
+    .get((req, res) => {
+        db_api.getUsers(req.query).then(users => {
+            res.send(users);
+        })
+            .catch(reason => res.sendStatus(500).send(reason));
+    })
+    .post((req, res) => {
+
+        db_api.addUser(req.body, res)
+            .then((newObject) => {
+                if (newObject || newObject._id)
+                    return res.status(201).send(newObject);
+            })
+            .catch((reason) => {
+                console.log(reason.message);
+                if (reason.code == 11000 && reason.name === 'MongoError') {
+                    return res.status(500).send('Duplicate Chat Id');
+                }
+                return res.status(500).send(reason.message);
+            });
+    });
+
+app.route('/api/users/:id')
+    .get((req, res) => {
+        db_api.findUserByChatId(req.params.id).then(user => {
+            res.send(user[0]);
+        }).catch(reason => res.sendStatus(500).send(reason));
+    })
+    .put((req, res) => {
+        db_api.updateUser(req.params.id, req.body).then(user => {
+            return res.status(200).send(user);
+        }).catch(reason => {
+            if (reason.code == 11000 && reason.name === 'MongoError') {
+                return res.status(500).send('Duplicate Chat Id');
+            }
+            return res.sendStatus(500).send(reason)
+        });
+    })
+    .delete((req, res) => {
+        db_api.deleteUser(req.params.id).then(user => {
+            res.send(user[0]);
+        }).catch(reason => res.sendStatus(500).send(reason));
+    })
+
+app.route('/api/users/:id/transaction_currencies').
+    put((req, res) => {
+        db_api.updateUserTransactionCurrencies(req.params.id, req.body)
+            .then((user) => {
+                res.send(user);
+            }).catch(reason => {
+                res.sendStatus(500).send(reason)
+            });
+    });
+
+app.route('/api/users/:id/counter_currencies').
+    put((req, res) => {
+        db_api.updateUserCounterCurrencies(req.params.id, req.body)
+            .then((user) => {
+                res.send(user);
+            }).catch(reason => {
+                res.sendStatus(500).send(reason)
+            });
+    });
+
 
 app.listen(app.get('port'), function () {
     market_api.init();
