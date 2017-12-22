@@ -61,7 +61,7 @@ app.get('/api/tickers', function (req, res) {
     }
     catch (err) {
         console.log(err);
-        return res.sendStatus(500).send(err);
+        return res.status(500).send(err);
     }
 });
 
@@ -76,7 +76,7 @@ app.get('/api/tickersInfo', function (req, res) {
     }
     catch (err) {
         console.log(err);
-        return res.sendStatus(500).send(err);
+        return res.status(500).send(err);
     }
 });
 
@@ -92,7 +92,7 @@ app.get('/api/ticker', function (req, res) {
     }
     catch (err) {
         console.log(err);
-        return res.sendStatus(500).send(err);
+        return res.status(500).send(err);
     }
 });
 
@@ -115,7 +115,7 @@ app.post('/api/feedback', function (req, res) {
     }
     catch (err) {
         console.log(err);
-        return res.sendStatus(500).send(err);
+        return res.status(500).send(err);
     }
 });
 
@@ -160,8 +160,12 @@ app.route('/api/users/verify')
 app.route('/api/users/:id')
     .get((req, res) => {
         db_api.findUserByChatId(req.params.id).then(user => {
-            res.send(user[0]);
-        }).catch(reason => res.sendStatus(500).send(reason));
+
+            if (user.length <= 0)
+                res.send({});
+            else
+                res.send(user[0]);
+        }).catch(reason => res.status(500).send(reason));
     })
     .put((req, res) => {
         db_api.updateUser(req.params.id, req.body).then(user => {
@@ -170,13 +174,13 @@ app.route('/api/users/:id')
             if (reason.code == 11000 && reason.name === 'MongoError') {
                 return res.status(500).send('Duplicate Chat Id');
             }
-            return res.sendStatus(500).send(reason)
+            return res.status(500).send(reason)
         });
     })
     .delete((req, res) => {
         db_api.deleteUser(req.params.id).then(user => {
             res.send(user[0]);
-        }).catch(reason => res.sendStatus(500).send(reason));
+        }).catch(reason => res.status(500).send(reason));
     })
 
 app.route('/api/users/:id/transaction_currencies').
@@ -185,7 +189,7 @@ app.route('/api/users/:id/transaction_currencies').
             .then((user) => {
                 res.send(user);
             }).catch(reason => {
-                res.sendStatus(500).send(reason)
+                res.status(500).send(reason)
             });
     });
 
@@ -195,7 +199,7 @@ app.route('/api/users/:id/counter_currencies').
             .then((user) => {
                 res.send(user);
             }).catch(reason => {
-                res.sendStatus(500).send(reason)
+                res.status(500).send(reason)
             });
     });
 
