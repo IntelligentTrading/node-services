@@ -26,11 +26,21 @@ var userSchema = new Schema({
         transaction_currencies: [String]
     },
     eula: Boolean,
+    token: { type: String, default: '' },
     created: { type: Date, default: Date.now() }
 });
 
 
 var User = mongoose.model('User', userSchema);
+
+User.prototype.updateToken = function (token) {
+
+    if (token) {
+        var _user = this;
+        _user.token = token;
+        _user.save();
+    }
+}
 
 User.prototype.updateSettings = function (settings) {
 
@@ -43,11 +53,6 @@ User.prototype.updateSettings = function (settings) {
         });
         _user.save();
     }
-}
-
-User.prototype.verify = (token) => {
-    //some method to verify the token
-    return true;
 }
 
 User.prototype.updateUserTransactionCurrencies = function (transaction_currencies) {

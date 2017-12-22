@@ -19,14 +19,14 @@ db.once('open', function () {
 });
 
 var database = {
-    getUsers: (filters) => {
-        var filters_key = Object.keys(filters);
+    getUsers: (settingsFilters) => {
+        var filters_key = settingsFilters ? Object.keys(settingsFilters) : [];
         var query = {};
 
         filters_key.forEach((key) => {
-            var or_conditions = filters[key].split(',');
+            var or_conditions = settingsFilters[key].split(',');
             if (or_conditions.length <= 1) {
-                query['settings.' + key] = filters[key];
+                query['settings.' + key] = settingsFilters[key];
             } else {
                 var or_query_array = [];
                 or_conditions.forEach(or_condition => {
@@ -77,24 +77,35 @@ var database = {
             return user;
         })
     },
-    isITTMember:(token) => {
-        return true;
-    },
     verifyUser: (chat_id, token) => {
-        return database.findUserByChatId(chat_id).then(users => {
-            var user = users[0];
-            if (user.verify(token)) {
-                var settings = {};
-                settings.is_subscribed = true;
-                settings.beta_token_valid = true;
-                if ( database.isITTMember(token))
-                    settings.is_ITT_team = true;
-                user.updateSettings(settings);
-                return user;
-            }
+        return database.getUsers()
+            .then(users => {
+                if (users && users.length > 0 && users.filter(user => user.token == token && user.chat_id != chat_id).length > 0) {//token is already in use
+                    return { chat_id: chat_id, err: 'Token is already in use.' }
+                }
+                else {
+                    return database.findUserByChatId(chat_id).then(users => {
+                        var user = users[0];
+                        var team_emojis = process.env.TEAM_EMOJIS.split(',');
+                        var isValidBetaToken = parseInt(token, 16) % parseInt(process.env.A_PRIME_NUMBER) == 0;
+                        var isValidITTToken = team_emojis.indexOf(token) >= 0;
+                        isValidToken = isValidITTToken || isValidBetaToken;
 
-            throw new Error('Invalid token');
-        })
+                        var settings = {};
+                        if (isValidToken) {
+                            user.updateToken(token);
+                            settings.beta_token_valid = isValidToken;
+                            settings.is_subscribed = true;
+                            settings.is_ITT_team = isValidITTToken;
+                            user.updateSettings(settings);
+                            return user;
+                        }
+
+                        return { chat_id: chat_id, err: 'Token is invalid.' }
+                    })
+                }
+            })
+            .catch(reason => console.log(reason));
     }
 }
 

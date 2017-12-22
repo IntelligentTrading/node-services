@@ -148,8 +148,8 @@ app.route('/api/users')
 app.route('/api/users/verify')
     .post((req, res) => {
         db_api.verifyUser(req.body.chat_id, req.body.token)
-            .then(user => {
-                res.send(user);
+            .then(validationResult => {
+                res.send(validationResult);
             })
             .catch(reason => {
                 console.log(reason);
