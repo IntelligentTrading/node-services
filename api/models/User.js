@@ -22,7 +22,7 @@ var userSchema = new Schema({
         is_ITT_team: {
             type: Boolean, default: false
         },
-        counter_currencies: { type: [Number], default: [0] }, //0,1,2,3 => [BTC,ETH,USD,XMR]
+        counter_currencies: { type: [Number], default: [2] }, //0,1,2,3 => [BTC,ETH,USD,XMR]
         transaction_currencies: [String]
     },
     eula: Boolean,
