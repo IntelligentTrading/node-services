@@ -43,7 +43,7 @@ var database = {
     findUserByChatId: (chat_id) => {
         var cid = parseInt(chat_id);
         if (cid) {
-            return User.find({ chat_id: chat_id })
+            return User.find({ telegram_chat_id: chat_id })
         }
     },
     addUser: (data) => {
@@ -59,7 +59,7 @@ var database = {
 
     },
     deleteUser: (chat_id) => {
-        return User.remove({ chat_id: chat_id })
+        return User.remove({ telegram_chat_id: chat_id })
     },
     updateUserTransactionCurrencies: (chat_id, data) => {
 
@@ -80,7 +80,7 @@ var database = {
     verifyUser: (chat_id, token) => {
         return database.getUsers()
             .then(users => {
-                if (users && users.length > 0 && users.filter(user => user.token == token && user.chat_id != chat_id).length > 0) {//token is already in use
+                if (users && users.length > 0 && users.filter(user => user.beta_token == token && user.telegram_chat_id != chat_id).length > 0) {//token is already in use
                     return { chat_id: chat_id, err: 'Token is already in use.' }
                 }
                 else {

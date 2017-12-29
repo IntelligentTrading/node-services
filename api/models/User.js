@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var userSchema = new Schema({
-    chat_id: Number,
+    telegram_chat_id: Number,
     settings: {
         horizon: {
             type: String, default: 'medium'
@@ -23,11 +23,15 @@ var userSchema = new Schema({
             type: Boolean, default: false
         },
         counter_currencies: { type: [Number], default: [2] }, //0,1,2,3 => [BTC,ETH,USD,XMR]
-        transaction_currencies: [String]
+        transaction_currencies: { type: [String], default: ["BTC", "ETH", "BCH", "XMR", "ZEC", "DASH", "LTC"] },
+        timezone: { type: String, default: 'UTC' },
+        time_diff: { type: Number, default: 0 }
     },
     eula: Boolean,
-    token: { type: String, default: '' },
-    created: { type: Date, default: Date.now() }
+    beta_token: { type: String, default: '' },
+    created: { type: Date, default: Date.now() },
+    feedback_count: { type: Number, default: 0 },
+    beta_token_share_count: { type: Number, default: 0 }
 });
 
 
