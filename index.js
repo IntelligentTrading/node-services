@@ -147,7 +147,7 @@ app.route('/api/users')
 
 app.route('/api/users/verify')
     .post((req, res) => {
-        db_api.verifyUser(req.body.chat_id, req.body.token)
+        db_api.verifyUser(req.body.telegram_chat_id, req.body.token)
             .then(validationResult => {
                 res.send(validationResult);
             })
