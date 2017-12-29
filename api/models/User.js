@@ -41,7 +41,7 @@ User.prototype.updateToken = function (token) {
 
     if (token) {
         var _user = this;
-        _user.token = token;
+        _user.beta_token = token;
         _user.save();
     }
 }
