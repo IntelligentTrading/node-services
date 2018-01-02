@@ -43,6 +43,7 @@ app.get('/eula_confirm', function (request, response) {
     db_api.upsertUser(
         chat_id,
         {
+            telegram_chat_id: chat_id,
             eula: true
         }).then(() => {
             bot.sendMessage(chat_id, 'Thanks for accepting EULA, you can now subscribe with /token user_token or keep using the bot if already subscribed.');
