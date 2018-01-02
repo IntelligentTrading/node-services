@@ -9,6 +9,9 @@ var db_api = require('./api/db-api').database;
 const TelegramBot = require('node-telegram-bot-api');
 const token = process.env.TELEGRAM_BOT_TOKEN;
 const bot = new TelegramBot(token, { polling: false });
+const markdown_opts = {
+    parse_mode: "Markdown"
+};
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
@@ -37,17 +40,17 @@ app.get('/eula', function (request, response) {
 app.get('/eula_confirm', function (request, response) {
     var chat_id = request.query.u;
 
-    db_api.addUser({
-        chat_id: chat_id,
-        settings: {},
-        eula: true
-    }).then(() => {
-        bot.sendMessage(chat_id, 'Thanks for accepting EULA, you can now subscribe with /token user_token');
-        response.render('eula_done');
-    }).catch(reason => {
-        bot.sendMessage(chat_id, 'Something went wrong while accepting EULA, please retry or contact us!');
-        console.log(reason)
-    });
+    db_api.upsertUser(
+        chat_id,
+        {
+            eula: true
+        }).then(() => {
+            bot.sendMessage(chat_id, 'Thanks for accepting EULA, you can now subscribe with /token user_token or keep using the bot if already subscribed.');
+            response.render('eula_done');
+        }).catch(reason => {
+            bot.sendMessage(chat_id, 'Something went wrong while accepting EULA, please retry or contact us!');
+            console.log(reason)
+        });
 });
 
 app.get('/api/tickers', function (req, res) {
@@ -168,7 +171,7 @@ app.route('/api/users/:id')
         }).catch(reason => res.status(500).send(reason));
     })
     .put((req, res) => {
-        db_api.updateUser(req.params.id, req.body).then(user => {
+        db_api.updateUserSettings(req.params.id, req.body).then(user => {
             return res.status(200).send(user);
         }).catch(reason => {
             if (reason.code == 11000 && reason.name === 'MongoError') {
@@ -202,6 +205,50 @@ app.route('/api/users/:id/counter_currencies').
                 res.status(500).send(reason)
             });
     });
+
+app.route('/api/users/:id/timezone').
+    put((req, res) => {
+        db_api.updateUserSettings(req.params.id, req.body)
+            .then((user) => {
+                res.send(user);
+            }).catch(reason => {
+                res.status(500).send(reason)
+            });
+    });
+
+app.route('/api/broadcast').
+    post((req, res) => {
+        var users = db_api.getUsers({}).then(users => {
+
+            var slices = Math.ceil(users.length / 20);
+
+            var replaceables = req.body.replace;
+
+            for (current_slice = 0; current_slice < slices; current_slice++) {
+                users.slice(current_slice, 20 * (current_slice + 1))
+                    .forEach(user => {
+                        var final_message = "";
+
+                        replaceables.forEach(replaceable => {
+                            final_message = req.body.text.replace(replaceable.key, user[replaceable.value])
+                        })
+
+                        bot.sendMessage(user.telegram_chat_id, final_message, markdown_opts)
+                            .then(console.log(`${user.telegram_chat_id} ok`))
+                            .catch(reason => console.log(`${user.telegram_chat_id}:${reason}`));
+                    })
+            }
+        })
+            .then(result => res.send(200))
+            .catch(reason => { console.log(reason); res.send(500) })
+    })
+
+app.route('/api/test/:id')
+    .put((req, res) => {
+        db_api.upsertUser(req.params.id, { eula: false })
+            .then(result => { res.send(200) })
+            .catch(reason => { console.log(reason); res.send(500) });
+    })
 
 
 app.listen(app.get('port'), function () {

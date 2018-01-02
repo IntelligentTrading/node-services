@@ -49,7 +49,10 @@ var database = {
     addUser: (data) => {
         return User.create(data);
     },
-    updateUser: (cid, data) => {
+    upsertUser: (chat_id, data) => {
+        return User.update({ telegram_chat_id: chat_id }, data, { upsert: true });
+    },
+    updateUserSettings: (cid, data) => {
 
         return database.findUserByChatId(cid).then(users => {
             var user = users[0];
