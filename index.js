@@ -226,7 +226,7 @@ app.route('/api/broadcast').
             var replaceables = req.body.replace;
 
             for (current_slice = 0; current_slice < slices; current_slice++) {
-                users.slice(current_slice, 20 * (current_slice + 1))
+                users.slice(current_slice * 20, 20 * (current_slice + 1) - 1)
                     .forEach(user => {
                         var final_message = "";
 
