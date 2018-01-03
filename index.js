@@ -244,14 +244,6 @@ app.route('/api/broadcast').
             .catch(reason => { console.log(reason); res.send(500) })
     })
 
-app.route('/api/test/:id')
-    .put((req, res) => {
-        db_api.upsertUser(req.params.id, { eula: false })
-            .then(result => { res.send(200) })
-            .catch(reason => { console.log(reason); res.send(500) });
-    })
-
-
 app.listen(app.get('port'), function () {
     market_api.init();
     console.log('ITT Node Service is running on port', app.get('port'));
