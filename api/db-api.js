@@ -8,7 +8,7 @@ var options = {
     reconnectInterval: 500 // Reconnect every 500ms
 }
 
-mongoose.connect(process.env.MONGODB_URL, options);
+mongoose.connect(process.env.MONGODB_URI, options);
 
 mongoose.Promise = global.Promise;
 
