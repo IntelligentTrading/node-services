@@ -28,7 +28,7 @@ var api = {
                         .then(tickerInfo => {
                             if (tickerInfo)
                                 poloniex_symbols_info.push(tickerInfo)
-                            else{
+                            else {
                                 console.log(`${poloniex_ticker_symbol}, info not found`)
                             }
                         }));
@@ -45,14 +45,19 @@ var api = {
 
     },
     ticker: (symbol) => {
-        var tickersInfo = cache.get('tickersInfo');
-        var matchingTickers = tickersInfo.filter(tickerInfo => tickerInfo.symbol == symbol);
-
         return new Promise((resolve, reject) => {
-            if (matchingTickers != undefined)
+
+            var tickersInfo = cache.get('tickersInfo');
+            var matchingTickers = tickersInfo.filter(tickerInfo => tickerInfo.symbol == symbol);
+
+            if (matchingTickers.length > 0)
                 resolve(matchingTickers[0])
-            else
-                resolve({})
+            else {
+                matchingTickers = tickersInfo.filter(tickerInfo => tickerInfo.name == symbol);
+                if (matchingTickers.length > 0)
+                    resolve(matchingTickers[0])
+            }
+            resolve({})
         });
     },
     tickersInfo: () => {
