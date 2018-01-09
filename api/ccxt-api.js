@@ -1,6 +1,6 @@
 var ccxt = require('ccxt');
 var NodeCache = require('node-cache');
-var cache = new NodeCache({ stdTTL: 600, checkperiod: 600 });
+var cache = new NodeCache();
 var _ = require('lodash');
 
 //let coinmarketcap = new ccxt.coinmarketcap({ 'timeout': 20000 });
@@ -8,10 +8,10 @@ var coinmarketcap = require('./coinmarketcap').coinmarketcap;
 var poloniex = new ccxt.poloniex();
 
 var api = {
-    tickers: () => {
+    tickers: (forceReload) => {
         var values = cache.get('tickers');
 
-        if (values != undefined) {
+        if (values != undefined && !forceReload) {
             return new Promise((resolve, reject) => resolve(values));
         }
         else {
@@ -57,11 +57,11 @@ var api = {
             reject(`${symbol} Tickers Info not found`);
         });
     },
-    tickersInfo: () => {
+    tickersInfo: (forceReload) => {
         var tickersInfo = cache.get('tickersInfo');
-        if (tickersInfo == null || tickersInfo == undefined) {
+        if (tickersInfo == null || tickersInfo == undefined || forceReload) {
             return coinmarketcap.fetchAllTickers().then((tkrs) => {
-                cache.set('tickersInfo', tkrs)
+                cache.set('tickersInfo', tkrs);
                 return tkrs;
             });
         }
@@ -93,16 +93,21 @@ var api = {
     }
 }
 
-api.init = function () {
-    api.tickersInfo()
+api.init = (forceReload) => {
+
+    if (forceReload)
+        console.log('Forcing cache info reload...');
+
+    api.tickersInfo(forceReload)
         .then(() => {
             console.log('Tickers info cache initialized...');
-            api.tickers()
+            api.tickers(forceReload)
                 .then(() => {
                     console.log('Tickers cache initialized...');
                 })
                 .catch(reason => console.log(reason));
         })
+        .catch(reason => console.log(reason));
 }
 
 cache.on('expired', (key, value) => {

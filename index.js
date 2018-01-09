@@ -56,7 +56,9 @@ app.get('/eula_confirm', function (request, response) {
 
 app.get('/api/tickers', function (req, res) {
     try {
-        market_api.tickers()
+        var forceReload = req.query.forceReload;
+
+        market_api.tickers(forceReload)
             .then((tickers) => { res.send(tickers) })
             .catch((reason) => {
                 console.log(reason.message);
@@ -71,7 +73,10 @@ app.get('/api/tickers', function (req, res) {
 
 app.get('/api/tickersInfo', function (req, res) {
     try {
-        market_api.tickersInfo()
+
+        var forceReload = req.query.forceReload;
+
+        market_api.tickersInfo(forceReload)
             .then((tInfo) => res.send(tInfo))
             .catch(error => {
                 console.log(error)
