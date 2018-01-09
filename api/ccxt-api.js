@@ -28,10 +28,7 @@ var api = {
                         .then(tickerInfo => {
                             if (tickerInfo)
                                 poloniex_symbols_info.push(tickerInfo)
-                            else {
-                                console.log(`${poloniex_ticker_symbol}, info not found`)
-                            }
-                        }));
+                        }).catch(reason => { console.log(reason) }));
                 })
 
                 return Promise.all(promises)
@@ -57,7 +54,7 @@ var api = {
                 if (matchingTickers.length > 0)
                     resolve(matchingTickers[0])
             }
-            resolve({})
+            reject(`${symbol} Tickers Info not found`);
         });
     },
     tickersInfo: () => {
