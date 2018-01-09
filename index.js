@@ -217,6 +217,42 @@ app.route('/api/users/:id/timezone').
             });
     });
 
+app.route('/api/users/:id/select_all_signals')
+    .put((req, res) => {
+
+        return db_api.findUserByChatId(req.params.id).then(users => {
+            var user = users[0]
+            var ccs = market_api.counterCurrencies();
+
+            market_api.tickers().then(tkrs => {
+                var tickersSymbols = tkrs.map(tkr => tkr.symbol);
+
+                var data = {
+                    settings: {
+                        counter_currencies: ccs.map(cc => ccs.indexOf(cc)),
+                        transaction_currencies: tickersSymbols,
+                        horizon: 'short',
+                        is_subscribed: user.settings.is_subscribed,
+                        is_muted: user.settings.is_muted,
+                        risk: user.settings.risk,
+                        beta_token_valid: user.settings.beta_token_valid,
+                        is_ITT_team: user.settings.is_ITT_team,
+                        time_diff: user.settings.time_diff,
+                        timezone: user.settings.timezone
+                    }
+                }
+
+                db_api.upsertUser(req.params.id, data)
+                    .then((user) => {
+                        res.send(user);
+                    }).catch(reason => {
+                        res.status(500).send(reason)
+                    });
+            })
+        })
+    })
+
+
 app.route('/api/broadcast').
     post((req, res) => {
         var users = db_api.getUsers({}).then(users => {

@@ -59,7 +59,6 @@ var database = {
             user.updateSettings(data.settings);
             return user;
         })
-
     },
     deleteUser: (chat_id) => {
         return User.remove({ telegram_chat_id: chat_id })
