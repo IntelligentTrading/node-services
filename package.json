@@ -33,6 +33,7 @@
     "request": "^2.81.0",
     "request-promise": "^4.2.2",
     "node-telegram-bot-api": "^0.29.0",
-    "mongoose": "^4.13.7"
+    "mongoose": "^4.13.7",
+    "lodash": "^4.17.4"
   }
 }

@@ -1,8 +1,11 @@
 var ccxt = require('ccxt');
 var NodeCache = require('node-cache');
 var cache = new NodeCache({ stdTTL: 600, checkperiod: 600 });
+var _ = require('lodash');
 
-let coinmarketcap = new ccxt.coinmarketcap({ 'timeout': 20000 });
+//let coinmarketcap = new ccxt.coinmarketcap({ 'timeout': 20000 });
+var coinmarketcap = require('./coinmarketcap').coinmarketcap;
+var poloniex = new ccxt.poloniex();
 
 var api = {
     tickers: () => {
@@ -11,24 +14,54 @@ var api = {
         if (values != undefined) {
             return new Promise((resolve, reject) => resolve(values));
         }
+        else {
+            return poloniex.fetchTickers().then((poloniex_tickers) => {
+                var poloniex_symbols_info = [];
+                var promises = [];
 
-        return coinmarketcap.fetchTickers().then((tkrs) => {
-            var tickersInfo = initTickerInfoList(tkrs);
-            cache.set('tickers', tkrs);
-            cache.set('tickersInfo', tickersInfo)
-            return tkrs;
-        });
+                var poloniex_ticker_symbols_dup = Object.keys(poloniex_tickers).map(poloniex_ticker => poloniex_ticker.split('/')[0]);
+                var poloniex_ticker_symbols = _.uniq(poloniex_ticker_symbols_dup);
+
+                poloniex_ticker_symbols.forEach(poloniex_ticker_symbol => {
+
+                    promises.push(api.ticker(poloniex_ticker_symbol)
+                        .then(tickerInfo => {
+                            if (tickerInfo)
+                                poloniex_symbols_info.push(tickerInfo)
+                            else{
+                                console.log(`${poloniex_ticker_symbol}, info not found`)
+                            }
+                        }));
+                })
+
+                return Promise.all(promises)
+                    .then(() => {
+                        cache.set('tickers', poloniex_symbols_info)
+                        return poloniex_symbols_info;
+                    })
+            })
+        }
+
+
     },
     ticker: (symbol) => {
-        var tkr = cache.get(`${symbol}`);
-        if (tkr != undefined) return new Promise((resolve, reject) => resolve(tkr));
+        var tickersInfo = cache.get('tickersInfo');
+        var matchingTickers = tickersInfo.filter(tickerInfo => tickerInfo.symbol == symbol);
+
+        return new Promise((resolve, reject) => {
+            if (matchingTickers != undefined)
+                resolve(matchingTickers[0])
+            else
+                resolve({})
+        });
     },
     tickersInfo: () => {
         var tickersInfo = cache.get('tickersInfo');
         if (tickersInfo == null || tickersInfo == undefined) {
-            return api.tickers().then(tkrs => {
-                return cache.get('tickersInfo');
-            })
+            return coinmarketcap.fetchAllTickers().then((tkrs) => {
+                cache.set('tickersInfo', tkrs)
+                return tkrs;
+            });
         }
         else {
             return new Promise((resolve, reject) => resolve(tickersInfo));
@@ -58,34 +91,24 @@ var api = {
     }
 }
 
-var initTickerInfoList = (tickers) => {
-
-    var tickerList = { tickers: [] };
-
-    Object.keys(tickers).forEach(function (symbol) {
-        var currency = {};
-        var currentSymbolInfo = tickers[symbol].info;
-        currency.symbol = currentSymbolInfo.symbol;
-        currency.name = currentSymbolInfo.name;
-        currency.rank = currentSymbolInfo.rank;
-
-        tickerList.tickers.push(currency);
-    });
-
-    return tickerList;
-}
-
 api.init = function () {
-    api.tickers()
-        .then((tickers) => {
-            console.log('Tickers cache initialized...');
+    api.tickersInfo()
+        .then(() => {
+            console.log('Tickers info cache initialized...');
+            api.tickers()
+                .then(() => {
+                    console.log('Tickers cache initialized...');
+                })
+                .catch(reason => console.log(reason));
         })
-        .catch(reason => console.log(reason));
 }
 
 cache.on('expired', (key, value) => {
     console.log(`${key} expired, reloading cache...`);
-    key == 'tickers' || key == 'tickersInfo' ? api.tickers().catch(reason => console.log(reason)) : {};
+    if (key == 'tickers')
+        api.tickers().catch(reason => console.log(reason))
+    if (key == 'tickersInfo')
+        api.tickersInfo().catch(reason => console.log(reason))
 });
 
 exports.api = api;
