@@ -90,24 +90,21 @@ var api = {
         ];
 
         return counter_currencies;
+    },
+    init: (forceReload) => {
+
+        if (forceReload)
+            console.log('Forcing cache info reload...');
+
+        return api.tickersInfo(forceReload)
+            .then(() => {
+                console.log('Tickers info cache initialized...');
+                return api.tickers(forceReload)
+                    .then(() => {
+                        console.log('Tickers cache initialized...');
+                    })
+            })
     }
-}
-
-api.init = (forceReload) => {
-
-    if (forceReload)
-        console.log('Forcing cache info reload...');
-
-    api.tickersInfo(forceReload)
-        .then(() => {
-            console.log('Tickers info cache initialized...');
-            api.tickers(forceReload)
-                .then(() => {
-                    console.log('Tickers cache initialized...');
-                })
-                .catch(reason => console.log(reason));
-        })
-        .catch(reason => console.log(reason));
 }
 
 cache.on('expired', (key, value) => {

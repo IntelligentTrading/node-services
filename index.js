@@ -286,8 +286,14 @@ app.route('/api/broadcast').
     })
 
 app.listen(app.get('port'), function () {
-    market_api.init();
-    console.log('ITT Node Service is running on port', app.get('port'));
+
+    market_api.init()
+        .then(() => {
+            console.log('ITT Node Service is running on port', app.get('port'));
+        })
+        .catch((reason) => {
+            console.log(reason)
+        });
 });
 
 var isAuthorized = (request) => {
