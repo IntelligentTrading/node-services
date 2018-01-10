@@ -42,20 +42,22 @@ var api = {
 
     },
     ticker: (symbol) => {
-        return new Promise((resolve, reject) => {
 
-            var tickersInfo = cache.get('tickersInfo');
-            var matchingTickers = tickersInfo.filter(tickerInfo => tickerInfo.symbol == symbol);
+        return api.tickersInfo().
+            then(tickersInfo => {
+                var matchingTickers = tickersInfo.filter(tickerInfo => tickerInfo.symbol == symbol);
 
-            if (matchingTickers.length > 0)
-                resolve(matchingTickers[0])
-            else {
-                matchingTickers = tickersInfo.filter(tickerInfo => tickerInfo.name == symbol);
                 if (matchingTickers.length > 0)
-                    resolve(matchingTickers[0])
-            }
-            reject(`${symbol} Tickers Info not found`);
-        });
+                    return matchingTickers[0]
+                else {
+                    matchingTickers = tickersInfo.filter(tickerInfo => tickerInfo.name == symbol);
+                    if (matchingTickers.length > 0)
+                        return matchingTickers[0]
+                }
+
+                throw new Error(`${symbol} Tickers Info not found`);
+            })
+            .catch(reason => console.log(reason))
     },
     tickersInfo: (forceReload) => {
         var tickersInfo = cache.get('tickersInfo');
