@@ -24,16 +24,17 @@
   },
   "homepage": "https://github.com/IntelligentTrading/node-services#readme",
   "dependencies": {
-    "ccxt": "^1.10.187",
-    "express": "^4.16.2",
     "body-parser": "^1.18.2",
-    "trello": "^0.8.0",
-    "node-cache": "^4.1.1",
+    "ccxt": "^1.10.640",
     "ejs": "2.5.6",
+    "express": "^4.16.2",
+    "iconv": "^2.3.0",
+    "lodash": "^4.17.4",
+    "mongoose": "^4.13.7",
+    "node-cache": "^4.1.1",
+    "node-telegram-bot-api": "^0.29.0",
     "request": "^2.81.0",
     "request-promise": "^4.2.2",
-    "node-telegram-bot-api": "^0.29.0",
-    "mongoose": "^4.13.7",
-    "lodash": "^4.17.4"
+    "trello": "^0.8.0"
   }
 }

@@ -2,8 +2,8 @@ var express = require('express');
 var path = require('path');
 var app = express();
 var bodyParser = require('body-parser');
-var market_api = require('./api/ccxt-api').api;
 var feedback_api = require('./api/feedback').feedback;
+var market_api = require('./api/ccxt-api').api;
 var db_api = require('./api/db-api').database;
 
 const TelegramBot = require('node-telegram-bot-api');
@@ -92,12 +92,8 @@ app.get('/api/tickersInfo', function (req, res) {
 app.get('/api/ticker', function (req, res) {
     try {
         var symbol = req.query.symbol;
-        market_api.ticker(symbol)
-            .then((ticker) => { res.send(ticker) })
-            .catch((reason) => {
-                console.log(reason.message);
-                return res.status(500).send(reason.message);
-            });
+        var ticker = market_api.ticker(symbol)
+        res.send(ticker)
     }
     catch (err) {
         console.log(err);
