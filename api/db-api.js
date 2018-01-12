@@ -1,5 +1,6 @@
 var mongoose = require('mongoose');
 var User = require('./models/User');
+var Plan = require('./models/Plan');
 
 var options = {
     useMongoClient: true,
@@ -108,6 +109,13 @@ var database = {
                 }
             })
             .catch(reason => console.log(reason));
+    },
+    getSignalPlans: () => {
+        return Plan.find({});
+    },
+    getPlanFor: (signal) => {
+        return Plan.find({ 'signals': signal })
+            .then(plans => { return plans[0] })
     }
 }
 

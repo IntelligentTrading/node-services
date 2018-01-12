@@ -253,10 +253,30 @@ app.route('/api/users/:id/select_all_signals')
         })
     })
 
+app.route('/api/plans')
+    .get((req, res) => {
+        db_api.getSignalPlans().then(signal_plans => {
+            console.log(signal_plans);
+            res.send(signal_plans)
+        }).catch(reason => {
+            console.log(reason)
+            res.sendStatus(500)
+        });
+    })
+
+app.route('/api/plans/:signal')
+    .get((req, res) => {
+        db_api.getPlanFor(req.params.signal).then(signal_plan => {
+            res.send(signal_plan)
+        }).catch(reason => {
+            console.log(reason)
+            res.sendStatus(500)
+        });
+    })
 
 app.route('/api/broadcast').
     post((req, res) => {
-        var users = db_api.getUsers({}).then(users => {
+        db_api.getUsers({}).then(users => {
 
             var slices = Math.ceil(users.length / 20);
 
