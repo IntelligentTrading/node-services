@@ -16,9 +16,6 @@ var userSchema = new Schema({
         is_muted: {
             type: Boolean, default: false
         },
-        beta_token_valid: {
-            type: Boolean, default: false
-        },
         is_ITT_team: {
             type: Boolean, default: false
         },
@@ -29,10 +26,8 @@ var userSchema = new Schema({
         time_diff: { type: Number, default: 0 }
     },
     eula: Boolean,
-    beta_token: { type: String, default: '' },
-    created: { type: Date, default: Date.now() },
-    feedback_count: { type: Number, default: 0 },
-    beta_token_share_count: { type: Number, default: 0 }
+    token: { type: String, default: '' },
+    created: { type: Date, default: Date.now() }
 });
 
 
@@ -42,7 +37,7 @@ User.prototype.updateToken = function (token) {
 
     if (token) {
         var _user = this;
-        _user.beta_token = token;
+        _user.token = token;
         _user.save();
     }
 }

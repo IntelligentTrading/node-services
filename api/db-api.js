@@ -1,6 +1,9 @@
 var mongoose = require('mongoose');
 var User = require('./models/User');
 var Plan = require('./models/Plan');
+var License = require('./models/License');
+
+var Argo = require('../util/argo').argo;
 
 var options = {
     useMongoClient: true,
@@ -51,7 +54,7 @@ var database = {
         return User.create(data);
     },
     upsertUser: (chat_id, data) => {
-        return User.update({ telegram_chat_id: chat_id }, data, { upsert: true });
+        return User.update({ telegram_chat_id: chat_id }, data, { upsert: true, setDefaultsOnInsert: true });
     },
     updateUserSettings: (cid, data) => {
 
@@ -80,29 +83,43 @@ var database = {
             return user;
         })
     },
-    verifyUser: (chat_id, token) => {
+    subscribeUser: (chat_id, token) => {
         return database.getUsers()
             .then(users => {
-                if (users && users.length > 0 && users.filter(user => user.beta_token == token && user.telegram_chat_id != chat_id).length > 0) {//token is already in use
+                if (users && users.length > 0 && users.filter(user => user.token == token && user.telegram_chat_id != chat_id).length > 0) {//token is already in use
                     return { chat_id: chat_id, err: 'Token is already in use.' }
                 }
                 else {
                     return database.findUserByChatId(chat_id).then(users => {
                         var user = users[0];
-                        var team_emojis = process.env.TEAM_EMOJIS.split(',');
-                        var isValidBetaToken = parseInt(token, 16) % parseInt(process.env.A_PRIME_NUMBER) == 0;
-                        var isValidITTToken = team_emojis.indexOf(token) >= 0;
-                        isValidToken = isValidITTToken || isValidBetaToken;
+                        var isITTMember = Argo.isITTMember(token);
 
-                        var settings = {};
-                        if (isValidToken) {
-                            user.updateToken(token);
-                            settings.beta_token_valid = isValidToken;
-                            settings.is_subscribed = true;
-                            settings.is_ITT_team = isValidITTToken;
-                            user.updateSettings(settings);
-                            return user;
-                        }
+                        return database.getLicense(token)
+                            .then(licenses => {
+                                var license = licenses[0];
+                                var verified = Argo.subscription.verify(license);
+                                var isValidToken = isITTMember || verified;
+                                //! Check subscription.date too!!!!
+
+                                var settings = {};
+                                if (isValidToken) {
+                                    user.updateToken(token);
+                                    settings.is_subscribed = true;
+                                    settings.is_ITT_team = isITTMember;
+                                    if (isITTMember) {
+                                        settings.subscription_plan = 100
+                                        user.updateSettings(settings);
+                                        return user;
+                                    }
+                                    else {
+                                        return database.getAccessLevelFromPlan(license.plan).then(accessLevel => {
+                                            settings.subscription_plan = accessLevel
+                                            user.updateSettings(settings);
+                                            return user;
+                                        })
+                                    }
+                                }
+                            })
 
                         return { chat_id: chat_id, err: 'Token is invalid.' }
                     })
@@ -116,6 +133,18 @@ var database = {
     getPlanFor: (signal) => {
         return Plan.find({ 'signals': signal })
             .then(plans => { return plans[0] })
+    },
+    getAccessLevelFromPlan: async (plan) => {
+        var dbPlan = await Plan.find({ 'plan': plan })
+        if (dbPlan)
+            return dbPlan[0].accessLevel
+        return -1
+    },
+    upsertLicense: (licenseCode) => {
+        return License.update({ code: licenseCode.code }, licenseCode, { upsert: true, setDefaultsOnInsert: true });
+    },
+    getLicense: (token) => {
+        return License.find({ code: token })
     }
 }
 
