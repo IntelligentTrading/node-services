@@ -5,6 +5,7 @@ var bodyParser = require('body-parser');
 var feedback_api = require('./api/feedback').feedback;
 var market_api = require('./api/ccxt-api').api;
 var db_api = require('./api/db-api').database;
+var Argo = require('./util/argo').argo;
 
 const TelegramBot = require('node-telegram-bot-api');
 const token = process.env.TELEGRAM_BOT_TOKEN;
@@ -46,8 +47,11 @@ app.get('/eula_confirm', function (request, response) {
             telegram_chat_id: chat_id,
             eula: true
         }).then(() => {
-            bot.sendMessage(chat_id, 'Thanks for accepting EULA, you can now subscribe with /token user_token or keep using the bot if already subscribed.');
-            response.render('eula_done');
+            db_api.updateUserSettings(chat_id, { subscription_plan: 0 })
+                .then(result => {
+                    bot.sendMessage(chat_id, 'Thanks for accepting EULA, you can now subscribe with `/token user_token` or keep using the bot with the free plan.', markdown_opts);
+                    response.render('eula_done');
+                })
         }).catch(reason => {
             bot.sendMessage(chat_id, 'Something went wrong while accepting EULA, please retry or contact us!');
             console.log(reason)
@@ -124,7 +128,6 @@ app.post('/api/feedback', function (req, res) {
     }
 });
 
-
 // users api
 
 app.route('/api/users')
@@ -150,9 +153,9 @@ app.route('/api/users')
             });
     });
 
-app.route('/api/users/verify')
+app.route('/api/users/subscribe')
     .post((req, res) => {
-        db_api.verifyUser(req.body.telegram_chat_id, req.body.token)
+        db_api.subscribeUser(req.body.telegram_chat_id, req.body.token)
             .then(validationResult => {
                 res.send(validationResult);
             })
@@ -236,10 +239,10 @@ app.route('/api/users/:id/select_all_signals')
                         is_subscribed: user.settings.is_subscribed,
                         is_muted: user.settings.is_muted,
                         risk: user.settings.risk,
-                        beta_token_valid: user.settings.beta_token_valid,
                         is_ITT_team: user.settings.is_ITT_team,
                         time_diff: user.settings.time_diff,
-                        timezone: user.settings.timezone
+                        timezone: user.settings.timezone,
+                        subscription_plan: user.settings.subscription_plan
                     }
                 }
 
@@ -253,10 +256,46 @@ app.route('/api/users/:id/select_all_signals')
         })
     })
 
+app.route('/api/users/generate/:subscriptionPlan')
+    .post((req, res) => {
+        var subscriptionPlan = req.params.subscriptionPlan;
+        if (Argo.isITTMember(req.body.token)) {
+            var licenseCode = Argo.subscription.generate(subscriptionPlan);
+            db_api.upsertLicense(licenseCode)
+                .then(result => {
+                    res.send(licenseCode)
+                })
+        }
+        else {
+            res.sendStatus(403);
+        }
+    })
+
+
+app.route('/api/plans')
+    .get((req, res) => {
+        db_api.getSignalPlans().then(signal_plans => {
+            console.log(signal_plans);
+            res.send(signal_plans)
+        }).catch(reason => {
+            console.log(reason)
+            res.sendStatus(500)
+        });
+    })
+
+app.route('/api/plans/:signal')
+    .get((req, res) => {
+        db_api.getPlanFor(req.params.signal).then(signal_plan => {
+            res.send(signal_plan)
+        }).catch(reason => {
+            console.log(reason)
+            res.sendStatus(500)
+        });
+    })
 
 app.route('/api/broadcast').
     post((req, res) => {
-        var users = db_api.getUsers({}).then(users => {
+        db_api.getUsers({}).then(users => {
 
             var slices = Math.ceil(users.length / 20);
 

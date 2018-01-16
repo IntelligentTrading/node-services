@@ -16,22 +16,18 @@ var userSchema = new Schema({
         is_muted: {
             type: Boolean, default: false
         },
-        beta_token_valid: {
-            type: Boolean, default: false
-        },
         is_ITT_team: {
             type: Boolean, default: false
         },
+        subscription_plan: { type: Number, default: 0 }, // 0 = free
         counter_currencies: { type: [Number], default: [2] }, //0,1,2,3 => [BTC,ETH,USD,XMR]
         transaction_currencies: { type: [String], default: ["BTC", "ETH", "BCH", "XMR", "ZEC", "DASH", "LTC"] },
         timezone: { type: String, default: 'UTC' },
         time_diff: { type: Number, default: 0 }
     },
     eula: Boolean,
-    beta_token: { type: String, default: '' },
-    created: { type: Date, default: Date.now() },
-    feedback_count: { type: Number, default: 0 },
-    beta_token_share_count: { type: Number, default: 0 }
+    token: { type: String, default: '' },
+    created: { type: Date, default: Date.now() }
 });
 
 
@@ -41,7 +37,7 @@ User.prototype.updateToken = function (token) {
 
     if (token) {
         var _user = this;
-        _user.beta_token = token;
+        _user.token = token;
         _user.save();
     }
 }
