@@ -7,9 +7,6 @@ var userSchema = new Schema({
         horizon: {
             type: String, default: 'medium'
         },
-        is_subscribed: {
-            type: Boolean, default: false
-        },
         risk: {
             type: String, default: 'medium'
         },

@@ -104,7 +104,6 @@ var database = {
                                 var settings = {};
                                 if (isValidToken) {
                                     user.updateToken(token);
-                                    settings.is_subscribed = true;
                                     settings.is_ITT_team = isITTMember;
                                     if (isITTMember) {
                                         settings.subscription_plan = 100
@@ -145,6 +144,9 @@ var database = {
     },
     getLicense: (token) => {
         return License.find({ code: token })
+    },
+    redeem: (token) => {
+        return License.update({ code: token }, { redeemed: true })
     }
 }
 

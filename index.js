@@ -157,7 +157,14 @@ app.route('/api/users/subscribe')
     .post((req, res) => {
         db_api.subscribeUser(req.body.telegram_chat_id, req.body.token)
             .then(validationResult => {
-                res.send(validationResult);
+                db_api.redeem(req.body.token)
+                    .then(redeemed => {
+                        res.send(validationResult);
+                    })
+                    .catch(reason => {
+                        console.log(reason);
+                        res.sendStatus(500)
+                    })
             })
             .catch(reason => {
                 console.log(reason);
@@ -236,7 +243,6 @@ app.route('/api/users/:id/select_all_signals')
                         counter_currencies: ccs.map(cc => ccs.indexOf(cc)),
                         transaction_currencies: tickersSymbols,
                         horizon: 'short',
-                        is_subscribed: user.settings.is_subscribed,
                         is_muted: user.settings.is_muted,
                         risk: user.settings.risk,
                         is_ITT_team: user.settings.is_ITT_team,
