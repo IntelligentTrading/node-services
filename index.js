@@ -157,14 +157,20 @@ app.route('/api/users/subscribe')
     .post((req, res) => {
         db_api.subscribeUser(req.body.telegram_chat_id, req.body.token)
             .then(validationResult => {
-                db_api.redeem(req.body.token)
-                    .then(redeemed => {
-                        res.send(validationResult);
-                    })
-                    .catch(reason => {
-                        console.log(reason);
-                        res.sendStatus(500)
-                    })
+
+                if (validationResult.err) {
+                    res.send(validationResult);
+                }
+                else {
+                    db_api.redeem(req.body.token)
+                        .then(redeemed => {
+                            res.send(validationResult);
+                        })
+                        .catch(reason => {
+                            console.log(reason);
+                            res.sendStatus(500)
+                        })
+                }
             })
             .catch(reason => {
                 console.log(reason);

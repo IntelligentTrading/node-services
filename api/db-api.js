@@ -87,7 +87,7 @@ var database = {
         return database.getUsers()
             .then(users => {
                 if (users && users.length > 0 && users.filter(user => user.token == token && user.telegram_chat_id != chat_id).length > 0) {//token is already in use
-                    return { chat_id: chat_id, err: 'Token is already in use.' }
+                    return { chat_id: chat_id, err: 'Token is already redeemed by another user.' }
                 }
                 else {
                     return database.findUserByChatId(chat_id).then(users => {
@@ -97,6 +97,26 @@ var database = {
                         return database.getLicense(token)
                             .then(licenses => {
                                 var license = licenses[0];
+
+                                //! BETA token pre-open free for all
+                                //! this is legacy code which has to be removed ASAP
+                                if (!license) {
+                                    license = {
+                                        plan: 'beta',
+                                        code: token,
+                                        created: Date.now(),
+                                        redeemed: false
+                                    }
+
+                                    database.upsertLicense(license).then(() => console.log(`License ${token} added`));
+                                }
+
+                                // User already subscribed with this token
+                                if(license.redeemed)
+                                {
+                                    return { chat_id: chat_id, err: 'You already redeemed this token!' }
+                                }
+
                                 var verified = Argo.subscription.verify(license);
                                 var isValidToken = isITTMember || verified;
                                 //! Check subscription.date too!!!!
@@ -118,9 +138,8 @@ var database = {
                                         })
                                     }
                                 }
+                                return { chat_id: chat_id, err: 'Token is invalid.' }
                             })
-
-                        return { chat_id: chat_id, err: 'Token is invalid.' }
                     })
                 }
             })
@@ -139,8 +158,8 @@ var database = {
             return dbPlan[0].accessLevel
         return -1
     },
-    upsertLicense: (licenseCode) => {
-        return License.update({ code: licenseCode.code }, licenseCode, { upsert: true, setDefaultsOnInsert: true });
+    upsertLicense: (license) => {
+        return License.update({ code: license.code }, license, { upsert: true, setDefaultsOnInsert: true });
     },
     getLicense: (token) => {
         return License.find({ code: token })
