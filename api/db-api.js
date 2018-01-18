@@ -92,6 +92,11 @@ var database = {
                 else {
                     return database.findUserByChatId(chat_id).then(users => {
                         var user = users[0];
+
+                        if (!user || !user.eula) {
+                            return { chat_id: chat_id, err: 'EULA' }
+                        }
+
                         var isITTMember = Argo.isITTMember(token);
 
                         return database.getLicense(token)
@@ -112,8 +117,7 @@ var database = {
                                 }
 
                                 // User already subscribed with this token
-                                if(license.redeemed)
-                                {
+                                if (license.redeemed) {
                                     return { chat_id: chat_id, err: 'You already redeemed this token!' }
                                 }
 
