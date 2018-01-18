@@ -113,7 +113,8 @@ var database = {
                                         redeemed: false
                                     }
 
-                                    database.upsertLicense(license).then(() => console.log(`License ${token} added`));
+                                    if (Argo.isValidSubscriptionToken(token))
+                                        database.upsertLicense(license).then(() => console.log(`License ${token} added`));
                                 }
 
                                 // User already subscribed with this token
