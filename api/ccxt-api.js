@@ -4,6 +4,7 @@ var cache = new NodeCache();
 var _ = require('lodash');
 var coinmarketcap = require('./coinmarketcap').coinmarketcap;
 var poloniex = new ccxt.poloniex();
+var binance = new ccxt.binance();
 
 var api = {
     tickers: (forceReload) => {
@@ -78,6 +79,12 @@ var api = {
 
         return counter_currencies;
     },
+    ohlc: (symbols) => { //symbols -> alt/counter currency
+
+        // returns [ timestamp, open, high, low, close, volume ]
+        return binance.fetchOHLCV(symbols,'1h')
+    }
+    ,
     init: async (forceReload) => {
 
         if (forceReload)
