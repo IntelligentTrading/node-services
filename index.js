@@ -6,7 +6,6 @@ var feedback_api = require('./api/feedback').feedback;
 var market_api = require('./api/ccxt-api').api;
 var db_api = require('./api/db-api').database;
 var Argo = require('./util/argo').argo;
-var chartEngine = require('./chart/chartEngine').engine;
 
 const TelegramBot = require('node-telegram-bot-api');
 const token = process.env.TELEGRAM_BOT_TOKEN;
@@ -115,17 +114,6 @@ app.post('/api/panic', (req, res) => {
         console.log(err)
         return res.sendStatus(500);
     })
-})
-
-app.get('/api/ohlc', (req, res) => {
-    market_api.ohlc(req.query.symbols).then(result => {
-        chartEngine.ohlc(result, req.query.symbols);
-        res.send(result)
-    })
-        .catch(error => {
-            console.log(error)
-            res.sendStatus(500)
-        })
 })
 
 app.get('/api/counter_currencies', (req, res) => {
