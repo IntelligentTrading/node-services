@@ -106,7 +106,14 @@ app.get('/api/ticker', function (req, res) {
     }
 });
 
-app.post('/api/panic', (req, res) => {
+app.put('/api/panic', (req, res) => {
+    db_api.updateNewsFeed(req.body).then(updatedFeed => {
+        return res.status(201).send(updatedFeed[0]);
+    }).catch(err => {
+        console.log(err)
+        return res.sendStatus(500);
+    })
+}).post('/api/panic', (req, res) => {
     db_api.saveNewsFeed(req.body).then(result => {
         console.log(result)
         return res.sendStatus(201)

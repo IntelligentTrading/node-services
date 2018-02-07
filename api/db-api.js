@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 var User = require('./models/User');
 var Plan = require('./models/Plan');
 var License = require('./models/License');
-var CryptFeed = require('./models/CryptoFeed');
+var CryptoFeed = require('./models/CryptoFeed');
 
 var Argo = require('../util/argo').argo;
 
@@ -174,7 +174,22 @@ var database = {
         return License.update({ code: token }, { redeemed: true })
     },
     saveNewsFeed: (feed) => {
-        return CryptFeed.update({ feedId: feed.feedId }, feed, { upsert: true, setDefaultsOnInsert: true });
+        return CryptoFeed.update({ feedId: feed.feedId }, feed, { upsert: true, setDefaultsOnInsert: true })
+    },
+    updateNewsFeed: (feed) => {
+
+        var pushClause = {};
+        if (feed.ittBullish)
+            pushClause.ittBullish = { $each: feed.ittBullish }
+        if (feed.ittBearish)
+            pushClause.ittBearish = { $each: feed.ittBearish }
+        if (feed.ittImportant)
+            pushClause.ittImportant = { $each: feed.ittImportant }
+
+        return CryptoFeed.update({ feedId: feed.feedId }, { $push: pushClause })
+            .then(res => {
+                return CryptoFeed.find({ feedId: feed.feedId });
+            })
     }
 }
 
