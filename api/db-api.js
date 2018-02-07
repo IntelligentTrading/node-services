@@ -2,6 +2,7 @@ var mongoose = require('mongoose');
 var User = require('./models/User');
 var Plan = require('./models/Plan');
 var License = require('./models/License');
+var CryptFeed = require('./models/CryptoFeed');
 
 var Argo = require('../util/argo').argo;
 
@@ -171,6 +172,9 @@ var database = {
     },
     redeem: (token) => {
         return License.update({ code: token }, { redeemed: true })
+    },
+    saveNewsFeed: (feed) => {
+        return CryptFeed.update({ feedId: feed.feedId }, feed, { upsert: true, setDefaultsOnInsert: true });
     }
 }
 

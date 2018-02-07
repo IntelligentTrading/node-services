@@ -6,6 +6,7 @@ var feedback_api = require('./api/feedback').feedback;
 var market_api = require('./api/ccxt-api').api;
 var db_api = require('./api/db-api').database;
 var Argo = require('./util/argo').argo;
+var chartEngine = require('./chart/chartEngine').engine;
 
 const TelegramBot = require('node-telegram-bot-api');
 const token = process.env.TELEGRAM_BOT_TOKEN;
@@ -31,6 +32,7 @@ app.set('port', (process.env.PORT || 5002));
 app.get('/', function (request, response) {
     response.sendStatus(200);
 });
+
 
 app.get('/eula', function (request, response) {
     var chat_id = request.query.u;
@@ -105,6 +107,27 @@ app.get('/api/ticker', function (req, res) {
     }
 });
 
+app.post('/api/panic', (req, res) => {
+    db_api.saveNewsFeed(req.body).then(result => {
+        console.log(result)
+        return res.sendStatus(201)
+    }).catch(err => {
+        console.log(err)
+        return res.sendStatus(500);
+    })
+})
+
+app.get('/api/ohlc', (req, res) => {
+    market_api.ohlc(req.query.symbols).then(result => {
+        chartEngine.ohlc(result, req.query.symbols);
+        res.send(result)
+    })
+        .catch(error => {
+            console.log(error)
+            res.sendStatus(500)
+        })
+})
+
 app.get('/api/counter_currencies', (req, res) => {
     var cc = market_api.counterCurrencies();
     return res.send(cc);
@@ -165,10 +188,6 @@ app.route('/api/users/subscribe')
                     db_api.redeem(req.body.token)
                         .then(redeemed => {
                             res.send(validationResult);
-                        })
-                        .catch(reason => {
-                            console.log(reason);
-                            res.sendStatus(500)
                         })
                 }
             })
@@ -237,14 +256,18 @@ app.route('/api/users/:id/timezone').
 app.route('/api/users/:id/select_all_signals')
     .put((req, res) => {
 
-        return db_api.findUserByChatId(req.params.id).then(users => {
-            var user = users[0]
-            var ccs = market_api.counterCurrencies();
-
-            market_api.tickers().then(tkrs => {
+        return db_api.findUserByChatId(req.params.id)
+            .then(users => {
+                var user = users[0]
+                return Promise.all([users[0], market_api.tickers()])
+            })
+            .then(results => {
+                var user = results[0];
+                var tkrs = results[1];
                 var tickersSymbols = tkrs.map(tkr => tkr.symbol);
+                var ccs = market_api.counterCurrencies();
 
-                var data = {
+                return {
                     settings: {
                         counter_currencies: ccs.map(cc => ccs.indexOf(cc)),
                         transaction_currencies: tickersSymbols,
@@ -257,15 +280,14 @@ app.route('/api/users/:id/select_all_signals')
                         subscription_plan: user.settings.subscription_plan
                     }
                 }
-
-                db_api.upsertUser(req.params.id, data)
-                    .then((user) => {
-                        res.send(user);
-                    }).catch(reason => {
-                        res.status(500).send(reason)
-                    });
             })
-        })
+            .then(data => {
+                return db_api.upsertUser(req.params.id, data)
+            }).then((user) => {
+                res.send(user);
+            }).catch(reason => {
+                res.status(500).send(reason)
+            });
     })
 
 app.route('/api/users/generate/:subscriptionPlan')
