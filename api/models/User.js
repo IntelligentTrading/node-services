@@ -10,6 +10,9 @@ var userSchema = new Schema({
         risk: {
             type: String, default: 'medium'
         },
+        is_crowd_enabled: {
+            type: Boolean, default: true
+        },
         is_muted: {
             type: Boolean, default: false
         },

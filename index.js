@@ -268,6 +268,7 @@ app.route('/api/users/:id/select_all_signals')
                         transaction_currencies: tickersSymbols,
                         horizon: 'short',
                         is_muted: user.settings.is_muted,
+                        is_crowd_enabled: user.settings.is_crowd_enabled,
                         risk: user.settings.risk,
                         is_ITT_team: user.settings.is_ITT_team,
                         time_diff: user.settings.time_diff,
