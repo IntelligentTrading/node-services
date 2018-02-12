@@ -20,7 +20,7 @@ var userSchema = new Schema({
             type: Boolean, default: false
         },
         subscription_plan: { type: Number, default: 0 }, // 0 = free
-        counter_currencies: { type: [Number], default: [2] }, //0,1,2,3 => [BTC,ETH,USD,XMR]
+        counter_currencies: { type: [Number], default: [0, 2] }, //0,1,2,3 => [BTC,ETH,USD,XMR]
         transaction_currencies: { type: [String], default: ["BTC", "ETH", "BCH", "XMR", "ZEC", "DASH", "LTC"] },
         timezone: { type: String, default: 'UTC' },
         time_diff: { type: Number, default: 0 }

@@ -42,21 +42,35 @@ app.get('/eula', function (request, response) {
 app.get('/eula_confirm', function (request, response) {
     var chat_id = request.query.u;
 
-    db_api.upsertUser(
-        chat_id,
-        {
+    return market_api.tickers().then(tkrs => {
+        var tickersSymbols = tkrs.map(tkr => tkr.symbol);
+        var ccs = market_api.counterCurrencies();
+
+        var settings = {
+            counter_currencies: [0, 2],//ccs.map(cc => ccs.indexOf(cc)), // BTC and USDT only
+            transaction_currencies: tickersSymbols,
+            horizon: 'medium',
+            is_muted: false,
+            is_crowd_enabled: true,
+            is_ITT_team: false,
+            subscription_plan: 0
+        }
+
+        var document = {
             telegram_chat_id: chat_id,
-            eula: true
-        }).then(() => {
-            db_api.updateUserSettings(chat_id, { subscription_plan: 0 })
-                .then(result => {
-                    bot.sendMessage(chat_id, 'Thanks for accepting EULA, you can now subscribe with `/token user_token` or keep using the bot with the free plan.', markdown_opts);
-                    response.render('eula_done');
-                })
-        }).catch(reason => {
-            bot.sendMessage(chat_id, 'Something went wrong while accepting EULA, please retry or contact us!');
-            console.log(reason)
-        });
+            eula: true,
+            settings: settings
+        }
+
+        return db_api.addUser(document)
+    }).then(() => {
+        bot.sendMessage(chat_id, 'Thanks for accepting EULA, you can now subscribe with `/token user_token` or keep using the bot with the free plan.', markdown_opts);
+        response.render('eula_done');
+
+    }).catch(reason => {
+        bot.sendMessage(chat_id, 'Something went wrong while accepting EULA, please retry or contact us!');
+        console.log(reason)
+    })
 });
 
 app.get('/api/tickers', function (req, res) {
@@ -264,9 +278,9 @@ app.route('/api/users/:id/select_all_signals')
 
                 return {
                     settings: {
-                        counter_currencies: ccs.map(cc => ccs.indexOf(cc)),
+                        counter_currencies: [0, 2],//ccs.map(cc => ccs.indexOf(cc)), // BTC and USDT only
                         transaction_currencies: tickersSymbols,
-                        horizon: 'short',
+                        horizon: 'medium',
                         is_muted: user.settings.is_muted,
                         is_crowd_enabled: user.settings.is_crowd_enabled,
                         risk: user.settings.risk,

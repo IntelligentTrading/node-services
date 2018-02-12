@@ -102,7 +102,17 @@ var database = {
 
                         return database.getLicense(token)
                             .then(licenses => {
+
+
                                 var license = licenses[0];
+                                if (isITTMember) {
+                                    license = {
+                                        plan: 'ITT',
+                                        code: token,
+                                        created: Date.now(),
+                                        redeemed: false
+                                    }
+                                }
 
                                 //! BETA token pre-open free for all
                                 //! this is legacy code which has to be removed ASAP
