@@ -42,35 +42,47 @@ app.get('/eula', function (request, response) {
 app.get('/eula_confirm', function (request, response) {
     var chat_id = request.query.u;
 
-    return market_api.tickers().then(tkrs => {
-        var tickersSymbols = tkrs.map(tkr => tkr.symbol);
-        var ccs = market_api.counterCurrencies();
+    return db_api.findUserByChatId(chat_id)
+        .then(userMatches => {
 
-        var settings = {
-            counter_currencies: [0, 2],//ccs.map(cc => ccs.indexOf(cc)), // BTC and USDT only
-            transaction_currencies: tickersSymbols,
-            horizon: 'medium',
-            is_muted: false,
-            is_crowd_enabled: true,
-            is_ITT_team: false,
-            subscription_plan: 0
-        }
+            if (!userMatches || userMatches.length > 0) {
+                return bot.sendMessage(chat_id, 'You already accepted the EULA, you can now subscribe with `/token user_token` or keep using the bot with the free plan.', markdown_opts);
+            }
+            else {
 
-        var document = {
-            telegram_chat_id: chat_id,
-            eula: true,
-            settings: settings
-        }
+                return market_api.tickers().then(tkrs => {
+                    var tickersSymbols = tkrs.map(tkr => tkr.symbol);
+                    var ccs = market_api.counterCurrencies();
 
-        return db_api.addUser(document)
-    }).then(() => {
-        bot.sendMessage(chat_id, 'Thanks for accepting EULA, you can now subscribe with `/token user_token` or keep using the bot with the free plan.', markdown_opts);
-        response.render('eula_done');
+                    var settings = {
+                        counter_currencies: [0, 2],//ccs.map(cc => ccs.indexOf(cc)), // BTC and USDT only
+                        transaction_currencies: tickersSymbols,
+                        horizon: 'medium',
+                        is_muted: false,
+                        is_crowd_enabled: true,
+                        is_ITT_team: false,
+                        subscription_plan: 0
+                    }
 
-    }).catch(reason => {
-        bot.sendMessage(chat_id, 'Something went wrong while accepting EULA, please retry or contact us!');
-        console.log(reason)
-    })
+                    var document = {
+                        telegram_chat_id: chat_id,
+                        eula: true,
+                        settings: settings
+                    }
+
+                    return db_api.addUser(document)
+
+                }).then(x => {
+                    bot.sendMessage(chat_id, 'Thanks for accepting EULA, you can now subscribe with `/token user_token` or keep using the bot with the free plan.', markdown_opts);
+                })
+            }
+        }).then(() => {
+            response.render('eula_done');
+
+        }).catch(reason => {
+            bot.sendMessage(chat_id, 'Something went wrong while accepting EULA, please retry or contact us!');
+            console.log(reason)
+        })
 });
 
 app.get('/api/tickers', function (req, res) {
@@ -262,6 +274,7 @@ app.route('/api/users/:id/timezone').
             });
     });
 
+//! Refactoring !!!
 app.route('/api/users/:id/select_all_signals')
     .put((req, res) => {
 
