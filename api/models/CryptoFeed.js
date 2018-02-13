@@ -6,6 +6,7 @@ var cryptofeedSchema = new Schema({
     ittBullish: [Number],
     ittBearish: [Number],
     ittImportant: [Number],
+    url: String,
     votes: {
         positive: Number,
         negative: Number,
