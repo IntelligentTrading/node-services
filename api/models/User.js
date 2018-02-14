@@ -48,10 +48,19 @@ User.prototype.updateSettings = function (settings) {
 
         var settingsToUpdate = Object.keys(settings);
         var _user = this;
+
+        if (!_user)
+            console.log('Weird errors happen');
+
         settingsToUpdate.forEach(settingToUpdate => {
             _user.settings[settingToUpdate] = settings[settingToUpdate];
         });
-        _user.save();
+        _user.save(function (err) {
+            if (err) {
+                console.log(err);
+                return;
+            }
+        });
     }
 }
 

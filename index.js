@@ -46,7 +46,7 @@ app.get('/eula_confirm', function (request, response) {
         .then(userMatches => {
 
             if (!userMatches || userMatches.length > 0) {
-                return bot.sendMessage(chat_id, 'You already accepted the EULA, you can now subscribe with `/token user_token` or keep using the bot with the free plan.', markdown_opts);
+                return null;
             }
             else {
 
@@ -71,14 +71,33 @@ app.get('/eula_confirm', function (request, response) {
                     }
 
                     return db_api.addUser(document)
-
-                }).then(x => {
-                    bot.sendMessage(chat_id, 'Thanks for accepting EULA, you can now subscribe with `/token user_token` or keep using the bot with the free plan.', markdown_opts);
                 })
             }
-        }).then(() => {
+        })
+        .then((newUser) => {
             response.render('eula_done');
-
+            if (newUser)
+                return 'Thanks for accepting EULA, you can now subscribe with `/token user_token` or keep using the bot with the free plan.';
+            else
+                return 'You already accepted the EULA, you can now subscribe with `/token user_token` or keep using the bot with the free plan.';
+        }).then(eula_message => {
+            var opts =
+                {
+                    parse_mode: 'Markdown',
+                    reply_markup: {
+                        inline_keyboard: [[{
+                            "text": "Yes",
+                            "callback_data": "wizard.NAV:RUN_true"
+                        },
+                        {
+                            "text": "No",
+                            "callback_data": "wizard.NAV:RUN_false"
+                        }]]
+                    }
+                }
+            bot.sendMessage(chat_id, eula_message, markdown_opts).then(() => {
+                bot.sendMessage(chat_id, '💡*Hint*\nWe can walk through few configuration steps or you can do it using a /wizard. Do you wanna do it now?', opts);
+            })
         }).catch(reason => {
             bot.sendMessage(chat_id, 'Something went wrong while accepting EULA, please retry or contact us!');
             console.log(reason)
@@ -293,7 +312,7 @@ app.route('/api/users/:id/select_all_signals')
                     settings: {
                         counter_currencies: [0, 2],//ccs.map(cc => ccs.indexOf(cc)), // BTC and USDT only
                         transaction_currencies: tickersSymbols,
-                        horizon: 'medium',
+                        horizon: user.settings.horizon,
                         is_muted: user.settings.is_muted,
                         is_crowd_enabled: user.settings.is_crowd_enabled,
                         risk: user.settings.risk,
