@@ -60,9 +60,15 @@ var database = {
     updateUserSettings: (cid, data) => {
 
         return database.findUserByChatId(cid).then(users => {
-            var user = users[0];
-            user.updateSettings(data.settings);
-            return user;
+            if (!users || users.length == 0) {
+                console.log('User not found')
+                return null;
+            }
+            else {
+                var user = users[0];
+                user.updateSettings(data.settings);
+                return user;
+            }
         })
     },
     deleteUser: (chat_id) => {
