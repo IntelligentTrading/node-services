@@ -38,6 +38,7 @@
     "plotly": "^1.0.6",
     "request": "^2.81.0",
     "request-promise": "^4.2.2",
-    "trello": "^0.8.0"
+    "trello": "^0.8.0",
+    "swagger-ui-express": "^2.0.15"
   }
 }

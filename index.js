@@ -2,11 +2,19 @@ var express = require('express');
 var path = require('path');
 var app = express();
 var bodyParser = require('body-parser');
-var feedback_api = require('./api/feedback').feedback;
-var market_api = require('./api/ccxt-api').api;
-var db_api = require('./api/db-api').database;
-var Argo = require('./util/argo').argo;
 
+//API
+var feedbackApi = require('./api/feedback').feedback;
+var marketApi = require('./api/ccxt-api').api;
+var dbApi = require('./api/db-api').database;
+
+//UTILS
+var Argo = require('./util/argo').argo;
+var swaggerUi = require('swagger-ui-express'),
+swaggerDocument = require('./swagger.json');
+
+
+//BOT
 const TelegramBot = require('node-telegram-bot-api');
 const token = process.env.TELEGRAM_BOT_TOKEN;
 const bot = new TelegramBot(token, { polling: false });
@@ -16,6 +24,8 @@ const markdown_opts = {
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 
 app.use('/api', function (req, res, next) {
     if (!isAuthorized(req))
@@ -32,7 +42,6 @@ app.get('/', function (request, response) {
     response.sendStatus(200);
 });
 
-
 app.get('/eula', function (request, response) {
     var chat_id = request.query.u;
     var eula_url = `/eula_confirm?u=${chat_id}`;
@@ -42,7 +51,7 @@ app.get('/eula', function (request, response) {
 app.get('/eula_confirm', function (request, response) {
     var chat_id = request.query.u;
 
-    return db_api.findUserByChatId(chat_id)
+    return dbApi.findUserByChatId(chat_id)
         .then(userMatches => {
 
             if (!userMatches || userMatches.length > 0) {
@@ -50,9 +59,9 @@ app.get('/eula_confirm', function (request, response) {
             }
             else {
 
-                return market_api.tickers().then(tkrs => {
+                return marketApi.tickers().then(tkrs => {
                     var tickersSymbols = tkrs.map(tkr => tkr.symbol);
-                    var ccs = market_api.counterCurrencies();
+                    var ccs = marketApi.counterCurrencies();
 
                     var settings = {
                         counter_currencies: [0, 2],//ccs.map(cc => ccs.indexOf(cc)), // BTC and USDT only
@@ -70,7 +79,7 @@ app.get('/eula_confirm', function (request, response) {
                         settings: settings
                     }
 
-                    return db_api.addUser(document)
+                    return dbApi.addUser(document)
                 })
             }
         })
@@ -108,7 +117,7 @@ app.get('/api/tickers', function (req, res) {
     try {
         var forceReload = req.query.forceReload;
 
-        market_api.tickers(forceReload)
+        marketApi.tickers(forceReload)
             .then((tickers) => { res.send(tickers) })
             .catch((reason) => {
                 console.log(reason.message);
@@ -126,7 +135,7 @@ app.get('/api/tickersInfo', function (req, res) {
 
         var forceReload = req.query.forceReload;
 
-        market_api.tickersInfo(forceReload)
+        marketApi.tickersInfo(forceReload)
             .then((tInfo) => res.send(tInfo))
             .catch(error => {
                 console.log(error)
@@ -142,7 +151,7 @@ app.get('/api/tickersInfo', function (req, res) {
 app.get('/api/ticker', function (req, res) {
     try {
         var symbol = req.query.symbol;
-        var ticker = market_api.ticker(symbol)
+        var ticker = marketApi.ticker(symbol)
         res.send(ticker)
     }
     catch (err) {
@@ -152,14 +161,14 @@ app.get('/api/ticker', function (req, res) {
 });
 
 app.put('/api/panic', (req, res) => {
-    db_api.updateNewsFeed(req.body).then(updatedFeed => {
+    dbApi.updateNewsFeed(req.body).then(updatedFeed => {
         return res.status(201).send(updatedFeed[0]);
     }).catch(err => {
         console.log(err)
         return res.sendStatus(500);
     })
 }).post('/api/panic', (req, res) => {
-    db_api.saveNewsFeed(req.body).then(result => {
+    dbApi.saveNewsFeed(req.body).then(result => {
         console.log(result)
         return res.sendStatus(201)
     }).catch(err => {
@@ -169,14 +178,14 @@ app.put('/api/panic', (req, res) => {
 })
 
 app.get('/api/counter_currencies', (req, res) => {
-    var cc = market_api.counterCurrencies();
+    var cc = marketApi.counterCurrencies();
     return res.send(cc);
 })
 
 app.post('/api/feedback', function (req, res) {
     try {
         console.log('Trying to POST...');
-        feedback_api.addFeedback(req.body)
+        feedbackApi.addFeedback(req.body)
             .then((card_result) => {
                 return res.send(card_result)
             })
@@ -195,14 +204,14 @@ app.post('/api/feedback', function (req, res) {
 
 app.route('/api/users')
     .get((req, res) => {
-        db_api.getUsers(req.query).then(users => {
+        dbApi.getUsers(req.query).then(users => {
             res.send(users);
         })
             .catch(reason => res.sendStatus(500).send(reason));
     })
     .post((req, res) => {
 
-        db_api.addUser(req.body, res)
+        dbApi.addUser(req.body, res)
             .then((newObject) => {
                 if (newObject || newObject._id)
                     return res.status(201).send(newObject);
@@ -218,14 +227,14 @@ app.route('/api/users')
 
 app.route('/api/users/subscribe')
     .post((req, res) => {
-        db_api.subscribeUser(req.body.telegram_chat_id, req.body.token)
+        dbApi.subscribeUser(req.body.telegram_chat_id, req.body.token)
             .then(validationResult => {
 
                 if (validationResult.err) {
                     res.send(validationResult);
                 }
                 else {
-                    db_api.redeem(req.body.token)
+                    dbApi.redeem(req.body.token)
                         .then(redeemed => {
                             res.send(validationResult);
                         })
@@ -239,7 +248,7 @@ app.route('/api/users/subscribe')
 
 app.route('/api/users/:id')
     .get((req, res) => {
-        db_api.findUserByChatId(req.params.id).then(user => {
+        dbApi.findUserByChatId(req.params.id).then(user => {
 
             if (user.length <= 0)
                 res.send({});
@@ -248,7 +257,7 @@ app.route('/api/users/:id')
         }).catch(reason => res.status(500).send(reason));
     })
     .put((req, res) => {
-        db_api.updateUserSettings(req.params.id, req.body).then(user => {
+        dbApi.updateUserSettings(req.params.id, req.body).then(user => {
             return res.status(200).send(user);
         }).catch(reason => {
             if (reason.code == 11000 && reason.name === 'MongoError') {
@@ -258,14 +267,14 @@ app.route('/api/users/:id')
         });
     })
     .delete((req, res) => {
-        db_api.deleteUser(req.params.id).then(user => {
+        dbApi.deleteUser(req.params.id).then(user => {
             res.send(user[0]);
         }).catch(reason => res.status(500).send(reason));
     })
 
 app.route('/api/users/:id/transaction_currencies').
     put((req, res) => {
-        db_api.updateUserTransactionCurrencies(req.params.id, req.body)
+        dbApi.updateUserTransactionCurrencies(req.params.id, req.body)
             .then((user) => {
                 res.send(user);
             }).catch(reason => {
@@ -275,7 +284,7 @@ app.route('/api/users/:id/transaction_currencies').
 
 app.route('/api/users/:id/counter_currencies').
     put((req, res) => {
-        db_api.updateUserCounterCurrencies(req.params.id, req.body)
+        dbApi.updateUserCounterCurrencies(req.params.id, req.body)
             .then((user) => {
                 res.send(user);
             }).catch(reason => {
@@ -285,7 +294,7 @@ app.route('/api/users/:id/counter_currencies').
 
 app.route('/api/users/:id/timezone').
     put((req, res) => {
-        db_api.updateUserSettings(req.params.id, req.body)
+        dbApi.updateUserSettings(req.params.id, req.body)
             .then((user) => {
                 res.send(user);
             }).catch(reason => {
@@ -297,16 +306,16 @@ app.route('/api/users/:id/timezone').
 app.route('/api/users/:id/select_all_signals')
     .put((req, res) => {
 
-        return db_api.findUserByChatId(req.params.id)
+        return dbApi.findUserByChatId(req.params.id)
             .then(users => {
                 var user = users[0]
-                return Promise.all([users[0], market_api.tickers()])
+                return Promise.all([users[0], marketApi.tickers()])
             })
             .then(results => {
                 var user = results[0];
                 var tkrs = results[1];
                 var tickersSymbols = tkrs.map(tkr => tkr.symbol);
-                var ccs = market_api.counterCurrencies();
+                var ccs = marketApi.counterCurrencies();
 
                 return {
                     settings: {
@@ -324,7 +333,7 @@ app.route('/api/users/:id/select_all_signals')
                 }
             })
             .then(data => {
-                return db_api.upsertUser(req.params.id, data)
+                return dbApi.upsertUser(req.params.id, data)
             }).then((user) => {
                 res.send(user);
             }).catch(reason => {
@@ -337,7 +346,7 @@ app.route('/api/users/generate/:subscriptionPlan')
         var subscriptionPlan = req.params.subscriptionPlan;
         if (Argo.isITTMember(req.body.token)) {
             var licenseCode = Argo.subscription.generate(subscriptionPlan);
-            db_api.upsertLicense(licenseCode)
+            dbApi.upsertLicense(licenseCode)
                 .then(result => {
                     res.send(licenseCode)
                 })
@@ -350,7 +359,7 @@ app.route('/api/users/generate/:subscriptionPlan')
 
 app.route('/api/plans')
     .get((req, res) => {
-        db_api.getSignalPlans().then(signal_plans => {
+        dbApi.getSignalPlans().then(signal_plans => {
             console.log(signal_plans);
             res.send(signal_plans)
         }).catch(reason => {
@@ -361,7 +370,7 @@ app.route('/api/plans')
 
 app.route('/api/plans/:signal')
     .get((req, res) => {
-        db_api.getPlanFor(req.params.signal).then(signal_plan => {
+        dbApi.getPlanFor(req.params.signal).then(signal_plan => {
             res.send(signal_plan)
         }).catch(reason => {
             console.log(reason)
@@ -371,7 +380,7 @@ app.route('/api/plans/:signal')
 
 app.route('/api/broadcast').
     post((req, res) => {
-        db_api.getUsers({}).then(users => {
+        dbApi.getUsers({}).then(users => {
 
             var slices = Math.ceil(users.length / 20);
 
@@ -411,7 +420,7 @@ app.route('/api/broadcast').
 
 app.listen(app.get('port'), function () {
 
-    market_api.init()
+    marketApi.init()
         .then(() => {
             console.log('ITT Node Service is running on port', app.get('port'));
         })
