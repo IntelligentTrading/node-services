@@ -4,7 +4,7 @@
   "description": "ITT Node Services",
   "main": "index.js",
   "scripts": {
-    "test": "mocha",
+    "test": "nyc --reporter=text mocha --timeout=10000 --exit",
     "start": "node index.js"
   },
   "repository": {
@@ -27,6 +27,7 @@
     "body-parser": "^1.18.2",
     "ccxt": "^1.10.640",
     "chai": "^4.1.2",
+    "chai-http": "^3.0.0",
     "ejs": "2.5.6",
     "express": "^4.16.2",
     "iconv": "^2.3.0",
@@ -38,7 +39,10 @@
     "plotly": "^1.0.6",
     "request": "^2.81.0",
     "request-promise": "^4.2.2",
-    "trello": "^0.8.0",
-    "swagger-ui-express": "^2.0.15"
+    "swagger-ui-express": "^2.0.15",
+    "trello": "^0.8.0"
+  },
+  "devDependencies": {
+    "nyc": "^11.4.1"
   }
 }

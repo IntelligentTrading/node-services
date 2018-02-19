@@ -4,14 +4,18 @@ var app = express();
 var bodyParser = require('body-parser');
 
 //API
-var feedbackApi = require('./api/feedback').feedback;
-var marketApi = require('./api/ccxt-api').api;
-var dbApi = require('./api/db-api').database;
+var marketApi = require('./api/market').api;
+var dbApi = require('./api/db').database;
+
+//Controllers
+var tickerController = require('./controllers/tickersController')
+var panicController = require('./controllers/panicController')
+var feedbackController = require('./controllers/feedbackController')
 
 //UTILS
 var Argo = require('./util/argo').argo;
 var swaggerUi = require('swagger-ui-express'),
-swaggerDocument = require('./swagger.json');
+    swaggerDocument = require('./swagger.json');
 
 
 //BOT
@@ -113,92 +117,17 @@ app.get('/eula_confirm', function (request, response) {
         })
 });
 
-app.get('/api/tickers', function (req, res) {
-    try {
-        var forceReload = req.query.forceReload;
+// Tickers API
+app.get('/api/tickers', tickerController.tickers)
+app.get('/api/ticker', tickerController.ticker);
+app.get('/api/counter_currencies', tickerController.counterCurrencies)
 
-        marketApi.tickers(forceReload)
-            .then((tickers) => { res.send(tickers) })
-            .catch((reason) => {
-                console.log(reason.message);
-                return res.status(500).send(reason.message);
-            });
-    }
-    catch (err) {
-        console.log(err);
-        return res.status(500).send(err);
-    }
-});
+// CryptoPanic API
+app.put('/api/panic', panicController.updateNewsFeed)
+    .post('/api/panic', panicController.saveNewsFeed)
 
-app.get('/api/tickersInfo', function (req, res) {
-    try {
-
-        var forceReload = req.query.forceReload;
-
-        marketApi.tickersInfo(forceReload)
-            .then((tInfo) => res.send(tInfo))
-            .catch(error => {
-                console.log(error)
-                res.status(500).send(error);
-            })
-    }
-    catch (err) {
-        console.log(err);
-        return res.status(500).send(err);
-    }
-});
-
-app.get('/api/ticker', function (req, res) {
-    try {
-        var symbol = req.query.symbol;
-        var ticker = marketApi.ticker(symbol)
-        res.send(ticker)
-    }
-    catch (err) {
-        console.log(err);
-        return res.status(500).send(err);
-    }
-});
-
-app.put('/api/panic', (req, res) => {
-    dbApi.updateNewsFeed(req.body).then(updatedFeed => {
-        return res.status(201).send(updatedFeed[0]);
-    }).catch(err => {
-        console.log(err)
-        return res.sendStatus(500);
-    })
-}).post('/api/panic', (req, res) => {
-    dbApi.saveNewsFeed(req.body).then(result => {
-        console.log(result)
-        return res.sendStatus(201)
-    }).catch(err => {
-        console.log(err)
-        return res.sendStatus(500);
-    })
-})
-
-app.get('/api/counter_currencies', (req, res) => {
-    var cc = marketApi.counterCurrencies();
-    return res.send(cc);
-})
-
-app.post('/api/feedback', function (req, res) {
-    try {
-        console.log('Trying to POST...');
-        feedbackApi.addFeedback(req.body)
-            .then((card_result) => {
-                return res.send(card_result)
-            })
-            .catch((reason) => {
-                console.log(reason.message);
-                return res.status(500).send(reason.message);
-            });
-    }
-    catch (err) {
-        console.log(err);
-        return res.status(500).send(err);
-    }
-});
+// Feedback API
+app.post('/api/feedback', feedbackController.addFeedback);
 
 // users api
 
@@ -423,6 +352,7 @@ app.listen(app.get('port'), function () {
     marketApi.init()
         .then(() => {
             console.log('ITT Node Service is running on port', app.get('port'));
+            app.emit('appStarted');
         })
         .catch((reason) => {
             console.log(reason)
@@ -433,3 +363,6 @@ var isAuthorized = (request) => {
     var nsvc_api_key = request.header('NSVC-API-KEY');
     return nsvc_api_key == process.env.NODE_SVC_API_KEY;
 }
+
+
+module.exports = app;

@@ -43,6 +43,22 @@
             }
           }
         }
+      },
+      "/ticker": {
+        "get": {
+          "tags": [
+            "Ticker"
+          ],
+          "summary": "Get a ticker with symbol as parameter",
+          "responses": {
+            "200": {
+              "description": "OK",
+              "schema": {
+                "$ref": "#/definitions/Ticker"
+              }
+            }
+          }
+        }
       }
     },
     "definitions": {
