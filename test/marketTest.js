@@ -7,7 +7,6 @@ var marketApi = require('../api/market').api;
 var _ = require('lodash')
 
 chai.use(chaiHttp)
-let server;
 
 before((done) => {
     app.on("appStarted", done)

@@ -4,7 +4,7 @@ var Plan = require('./models/Plan');
 var License = require('./models/License');
 var CryptoFeed = require('./models/CryptoFeed');
 
-var Argo = require('../util/argo').argo;
+var argo = require('../util/argo')
 
 var options = {
     useMongoClient: true,
@@ -71,108 +71,38 @@ var database = {
             }
         })
     },
-    deleteUser: (chat_id) => {
-        return User.remove({ telegram_chat_id: chat_id })
-    },
-    updateUserTransactionCurrencies: (chat_id, data) => {
+    updateUserCurrencies: (chat_id, data, currenciesRole) => {
 
         return database.findUserByChatId(chat_id).then(users => {
             var user = users[0];
-            user.updateUserTransactionCurrencies(data.settings.transaction_currencies);
-            return user;
-        })
-    },
-    updateUserCounterCurrencies: (chat_id, data) => {
 
-        return database.findUserByChatId(chat_id).then(users => {
-            var user = users[0];
-            user.updateUserCounterCurrencies(data.settings.counter_currencies);
-            return user;
-        })
-    },
-    subscribeUser: (chat_id, token) => {
-        return database.getUsers()
-            .then(users => {
-                if (users && users.length > 0 && users.filter(user => user.token == token && user.telegram_chat_id != chat_id).length > 0) {//token is already in use
-                    return { chat_id: chat_id, err: 'Token is already redeemed by another user.' }
+            data.settings[`${currenciesRole}_currencies`].forEach((currency) => {
+
+                var isTransactionCurrency = currenciesRole == 'transaction';
+                var key = isTransactionCurrency ? currency.symbol : currency.index;
+
+                if (currency.follow == 'True' || currency.follow == 'true') {
+                    user.settings[`${currenciesRole}_currencies`].push(key)
                 }
                 else {
-                    return database.findUserByChatId(chat_id).then(users => {
-                        var user = users[0];
-
-                        if (!user || !user.eula) {
-                            return { chat_id: chat_id, err: 'EULA' }
-                        }
-
-                        var isITTMember = Argo.isITTMember(token);
-
-                        return database.getLicense(token)
-                            .then(licenses => {
-
-
-                                var license = licenses[0];
-                                if (isITTMember) {
-                                    license = {
-                                        plan: 'ITT',
-                                        code: token,
-                                        created: Date.now(),
-                                        redeemed: false
-                                    }
-                                }
-
-                                //! BETA token pre-open free for all
-                                //! this is legacy code which has to be removed ASAP
-                                if (!license) {
-                                    license = {
-                                        plan: 'beta',
-                                        code: token,
-                                        created: Date.now(),
-                                        redeemed: false
-                                    }
-
-                                    if (Argo.isValidSubscriptionToken(token))
-                                        database.upsertLicense(license).then(() => console.log(`License ${token} added`));
-                                }
-
-                                // User already subscribed with this token
-                                if (license.redeemed) {
-                                    return { chat_id: chat_id, err: 'You already redeemed this token!' }
-                                }
-
-                                var verified = Argo.subscription.verify(license);
-                                var isValidToken = isITTMember || verified;
-                                //! Check subscription.date too!!!!
-
-                                var settings = {};
-                                if (isValidToken) {
-                                    user.updateToken(token);
-                                    settings.is_ITT_team = isITTMember;
-                                    if (isITTMember) {
-                                        settings.subscription_plan = 100
-                                        user.updateSettings(settings);
-                                        return user;
-                                    }
-                                    else {
-                                        return database.getAccessLevelFromPlan(license.plan).then(accessLevel => {
-                                            settings.subscription_plan = accessLevel
-                                            user.updateSettings(settings);
-                                            return user;
-                                        })
-                                    }
-                                }
-                                return { chat_id: chat_id, err: 'Token is invalid.' }
-                            })
-                    })
+                    var index_of_victim = user.settings[`${currenciesRole}_currencies`].indexOf(key)
+                    if (index_of_victim >= 0) {
+                        user.settings[`${currenciesRole}_currencies`].splice(index_of_victim, 1);
+                    }
                 }
             })
-            .catch(reason => console.log(reason));
+
+            user.save();
+            return user
+        })
     },
-    getSignalPlans: () => {
-        return Plan.find({});
-    },
-    getPlanFor: (signal) => {
-        return Plan.find({ 'signals': signal })
-            .then(plans => { return plans[0] })
+    getSignalPlans: (signal) => {
+        var clause = {};
+
+        if (signal)
+            clause['signals'] = signal;
+
+        return Plan.find(clause);
     },
     getAccessLevelFromPlan: async (plan) => {
         var dbPlan = await Plan.find({ 'plan': plan })
@@ -180,14 +110,33 @@ var database = {
             return dbPlan[0].accessLevel
         return -1
     },
-    upsertLicense: (license) => {
-        return License.update({ code: license.code }, license, { upsert: true, setDefaultsOnInsert: true });
-    },
-    getLicense: (token) => {
-        return License.find({ code: token })
-    },
-    redeem: (token) => {
-        return License.update({ code: token }, { redeemed: true })
+    setUserLicense: (telegram_chat_id, license, isItt) => {
+
+        var promises = [];
+
+        var subscriberPromise = User.findOne({ telegram_chat_id: telegram_chat_id, eula: true })
+        promises.push(subscriberPromise)
+
+        if (!isItt) {
+            var planPromise = Plan.findOne({ 'plan': license.plan })
+            promises.push(planPromise)
+
+            var licensePromise = License.update({ code: license.code }, { redeemed: true })
+            promises.push(licensePromise)
+        }
+
+        return Promise.all(promises).then(results => {
+            var subscriber = results[0]
+            if (!subscriber)
+                throw new Error('Your chat id is invalid or you did not accept the EULA!')
+
+            var accessLevel = isItt ? 100 : results[1].accessLevel
+            subscriber.settings.is_ITT_Team = isItt
+            subscriber.token = license.code
+            subscriber.settings.subscription_plan = accessLevel
+            subscriber.save()
+            return subscriber
+        })
     },
     saveNewsFeed: (feed) => {
         return CryptoFeed.update({ feedId: feed.feedId }, feed, { upsert: true, setDefaultsOnInsert: true })
@@ -208,6 +157,5 @@ var database = {
             })
     }
 }
-
 
 exports.database = database;
