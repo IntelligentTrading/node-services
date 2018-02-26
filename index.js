@@ -1,8 +1,26 @@
-var express = require('express');
-var path = require('path');
-var app = express();
-var bodyParser = require('body-parser');
-var marketApi = require('./api/market').api
+var express = require('express')
+var path = require('path')
+var app = express()
+var bodyParser = require('body-parser')
+var marketApi = require('./api/market')
+var mongoose = require('mongoose')
+
+// Connect DB
+var options = {
+    useMongoClient: true,
+    keepAlive: 300,
+    reconnectTries: Number.MAX_VALUE, // Never stop trying to reconnect
+    reconnectInterval: 500 // Reconnect every 500ms
+}
+
+mongoose.connect(process.env.MONGODB_URI, options);
+mongoose.Promise = global.Promise;
+
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function () {
+    console.log('Database connected');
+});
 
 //Controllers
 var tickerController = require('./controllers/tickersController')

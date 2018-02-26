@@ -4,10 +4,13 @@ var expect = chai.expect;
 var chaiHttp = require('chai-http')
 var app = require('../index.js')
 var _ = require('lodash')
-var dbapi = require('../api/db').database
 var data = require('./data')
+var UserModel = require('../models/User')
+var marketapi = require('../api/market')
 
 chai.use(chaiHttp)
+
+var testUserChatId = 999;
 
 describe('Users Controller', () => {
     it('GET /users Returns 200 and an array of users', () => {
@@ -23,20 +26,20 @@ describe('Users Controller', () => {
 
     it('GET /users Returns 200 and user if user exists, 404 if user does not exist', () => {
 
-        var id = 999;
+
         return chai.request(app)
-            .get('/api/users/' + id)
+            .get('/api/users/' + testUserChatId)
             .set('NSVC-API-KEY', process.env.NODE_SVC_API_KEY)
             .then(res => {
                 expect(res).to.have.status(200)
-                expect(res.body.telegram_chat_id).to.be.equal(id)
+                expect(res.body.telegram_chat_id).to.be.equal(testUserChatId)
             })
             .catch(err => {
                 expect(err).to.have.status(404)
             })
     })
 
-    it('POST /users returns 201 and new user when successful, 500 and Duplicate Chat Id if fails', () => {
+    it('POST /users returns 201 and new user when successful', () => {
         var newUser = data.userTemplate()
 
         return chai.request(app)
@@ -46,6 +49,15 @@ describe('Users Controller', () => {
             .then(res => {
                 return expect(res).to.have.status(201)
             })
+    })
+
+    it('POST /users returns 500 and Duplicate Chat Id', () => {
+        var newUser = data.userTemplate()
+
+        return chai.request(app)
+            .post('/api/users/')
+            .set('NSVC-API-KEY', process.env.NODE_SVC_API_KEY)
+            .send(newUser)
             .catch(err => {
                 expect(err).to.have.status(500)
                 expect(err.response.text).to.be.equal('Duplicate Chat Id')
@@ -64,7 +76,7 @@ describe('Users Controller', () => {
         }
 
         return chai.request(app)
-            .put('/api/users/999/currencies/counter')
+            .put(`/api/users/${testUserChatId}/currencies/counter`)
             .set('NSVC-API-KEY', process.env.NODE_SVC_API_KEY)
             .send(update)
             .then(res => {
@@ -83,14 +95,36 @@ describe('Users Controller', () => {
                 }]
             }
         }
-
         return chai.request(app)
-            .put('/api/users/999/currencies/counter')
+            .put(`/api/users/${testUserChatId}/currencies/counter`)
             .set('NSVC-API-KEY', process.env.NODE_SVC_API_KEY)
             .send(update)
             .then(res => {
                 expect(res).to.have.status(200)
                 expect(res.body.settings.counter_currencies).to.contain(1)
+            })
+    })
+
+    it('PUT /users/:id/select_all_signals returns 200 and the user has all the currencies selected', () => {
+
+        return chai.request(app)
+            .put(`/api/users/${testUserChatId}/select_all_signals`)
+            .set('NSVC-API-KEY', process.env.NODE_SVC_API_KEY)
+            .then(res => {
+                expect(res).to.have.status(200)
+                expect(res.body.settings.counter_currencies.length).to.be.equal(2)
+                marketapi.tickers()
+                    .then(tickers => {
+                        return expect(res.body.settings.transaction_currencies.length).to.be.equal(tickers.length)
+                    })
+            })
+    })
+
+    it('Database cleanup', () => {
+        return UserModel.findOneAndRemove({ telegram_chat_id: testUserChatId })
+            .then(() => {
+                return UserModel.findOne({ telegram_chat_id: testUserChatId })
+                    .then(nobody => expect(nobody).to.be.null)
             })
     })
 })

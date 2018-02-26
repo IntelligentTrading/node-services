@@ -9,17 +9,20 @@ const broadcast_markdown_opts = {
 module.exports = {
     broadcast: (req, res) => {
 
+        var replaceables = req.body.replace;
+        var buttons = req.body.buttons;
+        var message = req.body.text;
+
+
         UserModel.find().then(users => {
 
             var maxSimultaneousBroadcastSize = 20
             var slices = Math.ceil(users.length / maxSimultaneousBroadcastSize)
 
-            var replaceables = req.body.replace;
-
-            if (req.body.buttons) {
+            if (buttons) {
                 var keyboard = [];
                 var kb_btns = [];
-                req.body.buttons.forEach(btn => kb_btns.push(btn));
+                buttons.forEach(btn => kb_btns.push(btn));
                 broadcast_markdown_opts.reply_markup = {
                     inline_keyboard: [kb_btns]
                 }
@@ -31,15 +34,18 @@ module.exports = {
                         var final_message = "";
 
                         replaceables.forEach(replaceable => {
-                            final_message = req.body.text.replace(replaceable.key, user[replaceable.value])
+                            final_message = message.replace(replaceable.key, user[replaceable.value])
                         })
 
-                        bot.sendMessage(user.telegram_chat_id, final_message, broadcast_markdown_opts)
-                            .catch(reason => console.log(`${user.telegram_chat_id}:${reason}`));
+                        sendMessage(user.telegram_chat_id, final_message, broadcast_markdown_opts)
                     })
             }
-        })
-            .then(result => res.send(200))
+        }).then(result => res.send(200))
             .catch(reason => { console.log(reason); res.send(500) })
     }
+}
+
+var sendMessage = (telegram_chat_id, message, opts) => {
+    bot.sendMessage(telegram_chat_id, message, opts)
+        .catch(reason => console.log(`${telegram_chat_id}:${reason}`));
 }

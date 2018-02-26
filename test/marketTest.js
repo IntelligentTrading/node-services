@@ -3,7 +3,7 @@ var assert = chai.assert;
 var expect = chai.expect;
 var chaiHttp = require('chai-http')
 var app = require('../index.js')
-var marketApi = require('../api/market').api;
+var marketApi = require('../api/market');
 var _ = require('lodash')
 
 chai.use(chaiHttp)

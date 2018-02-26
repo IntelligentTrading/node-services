@@ -1,13 +1,12 @@
 module.exports = {
     userTemplate: () => {
         return {
-            "telegram_chat_id": -1,
+            "telegram_chat_id": 999,
             "eula": true,
             "token": "",
             "settings": {
                 "counter_currencies": [
-                    0,
-                    2
+                    0
                 ],
                 "transaction_currencies": [
                     "BTC"
@@ -19,7 +18,7 @@ module.exports = {
                 "is_ITT_team": false,
                 "time_diff": 0,
                 "timezone": "UTC",
-                "subscription_plan": -1
+                "subscription_plan": 0
             }
         }
     },
@@ -53,6 +52,20 @@ module.exports = {
             },
             timestamp: Date.now(),
             news: "Interesting news"
+        }
+    },
+    broadcastMessage: () => {
+        return {
+            "text": "⚙️ *Broadcast Test*\n\n",
+            "replace": [{
+                "key": "CHAT_ID",
+                "value": "telegram_chat_id"
+            }],
+            "buttons": [
+                {
+                    text: "OK", callback_data: "IGNORE"
+                }
+            ]
         }
     }
 }

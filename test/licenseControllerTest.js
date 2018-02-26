@@ -4,6 +4,7 @@ var expect = chai.expect;
 var chaiHttp = require('chai-http')
 var app = require('../index.js')
 var _ = require('lodash')
+var colors = require('colors')
 var data = require('./data')
 var UserModel = require('../models/User')
 var LicenseModel = require('../models/License')
@@ -15,10 +16,6 @@ describe('License Controller', () => {
     var subscriptionPlan = 'beta'
     var license = undefined;
     var newUser = data.userTemplate()
-
-    UserModel.findOneAndRemove({ telegram_chat_id: newUser.telegram_chat_id })
-        .catch(err => console.log(err))
-
 
     it('POST /license/generate/:subscriptionPlan returns 201 and a valid token if subscriptionPlan is defined', () => {
 
@@ -65,7 +62,7 @@ describe('License Controller', () => {
         LicenseModel.findOneAndRemove({ code: license.code })
             .catch(err => console.log(err))
 
-        return UserModel.findOne({ telegram_chat_id: -1 })
+        return UserModel.findOne({ telegram_chat_id: newUser.telegram_chat_id })
             .then(subscriber => {
                 assert.equal(subscriber.token, license.code)
             })
@@ -96,5 +93,11 @@ describe('License Controller', () => {
             .catch((err) => {
                 expect(err).to.have.status(500)
             })
+    })
+
+    it('License Test Database cleanup', () => {
+        UserModel.findOneAndRemove({ telegram_chat_id: newUser.telegram_chat_id })
+            .then(() => colors.gray(console.log('Database cleanup')))
+            .catch(err => console.log(err))
     })
 })

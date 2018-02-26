@@ -1,4 +1,4 @@
-var marketApi = require('../api/market').api;
+var marketApi = require('../api/market')
 
 module.exports = {
     tickers: (req, res) => {

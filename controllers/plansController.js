@@ -1,4 +1,3 @@
-var dbapi = require('../api/db').database
 var Plan = require('../models/Plan')
 
 module.exports = {

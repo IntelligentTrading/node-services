@@ -20,7 +20,6 @@ describe('Panic Controller', () => {
             .send(feed)
             .set('NSVC-API-KEY', process.env.NODE_SVC_API_KEY)
             .then(res => {
-                console.log(colors.cyan(`\tChecking if ${feed.feedId} == ${res.body.feedId}`))
                 expect(feed.feedId).to.be.equal(res.body.feedId)
             })
     })

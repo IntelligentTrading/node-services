@@ -1,9 +1,13 @@
-var feedbackApi = require('../api/feedback').feedback;
+var feedbackApi = require('../api/feedback');
 
 module.exports = {
     addFeedback: (req, res) => {
 
-        feedbackApi.addFeedback(req.body)
+        var user = req.body.user
+        var content = req.body.content
+        var chat_id = req.body.telegram_chat_id
+
+        feedbackApi.addFeedback(user, chat_id, content)
             .then((card_result) => {
                 return res.send(card_result)
             })

@@ -5,7 +5,7 @@ var _ = require('lodash');
 var coinmarketcap = require('./coinmarketcap').coinmarketcap;
 var poloniex = new ccxt.poloniex();
 
-var api = {
+var self = module.exports = {
     tickers: (forceReload) => {
         var values = cache.get('tickers');
 
@@ -21,7 +21,7 @@ var api = {
                 var tickerPromises = [];
                 poloniex_ticker_symbols.forEach(poloniex_ticker_symbol => {
 
-                    var newTickerPromise = api.ticker(poloniex_ticker_symbol)
+                    var newTickerPromise = self.ticker(poloniex_ticker_symbol)
                         .then(coinMarketCapTicker => {
                             if (coinMarketCapTicker)
                                 poloniex_symbols_info.push(coinMarketCapTicker)
@@ -86,7 +86,7 @@ var api = {
 
         return getCoinMarketCapTickers().then(tkrs => {
             console.log('Tickers info cache initialized...');
-            return api.tickers().then(() => {
+            return self.tickers().then(() => {
                 console.log('Tickers cache initialized...');
             })
         })
@@ -102,5 +102,3 @@ var getCoinMarketCapTickers = () => {
     return coinmarketcap.fetchAllTickers()
         .then(newcoinMarketCapTickers => cache.set('coinMarketCapTickers', newcoinMarketCapTickers));
 }
-
-exports.api = api;

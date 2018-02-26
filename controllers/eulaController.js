@@ -1,6 +1,5 @@
-var dbapi = require('../api/db').database
-var marketApi = require('../api/market').api
-
+var marketApi = require('../api/market')
+var UserModel = require('../models/User')
 const TelegramBot = require('node-telegram-bot-api');
 const token = process.env.TELEGRAM_BOT_TOKEN;
 const bot = new TelegramBot(token, { polling: false });
@@ -17,12 +16,10 @@ module.exports = {
     confirm: (request, response) => {
         var chat_id = request.query.u;
 
-        return dbApi.findUserByChatId(chat_id)
-            .then(userMatches => {
-
-                if (!userMatches || userMatches.length > 0) {
-                    return null;
-                }
+        UserModel.findOne({ telegram_chat_id: chat_id })
+            .then(found => {
+                if (found)
+                    return null
                 else {
 
                     return marketApi.tickers().then(tkrs => {
@@ -45,7 +42,7 @@ module.exports = {
                             settings: settings
                         }
 
-                        return dbApi.addUser(document)
+                        return User.create(document)
                     })
                 }
             })
