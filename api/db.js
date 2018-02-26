@@ -1,8 +1,5 @@
 var mongoose = require('mongoose');
-var User = require('./models/User');
-var Plan = require('./models/Plan');
-var License = require('./models/License');
-var CryptoFeed = require('./models/CryptoFeed');
+var User = require('../models/User');
 
 var argo = require('../util/argo')
 
@@ -45,36 +42,25 @@ var database = {
 
         return User.find(query)
     },
-    findUserByChatId: (chat_id) => {
-        var cid = parseInt(chat_id);
-        if (cid) {
-            return User.find({ telegram_chat_id: chat_id })
-        }
-    },
-    addUser: (data) => {
-        return User.create(data);
-    },
     upsertUser: (chat_id, data) => {
         return User.update({ telegram_chat_id: chat_id }, data, { upsert: true, setDefaultsOnInsert: true });
     },
-    updateUserSettings: (cid, data) => {
+    updateUserSettings: (chat_id, data) => {
 
-        return database.findUserByChatId(cid).then(users => {
-            if (!users || users.length == 0) {
-                console.log('User not found')
-                return null;
-            }
-            else {
-                var user = users[0];
-                user.updateSettings(data.settings);
-                return user;
+        return User.findOne({ telegram_chat_id: parseInt(chat_id) }).then(user => {
+            if (data.settings) {
+
+                var settingsToUpdate = Object.keys(data.settings);
+                settingsToUpdate.forEach(settingToUpdate => {
+                    user.settings[settingToUpdate] = settings[settingToUpdate];
+                })
+                user.save()
             }
         })
     },
     updateUserCurrencies: (chat_id, data, currenciesRole) => {
 
-        return database.findUserByChatId(chat_id).then(users => {
-            var user = users[0];
+        return User.findOne({ telegram_chat_id: parseInt(chat_id) }).then(user => {
 
             data.settings[`${currenciesRole}_currencies`].forEach((currency) => {
 
@@ -95,66 +81,6 @@ var database = {
             user.save();
             return user
         })
-    },
-    getSignalPlans: (signal) => {
-        var clause = {};
-
-        if (signal)
-            clause['signals'] = signal;
-
-        return Plan.find(clause);
-    },
-    getAccessLevelFromPlan: async (plan) => {
-        var dbPlan = await Plan.find({ 'plan': plan })
-        if (dbPlan)
-            return dbPlan[0].accessLevel
-        return -1
-    },
-    setUserLicense: (telegram_chat_id, license, isItt) => {
-
-        var promises = [];
-
-        var subscriberPromise = User.findOne({ telegram_chat_id: telegram_chat_id, eula: true })
-        promises.push(subscriberPromise)
-
-        if (!isItt) {
-            var planPromise = Plan.findOne({ 'plan': license.plan })
-            promises.push(planPromise)
-
-            var licensePromise = License.update({ code: license.code }, { redeemed: true })
-            promises.push(licensePromise)
-        }
-
-        return Promise.all(promises).then(results => {
-            var subscriber = results[0]
-            if (!subscriber)
-                throw new Error('Your chat id is invalid or you did not accept the EULA!')
-
-            var accessLevel = isItt ? 100 : results[1].accessLevel
-            subscriber.settings.is_ITT_Team = isItt
-            subscriber.token = license.code
-            subscriber.settings.subscription_plan = accessLevel
-            subscriber.save()
-            return subscriber
-        })
-    },
-    saveNewsFeed: (feed) => {
-        return CryptoFeed.update({ feedId: feed.feedId }, feed, { upsert: true, setDefaultsOnInsert: true })
-    },
-    updateNewsFeed: (feed) => {
-
-        var pushClause = {};
-        if (feed.ittBullish)
-            pushClause.ittBullish = { $each: feed.ittBullish }
-        if (feed.ittBearish)
-            pushClause.ittBearish = { $each: feed.ittBearish }
-        if (feed.ittImportant)
-            pushClause.ittImportant = { $each: feed.ittImportant }
-
-        return CryptoFeed.update({ feedId: feed.feedId }, { $push: pushClause })
-            .then(res => {
-                return CryptoFeed.find({ feedId: feed.feedId });
-            })
     }
 }
 

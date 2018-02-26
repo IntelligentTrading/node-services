@@ -1,15 +1,18 @@
-var dbapi = require('../api/db').database
+var UserModel = require('../models/User')
+const TelegramBot = require('node-telegram-bot-api');
+const token = process.env.TELEGRAM_BOT_TOKEN;
+const bot = new TelegramBot(token, { polling: false });
+const broadcast_markdown_opts = {
+    parse_mode: "Markdown"
+};
 
 module.exports = {
     broadcast: (req, res) => {
 
-        dbapi.getUsers({}).then(users => {
+        UserModel.find().then(users => {
 
-            var slices = Math.ceil(users.length / 20);
-
-            var broadcast_markdown_opts = {
-                parse_mode: "Markdown"
-            }
+            var maxSimultaneousBroadcastSize = 20
+            var slices = Math.ceil(users.length / maxSimultaneousBroadcastSize)
 
             var replaceables = req.body.replace;
 
@@ -23,7 +26,7 @@ module.exports = {
             }
 
             for (current_slice = 0; current_slice < slices; current_slice++) {
-                users.slice(current_slice * 20, 20 * (current_slice + 1) - 1)
+                users.slice(current_slice * maxSimultaneousBroadcastSize, maxSimultaneousBroadcastSize * (current_slice + 1) - 1)
                     .forEach(user => {
                         var final_message = "";
 
@@ -32,7 +35,6 @@ module.exports = {
                         })
 
                         bot.sendMessage(user.telegram_chat_id, final_message, broadcast_markdown_opts)
-                            .then(console.log(`${user.telegram_chat_id} ok`))
                             .catch(reason => console.log(`${user.telegram_chat_id}:${reason}`));
                     })
             }

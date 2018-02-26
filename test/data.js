@@ -22,5 +22,37 @@ module.exports = {
                 "subscription_plan": -1
             }
         }
+    },
+    cryptoFeed: () => {
+        return {
+            feedId: -1,
+            ittBullish: [],
+            ittBearish: [],
+            ittImportant: [],
+            url: "",
+            votes: {
+                positive: 100,
+                negative: 50,
+                important: 1
+            },
+            timestamp: Date.now(),
+            news: "Interesting news"
+        }
+    },
+    cryptoFeedUpdate: () => {
+        return {
+            feedId: -1,
+            ittBullish: [Math.round(Math.random() * -1000)],
+            ittBearish: [Math.round(Math.random() * -1000)],
+            ittImportant: [Math.round(Math.random() * -1000)],
+            url: "",
+            votes: {
+                positive: 0,
+                negative: 0,
+                important: 0
+            },
+            timestamp: Date.now(),
+            news: "Interesting news"
+        }
     }
 }

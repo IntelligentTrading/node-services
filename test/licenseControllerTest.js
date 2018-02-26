@@ -5,8 +5,8 @@ var chaiHttp = require('chai-http')
 var app = require('../index.js')
 var _ = require('lodash')
 var data = require('./data')
-var UserModel = require('../api/models/User')
-var LicenseModel = require('../api/models/License')
+var UserModel = require('../models/User')
+var LicenseModel = require('../models/License')
 
 chai.use(chaiHttp)
 

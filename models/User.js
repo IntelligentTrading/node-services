@@ -32,36 +32,4 @@ var userSchema = new Schema({
 
 
 var User = mongoose.model('User', userSchema);
-
-User.prototype.updateToken = function (token) {
-
-    if (token) {
-        var _user = this;
-        _user.token = token;
-        _user.save();
-    }
-}
-
-User.prototype.updateSettings = function (settings) {
-
-    if (settings) {
-
-        var settingsToUpdate = Object.keys(settings);
-        var _user = this;
-
-        if (!_user)
-            console.log('Weird errors happen');
-
-        settingsToUpdate.forEach(settingToUpdate => {
-            _user.settings[settingToUpdate] = settings[settingToUpdate];
-        });
-        _user.save(function (err) {
-            if (err) {
-                console.log(err);
-                return;
-            }
-        });
-    }
-}
-
 module.exports = User

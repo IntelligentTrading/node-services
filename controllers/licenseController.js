@@ -1,8 +1,7 @@
-var dbapi = require('../api/db').database
 var argo = require('../util/argo')
-var License = require('../api/models/License')
-
-var self = this;
+var License = require('../models/License')
+var Plan = require('../models/Plan')
+var User = require('../models/User')
 
 module.exports = {
     generateLicense: (req, res) => {
@@ -42,8 +41,7 @@ module.exports = {
                         code: licenseCode
                     }
                 }
-
-                dbapi.setUserLicense(telegram_chat_id, license, isITT).then(result => {
+                setUserLicense(telegram_chat_id, license, isITT).then(result => {
                     return res.status(200).send({ success: true, message: 'Token redeemed correctly!', user: result })
                 }).catch(reason => {
                     return res.status(500).send(reason.message)
@@ -51,4 +49,33 @@ module.exports = {
             }
         })
     }
+}
+
+var setUserLicense = (telegram_chat_id, license, isItt) => {
+
+    var promises = [];
+
+    var subscriberPromise = User.findOne({ telegram_chat_id: telegram_chat_id, eula: true })
+    promises.push(subscriberPromise)
+
+    if (!isItt) {
+        var planPromise = Plan.findOne({ 'plan': license.plan })
+        promises.push(planPromise)
+
+        var licensePromise = License.update({ code: license.code }, { redeemed: true })
+        promises.push(licensePromise)
+    }
+
+    return Promise.all(promises).then(results => {
+        var subscriber = results[0]
+        var subscriptionPlan = results[1] ? results[1].accessLevel : 0
+        if (!subscriber)
+            throw new Error('Your chat id is invalid or you did not accept the EULA!')
+
+        subscriber.settings.is_ITT_Team = isItt
+        subscriber.token = license.code
+        subscriber.settings.subscription_plan = isItt ? 100 : subscriptionPlan
+        subscriber.save()
+        return subscriber
+    })
 }

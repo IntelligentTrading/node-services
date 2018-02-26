@@ -1,12 +1,19 @@
 var dbapi = require('../api/db').database
+var Plan = require('../models/Plan')
 
 module.exports = {
     getPlans: (req, res) => {
-        dbapi.getSignalPlans(req.params.signal).then(signal_plans => {
-            res.send(signal_plans)
-        }).catch(reason => {
-            console.log(reason)
-            res.sendStatus(500)
-        });
+
+        var signal = req.params.signal;
+        var clause = {};
+
+        if (signal)
+            clause['signals'] = signal;
+
+        Plan.find(clause)
+            .then(plans => res.send(plans))
+            .catch(reason => {
+                res.status(500).send(reason)
+            });
     }
 }

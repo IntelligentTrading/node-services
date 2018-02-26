@@ -2,9 +2,6 @@ var express = require('express');
 var path = require('path');
 var app = express();
 var bodyParser = require('body-parser');
-
-//API
-var dbApi = require('./api/db').database
 var marketApi = require('./api/market').api
 
 //Controllers
@@ -60,10 +57,6 @@ app.post('/api/feedback', feedbackController.addFeedback)
 app.route('/api/users')
     .get(usersController.getUsers)
     .post(usersController.createUser)
-
-/*
-    app.post('/api/users/subscribe', usersController.subscribeUser)
-*/
 
 app.route('/api/users/:id')
     .get(usersController.getUser)
