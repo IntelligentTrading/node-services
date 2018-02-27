@@ -130,11 +130,6 @@ describe('Users Controller', () => {
             })
     })
 
-
-    it('Test User update', () => {
-        assert.fail()
-    })
-
     it('Database cleanup', () => {
         return UserModel.findOneAndRemove({ telegram_chat_id: testUserChatId })
             .then(() => {

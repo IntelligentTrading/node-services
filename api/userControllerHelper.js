@@ -25,7 +25,7 @@ module.exports = {
     updateUserSettings: (chat_id, settings) => {
 
         return User.findOne({ telegram_chat_id: parseInt(chat_id) }).then(user => {
-            if (settings) {
+            if (settings && user) {
 
                 var settingsToUpdate = Object.keys(settings);
                 settingsToUpdate.forEach(settingToUpdate => {
