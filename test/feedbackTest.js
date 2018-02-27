@@ -5,6 +5,7 @@ var chaiHttp = require('chai-http')
 var app = require('../index')
 var feedbackJS = require('../api/feedback')
 var colors = require('colors')
+var sinon = require('sinon')
 
 chai.use(chaiHttp)
 
@@ -53,7 +54,7 @@ describe('Feedback Library', () => {
 
         return testCards.map(card => {
             return trello.deleteCard(card.id).then(() => {
-                console.log(colors.grey(`${card.id} deleted`))
+                console.log(colors.cyan('\t⌲ ') + colors.grey(`Test Card ${card.id} deleted`))
             })
         })
     })

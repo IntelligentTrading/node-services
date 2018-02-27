@@ -21,9 +21,5 @@ module.exports = {
                             .then(() => { return card; })
                     })
             })
-            .catch(reason => {
-                console.log(reason);
-                return reason
-            });
     }
 }

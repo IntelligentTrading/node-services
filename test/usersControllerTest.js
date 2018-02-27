@@ -105,6 +105,16 @@ describe('Users Controller', () => {
             })
     })
 
+    it('PUT /users/:id/currencies/:currenciesPairRole Returns 404 if currenciesPairRole is not transaction or counter', () => {
+
+        return chai.request(app)
+            .put(`/api/users/${testUserChatId}/currencies/invalid`)
+            .set('NSVC-API-KEY', process.env.NODE_SVC_API_KEY)
+            .catch(err => {
+                expect(err).to.have.status(404)
+            })
+    })
+
     it('PUT /users/:id/select_all_signals returns 200 and the user has all the currencies selected', () => {
 
         return chai.request(app)
@@ -118,6 +128,11 @@ describe('Users Controller', () => {
                         return expect(res.body.settings.transaction_currencies.length).to.be.equal(tickers.length)
                     })
             })
+    })
+
+
+    it('Test User update', () => {
+        assert.fail()
     })
 
     it('Database cleanup', () => {

@@ -35,7 +35,7 @@ module.exports = {
 
         var currenciesPairRoles = ['transaction', 'counter']
         if (currenciesPairRoles.indexOf(req.params.currenciesPairRole) < 0) {
-            res.status(404)
+            res.sendStatus(404)
         }
         else {
             dbapi.updateUserCurrencies(req.params.id, req.body, req.params.currenciesPairRole)
