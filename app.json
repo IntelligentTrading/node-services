@@ -1,0 +1,9 @@
+{
+    "name": "ITT Node Web Services",
+    "description": "A Node.js app using Express 4",
+    "repository": "https://github.com/IntelligentTrading/node-services",
+    "logo": "",
+    "keywords": ["node", "express", "heroku"],
+    "image": "heroku/nodejs"
+  }
+  
