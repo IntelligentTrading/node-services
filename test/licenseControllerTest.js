@@ -16,7 +16,7 @@ var newUser = undefined
 var license = undefined
 
 before(() => {
-    UserModel.create({ telegram_chat_id: dummyChatId, settings: { horizon: 'short' }, eula: false })
+    UserModel.create({ telegram_chat_id: dummyChatId, settings: { horizon: 'short' }, eula: true })
         .then(user => {
             newUser = user
             console.log(colors.blue('  Test user added'))
@@ -42,16 +42,13 @@ describe('License Controller', () => {
 
     it('POST /license/subscribe returns 200 and a success=true if OK', () => {
 
-        UserModel.findOneAndUpdate({ telegram_chat_id: dummyChatId }, { eula: true }, { new: true })
-            .then(eulaOkUser => {
-                return chai.request(app)
-                    .post('/api/license/subscribe')
-                    .send({ licenseCode: license.code, telegram_chat_id: dummyChatId })
-                    .set('NSVC-API-KEY', process.env.NODE_SVC_API_KEY)
-                    .then((response) => {
-                        expect(response).to.have.status(200)
-                        expect(response.body.success).to.be.true
-                    })
+        return chai.request(app)
+            .post('/api/license/subscribe')
+            .send({ licenseCode: license.code, telegram_chat_id: dummyChatId })
+            .set('NSVC-API-KEY', process.env.NODE_SVC_API_KEY)
+            .then((response) => {
+                expect(response).to.have.status(200)
+                expect(response.body.success).to.be.true
             })
     })
 
