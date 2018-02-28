@@ -7,6 +7,7 @@ var _ = require('lodash')
 var data = require('./data')
 var UserModel = require('../models/User')
 var marketapi = require('../api/market')
+var colors = require('colors')
 
 chai.use(chaiHttp)
 
