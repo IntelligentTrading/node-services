@@ -81,15 +81,15 @@ describe('License Controller', () => {
 })
 
 after(() => {
-    UserModel.findOneAndRemove({ telegram_chat_id: dummyChatId })
+    UserModel.remove({ telegram_chat_id: dummyChatId })
         .then(() => colors.gray(console.log(' Test user removed')))
         .catch(err => console.log(err))
 
-    LicenseModel.findOneAndRemove({ code: license.code })
+    LicenseModel.remove({ code: license.code })
         .then(() => colors.gray(console.log('Test license cleaned')))
         .catch(err => console.log(err))
 
-    LicenseModel.findOneAndUpdate({ code: sampleToken }, { redeemed: false })
+    LicenseModel.update({ code: sampleToken }, { redeemed: false })
         .then(() => colors.gray(console.log('Test power token reset')))
         .catch(err => console.log(err))
 })
