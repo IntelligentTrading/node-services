@@ -14,6 +14,7 @@ chai.use(chaiHttp)
 var dummyChatId = -999
 var newUser = undefined
 var license = undefined
+var sampleToken = process.env.TEAM_EMOJIS.split(',')[0]
 
 before(() => {
     UserModel.create({ telegram_chat_id: dummyChatId, settings: { horizon: 'short' }, eula: true })
@@ -54,8 +55,6 @@ describe('License Controller', () => {
 
     it('ITT Team member can authenticate with power token', () => {
 
-        var sampleToken = process.env.TEAM_EMOJIS.split(',')[0]
-
         return chai.request(app)
             .post('/api/license/subscribe')
             .send({ licenseCode: sampleToken, telegram_chat_id: dummyChatId })
@@ -83,9 +82,14 @@ describe('License Controller', () => {
 
 after(() => {
     UserModel.findOneAndRemove({ telegram_chat_id: dummyChatId })
-        .then(() => colors.gray(console.log('Database cleanup')))
+        .then(() => colors.gray(console.log(' Test user removed')))
         .catch(err => console.log(err))
 
     LicenseModel.findOneAndRemove({ code: license.code })
+        .then(() => colors.gray(console.log('Test license cleaned')))
+        .catch(err => console.log(err))
+
+    LicenseModel.findOneAndUpdate({ code: sampleToken }, { redeemed: false })
+        .then(() => colors.gray(console.log('Test power token reset')))
         .catch(err => console.log(err))
 })
