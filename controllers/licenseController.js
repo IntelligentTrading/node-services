@@ -73,7 +73,7 @@ var setUserLicense = (telegram_chat_id, license, isItt) => {
         if (!subscriber)
             throw new Error('EULA')
 
-        subscriber.settings.is_ITT_Team = isItt
+        subscriber.settings.is_ITT_team = isItt
         subscriber.token = license.code
         subscriber.settings.subscription_plan = isItt ? 100 : subscriptionPlan
         subscriber.save()
