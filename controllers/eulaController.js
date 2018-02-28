@@ -77,9 +77,12 @@ module.exports = {
                                 }]]
                             }
                         }
-                    bot.sendMessage(chat_id, eula_message, markdown_opts).then(() => {
-                        bot.sendMessage(chat_id, '💡*Hint*\nWe can walk through few configuration steps or you can do it using a /wizard. Do you wanna do it now?', opts);
-                    })
+                    bot.sendMessage(chat_id, eula_message, markdown_opts)
+                        .then(() => {
+                            bot.sendMessage(chat_id, '💡*Hint*\nWe can walk through few configuration steps or you can do it using a /wizard. Do you wanna do it now?', opts)
+                                .catch(err => { console.log(err) })
+                        })
+                        .catch(err => { console.log(err) })
                 }).catch(reason => {
                     bot.sendMessage(chat_id, 'Something went wrong while accepting EULA, please retry or contact us!')
                         .catch(err => {
