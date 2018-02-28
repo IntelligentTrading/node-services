@@ -87,6 +87,8 @@ module.exports = {
                         })
                         .catch(err => { console.log(err) })
                 }).catch(reason => {
+                    console.log(reason)
+
                     bot.sendMessage(chat_id, 'Something went wrong while accepting EULA, please retry or contact us!')
                         .catch(err => {
                             console.log(err)
