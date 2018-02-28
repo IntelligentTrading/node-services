@@ -61,7 +61,7 @@ describe('EULA Controller', () => {
     })
 
     it('/eula_confirm should render the "EULA done" view', () => {
-        return expect(spy.getCall(1).args[0]).to.be.eql('eula_done');
+        return expect(spy.getCall(1).args[0]).to.be.eql('eula_done')
     })
 
     it('/eula_confirm should add the new User to the DB', () => {

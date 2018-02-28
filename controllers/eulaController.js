@@ -29,29 +29,32 @@ module.exports = {
                         return null
                     else {
 
-                        return marketApi.tickers().then(tkrs => {
-                            var tickersSymbols = tkrs.map(tkr => tkr.symbol);
-                            var ccs = marketApi.counterCurrencies();
+                        return marketApi.tickers()
+                            .then(tkrs => {
+                                var tickersSymbols = tkrs.map(tkr => tkr.symbol);
+                                var ccs = marketApi.counterCurrencies();
 
-                            var settings = {
-                                counter_currencies: [0, 2],//ccs.map(cc => ccs.indexOf(cc)), // BTC and USDT only
-                                transaction_currencies: tickersSymbols,
-                                horizon: 'medium',
-                                is_muted: false,
-                                is_crowd_enabled: true,
-                                is_ITT_team: false,
-                                subscription_plan: 0
-                            }
+                                var settings = {
+                                    counter_currencies: [0, 2],//ccs.map(cc => ccs.indexOf(cc)), // BTC and USDT only
+                                    transaction_currencies: tickersSymbols,
+                                    horizon: 'medium',
+                                    is_muted: false,
+                                    is_crowd_enabled: true,
+                                    is_ITT_team: false,
+                                    subscription_plan: 0
+                                }
 
-                            var document = {
-                                telegram_chat_id: chat_id,
-                                eula: true,
-                                settings: settings
-                            }
+                                var document = {
+                                    telegram_chat_id: chat_id,
+                                    eula: true,
+                                    settings: settings
+                                }
 
-                            return UserModel.create(document)
-                                .then(newUser => { return newUser })
-                        })
+                                return UserModel.create(document)
+                                    .then(newUser => { return newUser })
+                                    .catch(err => console.log(err))
+                            })
+                            .catch(err => console.log('Market ticker error in eula controller'))
                     }
                 })
                 .then((newUser) => {
