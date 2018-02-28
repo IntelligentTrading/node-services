@@ -23,7 +23,7 @@ module.exports = {
         }
         else {
 
-            UserModel.findOne({ telegram_chat_id: chat_id })
+            return UserModel.findOne({ telegram_chat_id: chat_id })
                 .then(found => {
                     if (found)
                         return null
@@ -50,15 +50,18 @@ module.exports = {
                             }
 
                             return UserModel.create(document)
+                                .then(newUser => { return newUser })
                         })
                     }
                 })
                 .then((newUser) => {
+
                     response.render('eula_done');
                     if (newUser)
                         return 'Thanks for accepting EULA, you can now subscribe with `/token user_token` or keep using the bot with the free plan.';
                     else
                         return 'You already accepted the EULA, you can now subscribe with `/token user_token` or keep using the bot with the free plan.';
+
                 }).then(eula_message => {
                     var opts =
                         {
