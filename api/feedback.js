@@ -2,8 +2,8 @@ var Trello = require('trello');
 var trello = new Trello(process.env.TRELLO_KEY, process.env.TRELLO_TOKEN);
 var ITT_BOARD_ID = process.env.ITT_TRELLO_BOARD_ID;
 
-var feedback = {
-    addFeedback: (feedback) => {
+module.exports = {
+    addFeedback: (user, chat_id, content) => {
         return trello.getListsOnBoard(ITT_BOARD_ID)
             .then((lists) => {
                 var issuesListResults = lists.filter(list => list.name == process.env.ITT_TRELLO_LIST);
@@ -13,36 +13,13 @@ var feedback = {
 
                 return issuesListResults[0];
             }).then(issueList => {
+                var cardName = `Feedback from ${user}`;
 
-                console.log(feedback);
-                var cardName = `Feedback from ${feedback.user}`;
-
-                /*
-                    ? Is there a better way to get the ticket code?
-                    ? are we using another service?
-                */
-                return trello.addCard(cardName, `[Chat #${feedback.chat_id}]\n${feedback.content}`, issueList.id)
+                return trello.addCard(cardName, `[Chat #${chat_id}]\n${content}`, issueList.id)
                     .then(card => {
-                        trello.updateCardName(card.id, `[${card.shortLink}] ${cardName}`)
-                            .catch(reason => {
-                                console.log(reason);
-                                return reason
-                            });
-                        return card;
+                        return trello.updateCardName(card.id, `[${card.shortLink}] ${cardName}`)
+                            .then(() => { return card; })
                     })
-                    .then(card => {
-                        return card
-                    })
-                    .catch(reason => {
-                        console.log(reason);
-                        return reason
-                    });
             })
-            .catch(reason => {
-                console.log(reason);
-                return reason
-            });
     }
 }
-
-exports.feedback = feedback;

@@ -2,7 +2,4 @@
 /node_modules
 *.todo
 *.png
-
-.nyc_output/981e12e90322c1fc11111fa275d7b7a5.json
-
-.nyc_output/e9e72f9725be2e17342851c0765c8750.json
+.nyc_output/
