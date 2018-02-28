@@ -57,6 +57,7 @@ describe('EULA Controller', () => {
             .then(res => {
                 expect(res).to.have.status(200)
             })
+            .catch(err => console.log(err))
     })
 
     it('/eula_confirm should render the "EULA done" view', () => {
