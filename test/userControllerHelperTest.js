@@ -33,7 +33,7 @@ describe('Users Controller Helper', () => {
 
         userControllerHelper.getUsers({ horizon: 'short' }).then(users => {
             console.log(colors.blue(`  (Found ${users.length} users)`))
-            UserModel.find({}, { 'settings.horizon': 'short' }).then(dbusers => {
+            UserModel.find({ 'settings.horizon': 'short' }).then(dbusers => {
                 expect(users.length).to.be.equal(dbusers.length)
             })
         })
