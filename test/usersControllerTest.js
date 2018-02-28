@@ -130,8 +130,5 @@ describe('Users Controller', () => {
 
 after(() => {
     return UserModel.findOneAndRemove({ telegram_chat_id: testUserChatId })
-        .then(() => {
-            return UserModel.findOne({ telegram_chat_id: testUserChatId })
-                .then(nobody => expect(nobody).to.be.null)
-        })
+        .then(user => { console.log(colors.blue('  Test user killed')) })
 })
