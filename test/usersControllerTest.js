@@ -130,6 +130,6 @@ describe('Users Controller', () => {
 })
 
 after(() => {
-    return UserModel.findOneAndRemove({ telegram_chat_id: testUserChatId })
+    return UserModel.remove({ telegram_chat_id: testUserChatId })
         .then(user => { console.log(colors.blue('  Test user killed')) })
 })
