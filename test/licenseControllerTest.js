@@ -11,11 +11,22 @@ var LicenseModel = require('../models/License')
 
 chai.use(chaiHttp)
 
+var dummyChatId = -999
+var newUser = undefined
+var license = undefined
+
+before(() => {
+    UserModel.create({ telegram_chat_id: dummyChatId, settings: { horizon: 'short' }, eula: false })
+        .then(user => {
+            newUser = user
+            console.log(colors.blue('  Test user added'))
+        })
+        .catch(err => { console.log(err) })
+});
+
 describe('License Controller', () => {
 
     var subscriptionPlan = 'beta'
-    var license = undefined;
-    var newUser = data.userTemplate()
 
     it('POST /license/generate/:subscriptionPlan returns 201 and a valid token if subscriptionPlan is defined', () => {
 
@@ -31,40 +42,16 @@ describe('License Controller', () => {
 
     it('POST /license/subscribe returns 200 and a success=true if OK', () => {
 
-        return chai.request(app)
-            .post('/api/users/')
-            .set('NSVC-API-KEY', process.env.NODE_SVC_API_KEY)
-            .send(newUser)
-            .then(() => {
+        UserModel.findOneAndUpdate({ telegram_chat_id: dummyChatId }, { eula: true }, { new: true })
+            .then(eulaOkUser => {
                 return chai.request(app)
                     .post('/api/license/subscribe')
-                    .send({ licenseCode: license.code, telegram_chat_id: newUser.telegram_chat_id })
+                    .send({ licenseCode: license.code, telegram_chat_id: dummyChatId })
                     .set('NSVC-API-KEY', process.env.NODE_SVC_API_KEY)
                     .then((response) => {
                         expect(response).to.have.status(200)
                         expect(response.body.success).to.be.true
                     })
-            })
-    })
-
-    it('POST /license/subscribe returns 200 and success=false if already redeemed', () => {
-        return chai.request(app)
-            .post('/api/license/subscribe')
-            .send({ licenseCode: license.code, telegram_chat_id: newUser.telegram_chat_id })
-            .set('NSVC-API-KEY', process.env.NODE_SVC_API_KEY)
-            .then((response) => {
-                expect(response).to.have.status(200)
-                expect(response.body.success).to.be.false
-            })
-    })
-
-    it('User token is the token generated now', () => {
-        LicenseModel.findOneAndRemove({ code: license.code })
-            .catch(err => console.log(err))
-
-        return UserModel.findOne({ telegram_chat_id: newUser.telegram_chat_id })
-            .then(subscriber => {
-                assert.equal(subscriber.token, license.code)
             })
     })
 
@@ -74,7 +61,7 @@ describe('License Controller', () => {
 
         return chai.request(app)
             .post('/api/license/subscribe')
-            .send({ licenseCode: sampleToken, telegram_chat_id: newUser.telegram_chat_id })
+            .send({ licenseCode: sampleToken, telegram_chat_id: dummyChatId })
             .set('NSVC-API-KEY', process.env.NODE_SVC_API_KEY)
             .then((response) => {
                 expect(response).to.have.status(200)
@@ -88,16 +75,19 @@ describe('License Controller', () => {
 
         return chai.request(app)
             .post('/api/license/subscribe')
-            .send({ licenseCode: 'ErrorToken', telegram_chat_id: newUser.telegram_chat_id })
+            .send({ licenseCode: 'ErrorToken', telegram_chat_id: dummyChatId })
             .set('NSVC-API-KEY', process.env.NODE_SVC_API_KEY)
             .catch((err) => {
                 expect(err).to.have.status(500)
             })
     })
+})
 
-    it('License Test Database cleanup', () => {
-        UserModel.findOneAndRemove({ telegram_chat_id: newUser.telegram_chat_id })
-            .then(() => colors.gray(console.log('Database cleanup')))
-            .catch(err => console.log(err))
-    })
+after(() => {
+    UserModel.findOneAndRemove({ telegram_chat_id: dummyChatId })
+        .then(() => colors.gray(console.log('Database cleanup')))
+        .catch(err => console.log(err))
+
+    LicenseModel.findOneAndRemove({ code: license.code })
+        .catch(err => console.log(err))
 })

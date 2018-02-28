@@ -36,11 +36,11 @@ module.exports = {
             }
         })
     },
-    updateUserCurrencies: (chat_id, data, currenciesRole) => {
+    updateUserCurrencies: (chat_id, settings, currenciesRole) => {
 
         return User.findOne({ telegram_chat_id: parseInt(chat_id) }).then(user => {
 
-            data.settings[`${currenciesRole}_currencies`].forEach((currency) => {
+            settings.currencies.forEach((currency) => {
 
                 var isTransactionCurrency = currenciesRole == 'transaction';
                 var key = isTransactionCurrency ? currency.symbol : currency.index;

@@ -2,7 +2,7 @@ module.exports = {
     userTemplate: () => {
         return {
             "telegram_chat_id": 999,
-            "eula": true,
+            "eula": false,
             "token": "",
             "settings": {
                 "counter_currencies": [

@@ -51,5 +51,5 @@ describe('Users Controller Helper', () => {
 
 after(() => {
     UserModel.remove({ telegram_chat_id: -1 })
-        .then(user => { console.log(colors.blue('  Database cleaned')) })
+        .then(user => { console.log(colors.blue('  Test user killed')) })
 })

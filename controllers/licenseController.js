@@ -24,30 +24,34 @@ module.exports = {
         if (!licenseCode || !telegram_chat_id)
             return res.status(400).send('License code or chat id parameters required')
 
-        var isMathematicallyCorrect = argo.subscription.checkMathematicalCorrectness(licenseCode)
-        var isITT = argo.isITTMember(licenseCode)
+        User.findOne({ telegram_chat_id: telegram_chat_id, eula: true })
+            .then(user => {
+                if (!user)
+                    return res.send({ success: false, message: 'EULA' })
+                else {
 
-        if (!isMathematicallyCorrect && !isITT)
-            return res.status(500).send('Token is invalid!')
+                    var isMathematicallyCorrect = argo.subscription.checkMathematicalCorrectness(licenseCode)
+                    var isITT = argo.isITTMember(licenseCode)
 
-        License.findOne({ code: licenseCode }).then(license => {
+                    if (!isMathematicallyCorrect && !isITT)
+                        return res.send({ success: false, message: 'Token is invalid!' })
 
-            if (license && license.redeemed)
-                res.status(200).send({ success: false, message: 'Token already redeemed!' })
-            else {
-
-                if (isITT) {
-                    license = {
-                        code: licenseCode
-                    }
+                    License.findOne({ code: licenseCode })
+                        .then(license => {
+                            if (license && license.redeemed)
+                                res.send({ success: false, message: 'Token already redeemed!' })
+                            else {
+                                if (isITT) { license = { code: licenseCode } }
+                                setUserLicense(telegram_chat_id, license, isITT).then(result => {
+                                    return res.send({ success: true, message: 'Token redeemed correctly!', user: result })
+                                }).catch(reason => {
+                                    return res.send({ success: false, message: reason.message })
+                                })
+                            }
+                        })
                 }
-                setUserLicense(telegram_chat_id, license, isITT).then(result => {
-                    return res.status(200).send({ success: true, message: 'Token redeemed correctly!', user: result })
-                }).catch(reason => {
-                    return res.status(500).send(reason.message)
-                })
-            }
-        })
+            })
+            .catch(err => { console.log(err); return res.send(500) })
     }
 }
 
@@ -61,21 +65,22 @@ var setUserLicense = (telegram_chat_id, license, isItt) => {
     if (!isItt) {
         var planPromise = Plan.findOne({ 'plan': license.plan })
         promises.push(planPromise)
-
-        var licensePromise = License.update({ code: license.code }, { redeemed: true })
-        promises.push(licensePromise)
     }
 
     return Promise.all(promises).then(results => {
         var subscriber = results[0]
         var subscriptionPlan = results[1] ? results[1].accessLevel : 0
         if (!subscriber)
-            throw new Error('Your chat id is invalid or you did not accept the EULA!')
+            throw new Error('EULA')
 
         subscriber.settings.is_ITT_Team = isItt
         subscriber.token = license.code
         subscriber.settings.subscription_plan = isItt ? 100 : subscriptionPlan
         subscriber.save()
+
+        License.findOneAndUpdate({ code: license.code }, { redeemed: true }, { new: true })
+            .catch(err => console.log(err))
+
         return subscriber
     })
 }

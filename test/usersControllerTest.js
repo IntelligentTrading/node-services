@@ -67,12 +67,10 @@ describe('Users Controller', () => {
     it('PUT /users returns 200 and removed currency when successfully unfollowing it', () => {
 
         var update = {
-            "settings": {
-                "counter_currencies": [{
-                    "index": 1,
-                    "follow": "False"
-                }]
-            }
+            currencies: [{
+                "index": 1,
+                "follow": "False"
+            }]
         }
 
         return chai.request(app)
@@ -88,13 +86,12 @@ describe('Users Controller', () => {
     it('PUT /users returns 200 and new currency when successfully following it', () => {
 
         var update = {
-            "settings": {
-                "counter_currencies": [{
-                    "index": 1,
-                    "follow": "True"
-                }]
-            }
+            currencies: [{
+                "index": 1,
+                "follow": "True"
+            }]
         }
+
         return chai.request(app)
             .put(`/api/users/${testUserChatId}/currencies/counter`)
             .set('NSVC-API-KEY', process.env.NODE_SVC_API_KEY)
