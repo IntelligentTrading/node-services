@@ -2,15 +2,24 @@ var chai = require('chai');
 var assert = chai.assert;
 var expect = chai.expect;
 var chaiHttp = require('chai-http')
+var colors = require('colors')
 var app = require('../index.js')
 var marketApi = require('../api/market');
 var _ = require('lodash')
+var UserModel = require('../models/User')
+
+var telegram_chat_id = process.env.TELEGRAM_TEST_CHAT_ID
 
 chai.use(chaiHttp)
 
 before((done) => {
     app.on("appStarted", done)
-});
+})
+
+beforeEach(() => {
+    UserModel.create({ telegram_chat_id: telegram_chat_id, settings: { subscriptions: { paid: Date.now() } }, eula: true })
+        .catch(err => { console.log(err) })
+})
 
 describe('List of counter currencies', () => {
     it('Should never be null', () => {
@@ -90,4 +99,9 @@ describe('GET Tickers', () => {
                 })
         })
     })
+})
+
+afterEach(() => {
+    return UserModel.remove({ telegram_chat_id: telegram_chat_id })
+        .catch(err => console.log(err))
 })

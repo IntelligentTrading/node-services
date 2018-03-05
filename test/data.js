@@ -1,7 +1,7 @@
 module.exports = {
     userTemplate: () => {
         return {
-            "telegram_chat_id": 999,
+            "telegram_chat_id": -1 * process.env.TELEGRAM_TEST_CHAT_ID,
             "eula": false,
             "token": "",
             "settings": {

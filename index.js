@@ -31,6 +31,7 @@ var broadcastController = require('./controllers/broadcastController')
 var plansController = require('./controllers/plansController')
 var eulaController = require('./controllers/eulaController')
 var licenseController = require('./controllers/licenseController')
+var paymentController = require('./controllers/paymentController')
 
 //UTILS
 var swaggerUi = require('swagger-ui-express'),
@@ -92,6 +93,8 @@ app.post('/api/license/subscribe', licenseController.subscribe)
 app.get('/api/plans/:signal?', plansController.getPlans)
 
 app.post('/api/broadcast', broadcastController.broadcast)
+
+app.post('/api/payment/verify', paymentController.watchApi)
 
 app.listen(app.get('port'), function () {
 

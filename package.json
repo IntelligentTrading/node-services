@@ -4,7 +4,7 @@
   "description": "ITT Node Services",
   "main": "index.js",
   "scripts": {
-    "test": "nyc --reporter=text mocha --timeout=20000 --exit",
+    "test": "nyc --reporter=text mocha --no-timeouts --exit",
     "start": "node index.js"
   },
   "repository": {
@@ -29,6 +29,7 @@
     "chai": "^4.1.2",
     "chai-http": "^3.0.0",
     "colors": "^1.1.2",
+    "ethers": "^2.2.6",
     "ejs": "2.5.6",
     "express": "^4.16.2",
     "iconv": "^2.3.0",

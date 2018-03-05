@@ -11,19 +11,10 @@ var LicenseModel = require('../models/License')
 
 chai.use(chaiHttp)
 
-var dummyChatId = -999
 var newUser = undefined
 var license = undefined
 var sampleToken = process.env.TEAM_EMOJIS.split(',')[0]
-
-before(() => {
-    UserModel.create({ telegram_chat_id: dummyChatId, settings: { horizon: 'short' }, eula: true })
-        .then(user => {
-            newUser = user
-            console.log(colors.blue('  Test user added'))
-        })
-        .catch(err => { console.log(err) })
-});
+var telegram_chat_id = process.env.TELEGRAM_TEST_CHAT_ID
 
 describe('License Controller', () => {
 
@@ -45,7 +36,7 @@ describe('License Controller', () => {
 
         return chai.request(app)
             .post('/api/license/subscribe')
-            .send({ licenseCode: license.code, telegram_chat_id: dummyChatId })
+            .send({ licenseCode: license.code, telegram_chat_id: telegram_chat_id })
             .set('NSVC-API-KEY', process.env.NODE_SVC_API_KEY)
             .then((response) => {
                 expect(response).to.have.status(200)
@@ -57,7 +48,7 @@ describe('License Controller', () => {
 
         return chai.request(app)
             .post('/api/license/subscribe')
-            .send({ licenseCode: sampleToken, telegram_chat_id: dummyChatId })
+            .send({ licenseCode: sampleToken, telegram_chat_id: telegram_chat_id })
             .set('NSVC-API-KEY', process.env.NODE_SVC_API_KEY)
             .then((response) => {
                 console.log(response)
@@ -72,7 +63,7 @@ describe('License Controller', () => {
 
         return chai.request(app)
             .post('/api/license/subscribe')
-            .send({ licenseCode: 'ErrorToken', telegram_chat_id: dummyChatId })
+            .send({ licenseCode: 'ErrorToken', telegram_chat_id: telegram_chat_id })
             .set('NSVC-API-KEY', process.env.NODE_SVC_API_KEY)
             .catch((err) => {
                 expect(err).to.have.status(500)
@@ -81,9 +72,6 @@ describe('License Controller', () => {
 })
 
 after(() => {
-    UserModel.remove({ telegram_chat_id: dummyChatId })
-        .then(() => colors.gray(console.log(' Test user removed')))
-        .catch(err => console.log(err))
 
     LicenseModel.remove({ code: license.code })
         .then(() => colors.gray(console.log('Test license cleaned')))
