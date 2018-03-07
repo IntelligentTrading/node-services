@@ -51,7 +51,6 @@ describe('License Controller', () => {
             .send({ licenseCode: sampleToken, telegram_chat_id: telegram_chat_id })
             .set('NSVC-API-KEY', process.env.NODE_SVC_API_KEY)
             .then((response) => {
-                console.log(response)
                 expect(response).to.have.status(200)
                 expect(response.body.success).to.be.true
                 expect(response.body.user.settings.subscription_plan).to.be.equal(100)

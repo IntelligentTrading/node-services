@@ -95,6 +95,8 @@ app.get('/api/plans/:signal?', plansController.getPlans)
 app.post('/api/broadcast', broadcastController.broadcast)
 
 app.post('/api/payment/verify', paymentController.watchApi)
+app.get('/api/payment/receipt/:txHash', paymentController.receiptApi)
+app.get('/api/payment/status/:telegram_chat_id', paymentController.getUserStatusApi)
 
 app.listen(app.get('port'), function () {
 
