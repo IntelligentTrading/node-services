@@ -15,9 +15,8 @@ module.exports = {
                 "is_muted": false,
                 "is_crowd_enabled": false,
                 "risk": "medium",
+                "TwoFASecret": '',
                 "is_ITT_team": false,
-                "time_diff": 0,
-                "timezone": "UTC",
                 "subscription_plan": 0
             }
         }

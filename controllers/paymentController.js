@@ -3,7 +3,7 @@ var etherscanProvider = new ethers.providers.EtherscanProvider()//ethers.provide
 var UserModel = require('../models/User')
 var dates = require('../util/dates')
 
-var contractAddress = '0x0aeF06DcCCC531e581f0440059E6FfCC206039EE'
+var ittContractAddress = '0x0aeF06DcCCC531e581f0440059E6FfCC206039EE'
 
 module.exports = paymentController = {
     watch: (txHash) => {
@@ -58,7 +58,7 @@ module.exports = paymentController = {
             if (!isAlreadyVerified) {
                 var tx = await paymentController.watch(txHash)
 
-                if (tx.to != contractAddress)
+                if (tx.to != ittContractAddress)
                     throw new Error('You can verify only ITT transactions!')
 
                 await paymentController.addTransactionToList(txHash, telegram_chat_id)
