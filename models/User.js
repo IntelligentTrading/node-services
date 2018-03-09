@@ -32,7 +32,7 @@ var userSchema = new Schema({
             otpAuthUrl: String
         }
     },
-    eula: Boolean,
+    eula: { type: Boolean, default: false },
     token: { type: String, default: '' },
     created: { type: Date, default: Date.now() }
 });

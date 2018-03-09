@@ -2,14 +2,19 @@ var dbapi = require('../api/userControllerHelper')
 var marketapi = require('../api/market')
 var User = require('../models/User')
 
-module.exports = {
+module.exports = userController = {
     getUsers: (req, res) => {
-        dbapi.getUsers(req.query).then(users => {
-            res.send(users);
-        }).catch(reason => res.sendStatus(500).send(reason));
+        if (req.params.telegram_chat_id) {
+            userController.getUser(req, res)
+        }
+        else {
+            dbapi.getUsers(req.query).then(users => {
+                res.send(users);
+            }).catch(reason => res.sendStatus(500).send(reason));
+        }
     },
     getUser: (req, res) => {
-        User.findOne({ telegram_chat_id: parseInt(req.params.id) }).then(user => {
+        User.findOne({ telegram_chat_id: parseInt(req.params.telegram_chat_id) }).then(user => {
             user ? res.send(user) : res.sendStatus(404)
         }).catch(reason => res.status(500).send(reason));
     },
@@ -25,7 +30,10 @@ module.exports = {
         });
     },
     updateUser: (req, res) => {
-        dbapi.updateUserSettings(req.params.id, req.body).then(user => {
+        if (!req.params.telegram_chat_id)
+            throw new Error('Chat Id cannot be null')
+
+        dbapi.updateUserSettings(req.params.telegram_chat_id, req.body).then(user => {
             return res.send(user);
         }).catch(reason => {
             return res.status(500).send(reason)
@@ -38,7 +46,7 @@ module.exports = {
             res.sendStatus(404)
         }
         else {
-            dbapi.updateUserCurrencies(req.params.id, req.body, req.params.currenciesPairRole)
+            dbapi.updateUserCurrencies(req.params.telegram_chat_id, req.body, req.params.currenciesPairRole)
                 .then((user) => {
                     res.send(user);
                 }).catch(reason => {
@@ -48,7 +56,7 @@ module.exports = {
     },
     selectAllSignals: (req, res) => {
 
-        return User.findOne({ telegram_chat_id: parseInt(req.params.id) }).then(user => {
+        return User.findOne({ telegram_chat_id: parseInt(req.params.telegram_chat_id) }).then(user => {
             return Promise.all([user, marketapi.tickers(), marketapi.counterCurrencies()])
         }).then(results => {
             var user = results[0];
@@ -64,7 +72,7 @@ module.exports = {
             settings.transaction_currencies = tickersSymbols;
             return settings
         }).then(data => {
-            return dbapi.updateUserSettings(req.params.id, data)
+            return dbapi.updateUserSettings(req.params.telegram_chat_id, data)
         }).then((user) => {
             res.send(user);
         }).catch(reason => {

@@ -36,7 +36,7 @@ var twoFAController = require('./controllers/2FAController')
 
 //UTILS
 var swaggerUi = require('swagger-ui-express'),
-    swaggerDocument = require('./swagger.json');
+    swaggerDocument = require('./docs/swagger.json');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
@@ -74,16 +74,13 @@ app.route('/api/panic')
 app.post('/api/feedback', feedbackController.addFeedback)
 
 // Users API
-app.route('/api/users')
+app.route('/api/users/:telegram_chat_id?')
     .get(usersController.getUsers)
     .post(usersController.createUser)
-
-app.route('/api/users/:id')
-    .get(usersController.getUser)
     .put(usersController.updateUser)
 
-app.put('/api/users/:id/currencies/:currenciesPairRole', usersController.updateUserCurrencies)
-app.put('/api/users/:id/select_all_signals', usersController.selectAllSignals)
+app.put('/api/users/:telegram_chat_id/currencies/:currenciesPairRole', usersController.updateUserCurrencies)
+app.put('/api/users/:telegram_chat_id/select_all_signals', usersController.selectAllSignals)
 
 //License API
 app.post('/api/license/generate/:subscriptionPlan', licenseController.generateLicense)
@@ -120,6 +117,5 @@ var isAuthorized = (request) => {
     var nsvc_api_key = request.header('NSVC-API-KEY');
     return nsvc_api_key == process.env.NODE_SVC_API_KEY;
 }
-
 
 module.exports = app;
