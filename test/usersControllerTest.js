@@ -11,7 +11,7 @@ var colors = require('colors')
 
 chai.use(chaiHttp)
 
-var testUserChatId = 999;
+var telegram_chat_id = -1 * process.env.TELEGRAM_TEST_CHAT_ID
 
 describe('Users Controller', () => {
     it('GET /users Returns 200 and an array of users', () => {
@@ -29,11 +29,11 @@ describe('Users Controller', () => {
 
 
         return chai.request(app)
-            .get('/api/users/' + testUserChatId)
+            .get('/api/users/' + telegram_chat_id)
             .set('NSVC-API-KEY', process.env.NODE_SVC_API_KEY)
             .then(res => {
                 expect(res).to.have.status(200)
-                expect(res.body.telegram_chat_id).to.be.equal(testUserChatId)
+                expect(res.body.telegram_chat_id).to.be.equal(telegram_chat_id)
             })
             .catch(err => {
                 expect(err).to.have.status(404)
@@ -75,7 +75,7 @@ describe('Users Controller', () => {
         }
 
         return chai.request(app)
-            .put(`/api/users/${testUserChatId}/currencies/counter`)
+            .put(`/api/users/${telegram_chat_id}/currencies/counter`)
             .set('NSVC-API-KEY', process.env.NODE_SVC_API_KEY)
             .send(update)
             .then(res => {
@@ -94,7 +94,7 @@ describe('Users Controller', () => {
         }
 
         return chai.request(app)
-            .put(`/api/users/${testUserChatId}/currencies/counter`)
+            .put(`/api/users/${telegram_chat_id}/currencies/counter`)
             .set('NSVC-API-KEY', process.env.NODE_SVC_API_KEY)
             .send(update)
             .then(res => {
@@ -106,7 +106,7 @@ describe('Users Controller', () => {
     it('PUT /users/:id/currencies/:currenciesPairRole Returns 404 if currenciesPairRole is not transaction or counter', () => {
 
         return chai.request(app)
-            .put(`/api/users/${testUserChatId}/currencies/invalid`)
+            .put(`/api/users/${telegram_chat_id}/currencies/invalid`)
             .set('NSVC-API-KEY', process.env.NODE_SVC_API_KEY)
             .catch(err => {
                 expect(err).to.have.status(404)
@@ -116,7 +116,7 @@ describe('Users Controller', () => {
     it('PUT /users/:id/select_all_signals returns 200 and the user has all the currencies selected', () => {
 
         return chai.request(app)
-            .put(`/api/users/${testUserChatId}/select_all_signals`)
+            .put(`/api/users/${telegram_chat_id}/select_all_signals`)
             .set('NSVC-API-KEY', process.env.NODE_SVC_API_KEY)
             .then(res => {
                 expect(res).to.have.status(200)
@@ -130,6 +130,6 @@ describe('Users Controller', () => {
 })
 
 after(() => {
-    return UserModel.remove({ telegram_chat_id: testUserChatId })
-        .then(user => { console.log(colors.blue('  Test user killed')) })
+    return UserModel.remove({ telegram_chat_id: telegram_chat_id })
+        .catch(err => console.log(err))
 })

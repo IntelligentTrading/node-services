@@ -1,0 +1,343 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "ITT Node Services",
+    "description": "Node Services Documentation, v1",
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "host": "localhost:5002",
+  "basePath": "/api/",
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "security": {
+    "APIKeyHeader": []
+  },
+  "paths": {
+    "/users": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get all users in system or the once specified by telegram_chat_id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "telegram_chat_id",
+            "type": "integer",
+            "description": "The Telegram chat id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Create a new user",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "telegram_chat_id",
+            "type": "integer",
+            "required": true,
+            "description": "Numeric ID of the user"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Update user settings (only)",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "telegram_chat_id",
+            "type": "integer",
+            "required": true,
+            "description": "The Telegram Chat Id of the user"
+          },
+          {
+            "in": "body",
+            "name": "horizon",
+            "type": "string",
+            "description": "The user horizon"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the updated user",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        }
+      }
+    },
+    "/users/{telegram_chat_id}/currencies/{currenciesPairRole}": {
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Update user counter and transaction currencies",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "telegram_chat_id",
+            "type": "integer",
+            "required": true,
+            "description": "The Telegram Chat Id of the user"
+          },
+          {
+            "in": "path",
+            "name": "currenciesPairRole",
+            "type": "list",
+            "enum": [
+              "transaction",
+              "counter"
+            ],
+            "required": true,
+            "description": "Specifies if counter or transaction currencies"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "type": "array",
+            "required": true,
+            "description": "the list of currencies to add/remove from the user's list.",
+            "schema": {
+              "$ref": "#/definitions/FollowedCurrencies"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the updated user",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        }
+      }
+    },
+    "/tickers": {
+      "get": {
+        "tags": [
+          "Tickers"
+        ],
+        "summary": "Get all tickers in system",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Tickers"
+            }
+          }
+        }
+      }
+    },
+    "/ticker": {
+      "get": {
+        "tags": [
+          "Ticker"
+        ],
+        "summary": "Get a ticker with symbol as parameter",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "symbol",
+            "type": "string",
+            "required": true,
+            "description": "Symbol of the ticker to retrieve"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Ticker"
+            }
+          }
+        }
+      }
+    },
+    "/security/2FA/generate/{telegram_chat_id}": {
+      "get": {
+        "tags": [
+          "2FA"
+        ],
+        "summary": "Generate a 2FA secret for the Telegram Chat ID",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "telegram_chat_id",
+            "type": "integer",
+            "required": true,
+            "description": "Numeric ID of the user to get"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/2FASecret"
+            }
+          }
+        }
+      }
+    },
+    "/security/2FA/qr/{telegram_chat_id}": {
+      "get": {
+        "tags": [
+          "2FA"
+        ],
+        "summary": "Get the QR data containing the 2FA secret for the Telegram Chat ID",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "telegram_chat_id",
+            "type": "integer",
+            "required": true,
+            "description": "Numeric ID of the user to get"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/2FASecret"
+            }
+          }
+        }
+      }
+    },
+    "/security/2FA/verify": {
+      "get": {
+        "tags": [
+          "2FA"
+        ],
+        "summary": "Verifies the token for the Telegram Chat ID",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "token",
+            "type": "integer",
+            "required": true,
+            "description": "2FA OTP Token for the authentication"
+          },
+          {
+            "in": "query",
+            "name": "telegram_chat_id",
+            "type": "integer",
+            "required": true,
+            "description": "Numeric ID of the user to get"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/2FASecret"
+            }
+          }
+        }
+      }
+    }
+  },
+  "securityDefinitions": {
+    "APIKeyHeader": {
+      "type": "apiKey",
+      "in": "header",
+      "name": "NSVC-API-KEY"
+    }
+  },
+  "definitions": {
+    "User": {
+      "required": [
+        "telegram_chat_id"
+      ],
+      "type": "object",
+      "properties": {
+        "telegram_chat_id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "token": {
+          "type": "string"
+        },
+        "eula": {
+          "type": "boolean"
+        }
+      }
+    },
+    "Ticker": {
+      "required": [
+        "symbol"
+      ],
+      "properties": {
+        "symbol": {
+          "type": "string",
+          "uniqueItems": true,
+          "example": "BTC"
+        }
+      }
+    },
+    "Tickers": {
+      "type": "array",
+      "$ref": "#/definitions/Ticker"
+    },
+    "FollowedCurrency": {
+      "properties": {
+        "symbol": {
+          "type": "string"
+        },
+        "follow": {
+          "type": "boolean"
+        }
+      }
+    },
+    "FollowedCurrencies": {
+      "type": "array",
+      "$ref": "#/definitions/FollowedCurrency"
+    },
+    "2FASecret": {
+      "required": [
+        "telegram_chat_id"
+      ],
+      "properties": {
+        "telegram_chat_id": {
+          "type": "integer",
+          "uniqueItems": true,
+          "example": -1
+        }
+      }
+    }
+  }
+}

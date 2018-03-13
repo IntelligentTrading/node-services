@@ -31,10 +31,12 @@ var broadcastController = require('./controllers/broadcastController')
 var plansController = require('./controllers/plansController')
 var eulaController = require('./controllers/eulaController')
 var licenseController = require('./controllers/licenseController')
+var paymentController = require('./controllers/paymentController')
+var twoFAController = require('./controllers/2FAController')
 
 //UTILS
 var swaggerUi = require('swagger-ui-express'),
-    swaggerDocument = require('./swagger.json');
+    swaggerDocument = require('./docs/swagger.json');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
@@ -72,16 +74,13 @@ app.route('/api/panic')
 app.post('/api/feedback', feedbackController.addFeedback)
 
 // Users API
-app.route('/api/users')
+app.route('/api/users/:telegram_chat_id?')
     .get(usersController.getUsers)
     .post(usersController.createUser)
-
-app.route('/api/users/:id')
-    .get(usersController.getUser)
     .put(usersController.updateUser)
 
-app.put('/api/users/:id/currencies/:currenciesPairRole', usersController.updateUserCurrencies)
-app.put('/api/users/:id/select_all_signals', usersController.selectAllSignals)
+app.put('/api/users/:telegram_chat_id/currencies/:currenciesPairRole', usersController.updateUserCurrencies)
+app.put('/api/users/:telegram_chat_id/select_all_signals', usersController.selectAllSignals)
 
 //License API
 app.post('/api/license/generate/:subscriptionPlan', licenseController.generateLicense)
@@ -92,6 +91,15 @@ app.post('/api/license/subscribe', licenseController.subscribe)
 app.get('/api/plans/:signal?', plansController.getPlans)
 
 app.post('/api/broadcast', broadcastController.broadcast)
+
+app.post('/api/payment/verify', paymentController.watchApi)
+app.get('/api/payment/receipt/:txHash', paymentController.receiptApi)
+app.get('/api/payment/status/:telegram_chat_id', paymentController.getUserStatusApi)
+
+app.get('/api/security/2FA/generate/:telegram_chat_id', twoFAController.generateSecretApi)
+app.get('/api/security/2FA/qr/:telegram_chat_id', twoFAController.getQRDataApi)
+app.get('/api/security/2FA/verify', twoFAController.verifyApi)
+app.get('/api/security/2FA/token/:telegram_chat_id', twoFAController.getTokenApi)
 
 app.listen(app.get('port'), function () {
 
@@ -109,6 +117,5 @@ var isAuthorized = (request) => {
     var nsvc_api_key = request.header('NSVC-API-KEY');
     return nsvc_api_key == process.env.NODE_SVC_API_KEY;
 }
-
 
 module.exports = app;

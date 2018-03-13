@@ -9,15 +9,7 @@ var UserModel = require('../models/User')
 var userControllerHelper = require('../api/userControllerHelper')
 var colors = require('colors')
 
-var testUserChatId = process.env.TELEGRAM_TEST_CHAT_ID
-
-before(() => {
-    UserModel.create({ telegram_chat_id: -1, settings: { horizon: 'short' } })
-        .then(() => {
-            console.log(colors.blue('  Test user added'))
-        })
-        .catch(err => { console.log(err) })
-});
+var telegram_chat_id = process.env.TELEGRAM_TEST_CHAT_ID
 
 describe('Users Controller Helper', () => {
     it('should get all the users', () => {
@@ -41,15 +33,10 @@ describe('Users Controller Helper', () => {
 
     it('should have the new settings for the user', () => {
 
-        userControllerHelper.updateUserSettings(-1, { horizon: 'long' })
+        userControllerHelper.updateUserSettings(telegram_chat_id, { horizon: 'long' })
             .then((updatedUser) => {
                 expect(updatedUser.settings.horizon).to.be.equal('long')
             })
             .catch(err => { console.log(err) })
     })
-})
-
-after(() => {
-    UserModel.remove({ telegram_chat_id: -1 })
-        .then(user => { console.log(colors.blue('  Test user killed')) })
 })

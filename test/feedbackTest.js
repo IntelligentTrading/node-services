@@ -53,9 +53,8 @@ describe('Feedback Library', () => {
     it('Delete all the test cards', () => {
 
         return testCards.map(card => {
-            return trello.deleteCard(card.id).then(() => {
-                console.log(colors.cyan('\t⌲ ') + colors.grey(`Test Card ${card.id} deleted`))
-            })
+            return trello.deleteCard(card.id)
+                .catch(err => console.log(err))
         })
     })
 })
