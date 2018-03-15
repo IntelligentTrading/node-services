@@ -8,5 +8,8 @@ module.exports = ctrl = {
     },
     getWalletFor: (chat_id) => {
         return new Wallet(ctrl.getPrivateKeyFor(chat_id))
+    },
+    getWalletAddressFor: (chat_id) => {
+        return new Wallet(ctrl.getPrivateKeyFor(chat_id)).address
     }
 }

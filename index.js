@@ -1,9 +1,12 @@
-var express = require('express')
+var express = require('express'),
+    router = express.Router()
+
 var path = require('path')
 var app = express()
 var bodyParser = require('body-parser')
 var marketApi = require('./api/market')
 var mongoose = require('mongoose')
+var fs = require('fs')
 
 // Connect DB
 var options = {
@@ -31,7 +34,6 @@ var broadcastController = require('./controllers/broadcastController')
 var plansController = require('./controllers/plansController')
 var eulaController = require('./controllers/eulaController')
 var licenseController = require('./controllers/licenseController')
-var paymentController = require('./controllers/paymentController')
 var twoFAController = require('./controllers/2FAController')
 
 //UTILS
@@ -55,6 +57,12 @@ app.get('/', function (request, response) {
 })
 
 // API
+
+// TEST smart routing
+var routerFiles = fs.readdirSync('./api/routes')
+routerFiles.forEach(rf => {
+    app.use(`/api/${rf.replace('.js', '')}`, require(`./api/routes/${rf}`))
+})
 
 // EULA
 app.get('/eula', eulaController.render)
@@ -91,10 +99,6 @@ app.post('/api/license/subscribe', licenseController.subscribe)
 app.get('/api/plans/:signal?', plansController.getPlans)
 
 app.post('/api/broadcast', broadcastController.broadcast)
-
-app.post('/api/payment/verify', paymentController.watchApi)
-app.get('/api/payment/receipt/:txHash', paymentController.receiptApi)
-app.get('/api/payment/status/:telegram_chat_id', paymentController.getUserStatusApi)
 
 app.get('/api/security/2FA/generate/:telegram_chat_id', twoFAController.generateSecretApi)
 app.get('/api/security/2FA/qr/:telegram_chat_id', twoFAController.getQRDataApi)
