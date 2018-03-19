@@ -8,11 +8,11 @@ var colors = require('colors')
 var sinon = require('sinon')
 var paymentCtrl = require('../controllers/paymentController')
 var UserModel = require('../models/User')
+var testData = require('./data')
 
 chai.use(chaiHttp)
 
-var sampleTx = '0x97e52d6a21e94566b1174e5adb0b853a3fde7434031a99cdae10eff2300d33c8'
-var ittTokenSent = 37102.93
+var testTx = testData.etherTx()
 var telegram_chat_id = -1//process.env.TELEGRAM_TEST_CHAT_ID
 
 before(() => {
@@ -23,7 +23,7 @@ before(() => {
 describe.only("Ethereum Blockchain API", () => {
 
     it('Update the subscription days correctly', async () => {
-        await paymentCtrl.addSubscriptionDays(ittTokenSent, telegram_chat_id)
+        await paymentCtrl.addSubscriptionDays(testTx.ittTokenSent, telegram_chat_id)
         var updatedUser = await UserModel.findOne({ telegram_chat_id: telegram_chat_id })
         expect(updatedUser.settings.subscriptions.paid).to.be.greaterThan(new Date())
     })
@@ -42,12 +42,10 @@ describe.only("Ethereum Blockchain API", () => {
         expect(paymentCtrl.checkReceivingAddress(process.env.TELEGRAM_TEST_CHAT_ID, txMockAddress)).to.be.true
     })
 
-    it('txInfoFromRawData => Returns the right txAddress and token amount', () => {
-        var rawData = "000000000000000000000000ad02a40a543b396d2c7a598c63a391a7afbf157f0000000000000000000000000d6b5a54f940bf3d52e438cab785981aaefdf40c0000000000000000000000000000000000000000000000000000035fdeb23f40"
-        var rawAddress = '0000000000000000000000000d6b5a54f940bf3d52e438cab785981aaefdf40c'
-        var parsedInfo = paymentCtrl.txInfoFromRawData(rawData)
-        expect(ittTokenSent).to.be.equal(parsedInfo.ittTokens)
-        expect(rawAddress).to.be.equal(parsedInfo.receiverAddress)
+    it('txInfoFromRawData => Returns the right txAddress and token amount', async () => {
+        var parsedInfo = await paymentCtrl.txInfoFromRawData(testTx.rawData)
+        expect(testTx.ittTokenSent).to.be.equal(parsedInfo.ittTokens)
+        expect(testTx.rawAddress).to.be.equal(parsedInfo.receiverAddress)
     })
 
     it('verifyTx => executes correctly and adds transaction to user', () => {
@@ -62,7 +60,7 @@ describe.only("Ethereum Blockchain API", () => {
             .get('/api/payment/status/' + telegram_chat_id)
             .set('NSVC-API-KEY', process.env.NODE_SVC_API_KEY)
             .then((res) => {
-                expect(res.body.subscriptionDaysLeft).to.be.equal(Math.round(ittTokenSent))
+                expect(res.body.subscriptionDaysLeft).to.be.equal(Math.round(testTx.ittTokenSent))
                 assert.isTrue(paymentApiSpy.getCall(0).args[0] == telegram_chat_id)
                 paymentApiSpy.restore()
             })

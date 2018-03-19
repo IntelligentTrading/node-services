@@ -1,10 +1,13 @@
 var ethers = require('ethers')
-var etherscanProvider = new ethers.providers.EtherscanProvider()//ethers.providers.networks.ropsten)
+var network = process.env.LOCAL_ENV ? ethers.providers.networks.ropsten : undefined
+var etherscanProvider = new ethers.providers.EtherscanProvider(network)
 var UserModel = require('../models/User')
 var dates = require('../util/dates')
 var wallet = require('./walletController')
+var abi = require('../util/abi')
 
-var ittContractAddress = '0x0aeF06DcCCC531e581f0440059E6FfCC206039EE'
+var ittContractAddress = process.env.CONTRACT_ADDRESS
+var contract = new ethers.Contract(ittContractAddress, abi, etherscanProvider)
 
 module.exports = paymentController = {
     getUserStatus: async (telegram_chat_id) => {
@@ -49,39 +52,36 @@ module.exports = paymentController = {
 
         var tx = await etherscanProvider.waitForTransaction(txHash)
 
-        if (tx.to != ittContractAddress)
+        if (tx.to.toLowerCase() != ittContractAddress.toLowerCase())
             throw new Error('You can verify only ITT transactions!')
 
-        var txInfo = txInfoFromRawData(tx.data)
+        var txInfo = await txInfoFromRawData(tx.data)
         checkReceivingAddress(telegram_chat_id, txInfo.receiverAddress)
 
         await paymentController.addTransactionToList(txHash, telegram_chat_id)
         await paymentController.addSubscriptionDays(txInfo.ittTokens, telegram_chat_id)
         return tx
     },
-    txInfoFromRawData: (txData) => txInfoFromRawData(txData),
-    checkReceivingAddress: (telegram_chat_id, txReceiverAddress) => checkReceivingAddress(telegram_chat_id, txReceiverAddress)
-}
+    txInfoFromRawData: (txData) => {
+        var meaningfulInfo = txData.substring(txData.length - 128)
+        var transferredTokenData = meaningfulInfo.substring(64)
+        return contract.decimals()
+            .then(decimalPlacesInfo => {
+                return {
+                    receiverAddress: meaningfulInfo.substring(0, 64),
+                    ittTokens: parseInt(transferredTokenData, 16) / (10 ** parseInt(decimalPlacesInfo[0]))
+                }
+            })
+    },
+    checkReceivingAddress: (telegram_chat_id, txReceiverAddress) => {
+        // ERC20 address is 160 bit in hex representation (40 chars) + a prefix (0x)
+        var expectedReceiverAddressx0 = wallet.getWalletAddressFor(telegram_chat_id)
+        // the transaction log instead uses 64 chars, so we have to drop the first 24 and add the prefix
+        var txReceiverAddress_0x = '0x' + txReceiverAddress.substring(24)
 
-var txInfoFromRawData = (txData) => {
-    var meaningfulInfo = txData.substring(txData.length - 128)
-    var transferredTokenData = meaningfulInfo.substring(64)
-    var decimalPlaces = 100000000
+        if (expectedReceiverAddressx0.toLowerCase() != txReceiverAddress_0x.toLowerCase())
+            throw new Error(`The receiver address ${txReceiverAddress_0x} of this transaction does not match your ITT wallet receiver address!`)
 
-    return {
-        receiverAddress: meaningfulInfo.substring(0, 64),
-        ittTokens: parseInt(transferredTokenData, 16) / decimalPlaces
+        return true
     }
-}
-
-var checkReceivingAddress = (telegram_chat_id, txReceiverAddress) => {
-    // ERC20 address is 160 bit in hex representation (40 chars) + a prefix (0x)
-    var expectedReceiverAddressx0 = wallet.getWalletAddressFor(telegram_chat_id)
-    // the transaction log instead uses 64 chars, so we have to drop the first 24 and add the prefix
-    var txReceiverAddress_0x = '0x' + txReceiverAddress.substring(24)
-
-    if (expectedReceiverAddressx0 != txReceiverAddress_0x)
-        throw new Error(`The receiver address ${txReceiverAddress_0x} of this transaction does not match your ITT wallet receiver address!`)
-
-    return true
 }

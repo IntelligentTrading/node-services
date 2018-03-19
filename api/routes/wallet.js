@@ -7,8 +7,8 @@ router.get('/address/:telegram_chat_id', (req, res) => {
 })
 
 //! returning the wallet which contains the private key is a bad idea
-/*router.get('/:telegram_chat_id', (req, res) => {
+router.get('/:telegram_chat_id', (req, res) => {
     res.send(walletCtrl.getWalletFor(req.params.telegram_chat_id))
-})*/
+})
 
 module.exports = router
