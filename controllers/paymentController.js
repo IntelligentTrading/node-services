@@ -2,7 +2,7 @@ var ethers = require('ethers')
 
 var network = process.env.LOCAL_ENV ? ethers.providers.networks.ropsten : ethers.providers.networks.mainnet
 console.log(`Deploying blockchain provider on ${network.name}`)
-var etherscanProvider = new ethers.providers.EtherscanProvider(network)
+var etherscanProvider = ethers.providers.getDefaultProvider(network)
 
 var UserModel = require('../models/User')
 var dates = require('../util/dates')
