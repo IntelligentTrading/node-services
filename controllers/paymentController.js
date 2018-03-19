@@ -1,7 +1,6 @@
 var ethers = require('ethers')
 
-var etherscanProvider = process.env.LOCAL_ENV
-    ? new ethers.providers.EtherscanProvider(ethers.providers.networks.ropsten)
+var etherscanProvider = process.env.LOCAL_ENV ? new ethers.providers.EtherscanProvider(ethers.providers.networks.ropsten)
     : new ethers.providers.EtherscanProvider(ethers.providers.networks.mainnet)
 
 var UserModel = require('../models/User')
