@@ -1,21 +1,18 @@
 var ethers = require('ethers')
-var etherscanProvider = new ethers.providers.EtherscanProvider()//ethers.providers.networks.ropsten)
+
+var network = process.env.LOCAL_ENV ? ethers.providers.networks.ropsten : ethers.providers.networks.mainnet
+console.log(`Deploying blockchain provider on ${network.name}`)
+var etherscanProvider = new ethers.providers.EtherscanProvider(network)
+
 var UserModel = require('../models/User')
 var dates = require('../util/dates')
+var wallet = require('./walletController')
+var abi = require('../util/abi')
 
-var ittContractAddress = '0x0aeF06DcCCC531e581f0440059E6FfCC206039EE'
+var ittContractAddress = process.env.CONTRACT_ADDRESS
+var contract = new ethers.Contract(ittContractAddress, abi, etherscanProvider)
 
 module.exports = paymentController = {
-    watch: (txHash) => {
-        return etherscanProvider.waitForTransaction(txHash).then((transaction) => {
-            return transaction
-        })
-    },
-    receipt: (txHash) => {
-        return etherscanProvider.getTransactionReceipt(txHash).then(receipt => {
-            return receipt
-        })
-    },
     getUserStatus: async (telegram_chat_id) => {
         var user = await UserModel.findOne({ telegram_chat_id: telegram_chat_id })
         if (!user) throw new Error('User not found')
@@ -50,48 +47,44 @@ module.exports = paymentController = {
             return user
         }
     },
-    watchApi: async (req, res) => {
-        try {
-            var txHash = req.body.txHash
-            var telegram_chat_id = req.body.telegram_chat_id
-            var isAlreadyVerified = await paymentController.isAlreadyVerified(txHash, telegram_chat_id)
-            if (!isAlreadyVerified) {
-                var tx = await paymentController.watch(txHash)
+    verifyTx: async (txHash, telegram_chat_id) => {
 
-                if (tx.to != ittContractAddress)
-                    throw new Error('You can verify only ITT transactions!')
+        var isAlreadyVerified = await paymentController.isAlreadyVerified(txHash, telegram_chat_id)
+        if (isAlreadyVerified)
+            throw new Error('You cannot verify a transaction more than once')
 
-                await paymentController.addTransactionToList(txHash, telegram_chat_id)
-                var ittValue = ittTokensFromData(tx.data)
-                await paymentController.addSubscriptionDays(ittValue, telegram_chat_id)
-                res.send(tx)
-            }
-            else {
-                res.status(500).send('You cannot verify a transaction more than once')
-            }
-        } catch (err) {
-            res.status(500).send(err.message)
-        }
-    },
-    receiptApi: (req, res) => {
-        var txHash = req.params.txHash
-        paymentController.receipt(txHash)
-            .then(receipt => { res.send(receipt) })
-            .catch(err => res.status(500).send(err))
-    },
-    getUserStatusApi: (req, res) => {
-        var telegram_chat_id = req.params.telegram_chat_id
-        paymentController.getUserStatus(telegram_chat_id)
-            .then(status => res.send(status))
-            .catch(err => res.status(500).send(err.message))
-    },
-    ToIttTokens: (txData) => ittTokensFromData(txData)
-}
+        var tx = await etherscanProvider.waitForTransaction(txHash)
 
-var ittTokensFromData = (txData) => {
-    var tokensData = txData.substring(txData.length - 64)
-    var ittString = parseInt(tokensData, 16)
-    var decimalPlaces = 100000000
-    //! This conversion could change if ITT changes the decimal places in the contract
-    return ittString / decimalPlaces
+        if (tx.to.toLowerCase() != ittContractAddress.toLowerCase())
+            throw new Error('You can verify only ITT transactions!')
+
+        var txInfo = await paymentController.txInfoFromRawData(tx.data)
+        paymentController.checkReceivingAddress(telegram_chat_id, txInfo.receiverAddress)
+
+        await paymentController.addTransactionToList(txHash, telegram_chat_id)
+        await paymentController.addSubscriptionDays(txInfo.ittTokens, telegram_chat_id)
+        return tx
+    },
+    txInfoFromRawData: (txData) => {
+        var meaningfulInfo = txData.substring(txData.length - 128)
+        var transferredTokenData = meaningfulInfo.substring(64)
+        return contract.decimals()
+            .then(decimalPlacesInfo => {
+                return {
+                    receiverAddress: meaningfulInfo.substring(0, 64),
+                    ittTokens: parseInt(transferredTokenData, 16) / (10 ** parseInt(decimalPlacesInfo[0]))
+                }
+            })
+    },
+    checkReceivingAddress: (telegram_chat_id, txReceiverAddress) => {
+        // ERC20 address is 160 bit in hex representation (40 chars) + a prefix (0x)
+        var expectedReceiverAddressx0 = wallet.getWalletAddressFor(telegram_chat_id)
+        // the transaction log instead uses 64 chars, so we have to drop the first 24 and add the prefix
+        var txReceiverAddress_0x = '0x' + txReceiverAddress.substring(24)
+
+        if (expectedReceiverAddressx0.toLowerCase() != txReceiverAddress_0x.toLowerCase())
+            throw new Error(`The receiver address ${txReceiverAddress_0x} of this transaction does not match your ITT wallet receiver address!`)
+
+        return true
+    }
 }

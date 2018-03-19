@@ -70,7 +70,7 @@ describe('License Controller', () => {
     })
 })
 
-after(() => {
+/*after(() => {
 
     LicenseModel.remove({ code: license.code })
         .then(() => colors.gray(console.log('Test license cleaned')))
@@ -79,4 +79,4 @@ after(() => {
     LicenseModel.update({ code: sampleToken }, { redeemed: false })
         .then(() => colors.gray(console.log('Test power token reset')))
         .catch(err => console.log(err))
-})
+})*/
