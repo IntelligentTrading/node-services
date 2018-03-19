@@ -1,6 +1,9 @@
 var ethers = require('ethers')
-var network = process.env.LOCAL_ENV ? ethers.providers.networks.ropsten : ""
-var etherscanProvider = new ethers.providers.EtherscanProvider(network)
+
+var etherscanProvider = process.env.LOCAL_ENV
+    ? new ethers.providers.EtherscanProvider(ethers.providers.networks.ropsten)
+    : new ethers.providers.EtherscanProvider()
+
 var UserModel = require('../models/User')
 var dates = require('../util/dates')
 var wallet = require('./walletController')
