@@ -2,7 +2,7 @@ var ethers = require('ethers')
 
 var network = process.env.LOCAL_ENV ? ethers.providers.networks.ropsten : ethers.providers.networks.mainnet
 console.log(`Deploying blockchain provider on ${network.name}`)
-var etherscanProvider = ethers.providers.getDefaultProvider(network)
+var etherscanProvider = new ethers.providers.EtherscanProvider(network)
 
 var UserModel = require('../models/User')
 var dates = require('../util/dates')
@@ -58,8 +58,8 @@ module.exports = paymentController = {
         if (tx.to.toLowerCase() != ittContractAddress.toLowerCase())
             throw new Error('You can verify only ITT transactions!')
 
-        var txInfo = await txInfoFromRawData(tx.data)
-        checkReceivingAddress(telegram_chat_id, txInfo.receiverAddress)
+        var txInfo = await paymentController.txInfoFromRawData(tx.data)
+        paymentController.checkReceivingAddress(telegram_chat_id, txInfo.receiverAddress)
 
         await paymentController.addTransactionToList(txHash, telegram_chat_id)
         await paymentController.addSubscriptionDays(txInfo.ittTokens, telegram_chat_id)

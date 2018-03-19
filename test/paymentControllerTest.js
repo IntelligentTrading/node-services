@@ -48,10 +48,6 @@ describe("Ethereum Blockchain API", () => {
         expect(testTx.rawAddress).to.be.equal(parsedInfo.receiverAddress)
     })
 
-    /*it('verifyTx => executes correctly and adds transaction to user', () => {
-        assert.fail(null, null, 'Requires a real ITT transaction with a test address')
-    })*/
-
     it('GET /api/payment/status', () => {
 
         var paymentApiSpy = sinon.spy(paymentCtrl, 'getUserStatus')
