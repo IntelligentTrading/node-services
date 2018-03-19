@@ -20,7 +20,7 @@ before(() => {
         .catch(err => { console.log(err) })
 })
 
-describe.only("Ethereum Blockchain API", () => {
+describe("Ethereum Blockchain API", () => {
 
     it('Update the subscription days correctly', async () => {
         await paymentCtrl.addSubscriptionDays(testTx.ittTokenSent, telegram_chat_id)
