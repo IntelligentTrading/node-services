@@ -1,5 +1,5 @@
 var ethers = require('ethers')
-var network = process.env.LOCAL_ENV ? ethers.providers.networks.ropsten : undefined
+var network = process.env.LOCAL_ENV ? ethers.providers.networks.ropsten : ""
 var etherscanProvider = new ethers.providers.EtherscanProvider(network)
 var UserModel = require('../models/User')
 var dates = require('../util/dates')
