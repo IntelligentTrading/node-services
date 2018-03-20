@@ -7,13 +7,42 @@ var _ = require('lodash')
 var data = require('./data')
 var UserModel = require('../models/User')
 var marketapi = require('../api/market')
+var userCtrl = require('../controllers/usersController')
 var colors = require('colors')
 
 chai.use(chaiHttp)
 
-var telegram_chat_id = -1 * process.env.TELEGRAM_TEST_CHAT_ID
+var telegram_chat_id = parseInt(process.env.TELEGRAM_TEST_CHAT_ID)
 
-describe('Users Controller', () => {
+describe.only('Users Controller', () => {
+
+    it('should get all the users', () => {
+
+        userCtrl.getUsers().then(users => {
+            UserModel.find().then(dbusers => {
+                expect(users).to.be.eql(dbusers)
+            })
+        })
+    })
+
+    it('should get all the users with short horizon', () => {
+
+        userCtrl.getUsers({ horizon: 'short' }).then(users => {
+            console.log(colors.blue(`  (Found ${users.length} users)`))
+            return UserModel.find({ 'settings.horizon': 'short' }).then(dbusers => {
+                return expect(users.length).to.be.equal(dbusers.length)
+            })
+        })
+    })
+
+    it('should have the new settings for the user', () => {
+
+        return userCtrl.updateUser(telegram_chat_id, { horizon: 'long' })
+            .then((updatedUser) => {
+                return expect(updatedUser.settings.horizon).to.be.equal('long')
+            })
+    })
+
     it('GET /users Returns 200 and an array of users', () => {
 
         return chai.request(app)
@@ -25,8 +54,7 @@ describe('Users Controller', () => {
             })
     })
 
-    it('GET /users Returns 200 and user if user exists, 404 if user does not exist', () => {
-
+    it('GET /users/telegram_chat_id Returns 200 and user if user exists', () => {
 
         return chai.request(app)
             .get('/api/users/' + telegram_chat_id)
@@ -35,6 +63,13 @@ describe('Users Controller', () => {
                 expect(res).to.have.status(200)
                 expect(res.body.telegram_chat_id).to.be.equal(telegram_chat_id)
             })
+    })
+
+    it('GET /users/telegram_chat_id Returns 404 if user does not exist', () => {
+
+        return chai.request(app)
+            .get('/api/users/0000000')
+            .set('NSVC-API-KEY', process.env.NODE_SVC_API_KEY)
             .catch(err => {
                 expect(err).to.have.status(404)
             })

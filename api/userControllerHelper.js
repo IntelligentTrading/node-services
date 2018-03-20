@@ -35,29 +35,5 @@ module.exports = {
                 return user
             }
         })
-    },
-    updateUserCurrencies: (chat_id, settings, currenciesRole) => {
-
-        return User.findOne({ telegram_chat_id: parseInt(chat_id) }).then(user => {
-
-            settings.currencies.forEach((currency) => {
-
-                var isTransactionCurrency = currenciesRole == 'transaction';
-                var key = isTransactionCurrency ? currency.symbol : currency.index;
-
-                if (currency.follow == 'True' || currency.follow == 'true') {
-                    user.settings[`${currenciesRole}_currencies`].push(key)
-                }
-                else {
-                    var index_of_victim = user.settings[`${currenciesRole}_currencies`].indexOf(key)
-                    if (index_of_victim >= 0) {
-                        user.settings[`${currenciesRole}_currencies`].splice(index_of_victim, 1);
-                    }
-                }
-            })
-
-            user.save();
-            return user
-        })
     }
 }

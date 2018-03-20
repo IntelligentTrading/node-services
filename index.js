@@ -29,7 +29,6 @@ db.once('open', function () {
 var tickerController = require('./controllers/tickersController')
 var panicController = require('./controllers/panicController')
 var feedbackController = require('./controllers/feedbackController')
-var usersController = require('./controllers/usersController')
 var broadcastController = require('./controllers/broadcastController')
 var plansController = require('./controllers/plansController')
 var eulaController = require('./controllers/eulaController')
@@ -58,7 +57,6 @@ app.get('/', function (request, response) {
 
 // API
 
-// TEST smart routing
 var routerFiles = fs.readdirSync('./api/routes')
 routerFiles.forEach(rf => {
     app.use(`/api/${rf.replace('.js', '')}`, require(`./api/routes/${rf}`))
@@ -80,15 +78,6 @@ app.route('/api/panic')
 
 // Feedback API
 app.post('/api/feedback', feedbackController.addFeedback)
-
-// Users API
-app.route('/api/users/:telegram_chat_id?')
-    .get(usersController.getUsers)
-    .post(usersController.createUser)
-    .put(usersController.updateUser)
-
-app.put('/api/users/:telegram_chat_id/currencies/:currenciesPairRole', usersController.updateUserCurrencies)
-app.put('/api/users/:telegram_chat_id/select_all_signals', usersController.selectAllSignals)
 
 //License API
 app.post('/api/license/generate/:subscriptionPlan', licenseController.generateLicense)
