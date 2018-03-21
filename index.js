@@ -33,7 +33,6 @@ var broadcastController = require('./controllers/broadcastController')
 var plansController = require('./controllers/plansController')
 var eulaController = require('./controllers/eulaController')
 var licenseController = require('./controllers/licenseController')
-var twoFAController = require('./controllers/2FAController')
 
 //UTILS
 var swaggerUi = require('swagger-ui-express'),
@@ -88,11 +87,6 @@ app.post('/api/license/subscribe', licenseController.subscribe)
 app.get('/api/plans/:signal?', plansController.getPlans)
 
 app.post('/api/broadcast', broadcastController.broadcast)
-
-app.get('/api/security/2FA/generate/:telegram_chat_id', twoFAController.generateSecretApi)
-app.get('/api/security/2FA/qr/:telegram_chat_id', twoFAController.getQRDataApi)
-app.get('/api/security/2FA/verify', twoFAController.verifyApi)
-app.get('/api/security/2FA/token/:telegram_chat_id', twoFAController.getTokenApi)
 
 app.listen(app.get('port'), function () {
 

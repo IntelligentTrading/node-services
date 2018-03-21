@@ -11,9 +11,9 @@ var UserModel = require('../models/User')
 
 chai.use(chaiHttp)
 
-var telegram_chat_id = -1
+var telegram_chat_id = process.env.TELEGRAM_TEST_CHAT_ID
 
-describe("2FA API", () => {
+describe.only("2FA API", () => {
     it('Generates a secret for chat_id', async () => {
         var secret = await twoFAController.generateSecretFor(telegram_chat_id)
         var user = await UserModel.findOne({ telegram_chat_id: telegram_chat_id })
@@ -37,7 +37,7 @@ describe("2FA API", () => {
         var correctToken = await twoFAController.getToken(telegram_chat_id)
 
         return chai.request(app)
-            .get(`/api/security/2FA/token/${telegram_chat_id}`)
+            .get(`/api/otp/token/${telegram_chat_id}`)
             .set('NSVC-API-KEY', process.env.NODE_SVC_API_KEY)
             .then(res => {
                 expect(correctToken).to.be.equal(res.text)
@@ -50,7 +50,7 @@ describe("2FA API", () => {
         var correctToken = await twoFAController.getToken(telegram_chat_id)
 
         return chai.request(app)
-            .get(`/api/security/2FA/verify/?telegram_chat_id=${telegram_chat_id}&token=${correctToken}`)
+            .get(`/api/otp/verify/?telegram_chat_id=${telegram_chat_id}&token=${correctToken}`)
             .set('NSVC-API-KEY', process.env.NODE_SVC_API_KEY)
             .then(result => {
                 expect(result.body).to.be.true
