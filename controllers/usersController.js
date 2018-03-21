@@ -2,8 +2,26 @@ var marketapi = require('../api/market')
 var User = require('../models/User')
 
 module.exports = userController = {
-    getUsers: (telegram_chat_id, query) => {
-        return telegram_chat_id ? userController.getUser(telegram_chat_id) : getUsers(query)
+    getUsers: (settingsFilters) => {
+        var filters_key = settingsFilters ? Object.keys(settingsFilters) : [];
+        var query = {};
+
+        filters_key.forEach((key) => {
+            var or_conditions = settingsFilters[key].split(',');
+            if (or_conditions.length <= 1) {
+                query['settings.' + key] = settingsFilters[key];
+            } else {
+                var or_query_array = [];
+                or_conditions.forEach(or_condition => {
+                    var or_query = {};
+                    or_query['settings.' + key] = or_condition;
+                    or_query_array.push(or_query);
+                })
+                query['$or'] = or_query_array;
+            }
+        })
+
+        return User.find(query)
     },
     getUser: (telegram_chat_id) => {
         return User.findOne({ telegram_chat_id: parseInt(telegram_chat_id) }).then(user => {
@@ -22,8 +40,9 @@ module.exports = userController = {
         })
     },
     updateUser: (telegram_chat_id, settings) => {
-        if (!telegram_chat_id)
-            throw new Error('Chat Id cannot be null')
+        if (!telegram_chat_id) {
+            return Promise.reject(new Error('Chat Id cannot be null'))
+        }
 
         return User.findOne({ telegram_chat_id: parseInt(telegram_chat_id) }).then(user => {
             if (settings && user) {
@@ -43,30 +62,29 @@ module.exports = userController = {
         if (currenciesPairRoles.indexOf(currenciesPairRole) < 0) {
             var error = new Error('Path not found')
             error.code = 404
-            throw error
+            return Promise.reject(error)
         }
         else {
-            return User.findOne({ telegram_chat_id: parseInt(telegram_chat_id) }).then(user => {
+            return User.findOne({ telegram_chat_id: parseInt(telegram_chat_id) })
+                .then(user => {
+                    settings.currencies.forEach((currency) => {
+                        var isTransactionCurrency = currenciesPairRole == 'transaction';
+                        var key = isTransactionCurrency ? currency.symbol : currency.index;
 
-                settings.currencies.forEach((currency) => {
-
-                    var isTransactionCurrency = currenciesPairRole == 'transaction';
-                    var key = isTransactionCurrency ? currency.symbol : currency.index;
-
-                    if (currency.follow == 'True' || currency.follow == 'true') {
-                        user.settings[`${currenciesPairRole}_currencies`].push(key)
-                    }
-                    else {
-                        var index_of_victim = user.settings[`${currenciesPairRole}_currencies`].indexOf(key)
-                        if (index_of_victim >= 0) {
-                            user.settings[`${currenciesPairRole}_currencies`].splice(index_of_victim, 1);
+                        if (currency.follow == 'True' || currency.follow == 'true') {
+                            user.settings[`${currenciesPairRole}_currencies`].push(key)
                         }
-                    }
-                })
+                        else {
+                            var index_of_victim = user.settings[`${currenciesPairRole}_currencies`].indexOf(key)
+                            if (index_of_victim >= 0) {
+                                user.settings[`${currenciesPairRole}_currencies`].splice(index_of_victim, 1);
+                            }
+                        }
+                    })
 
-                user.save();
-                return user
-            })
+                    user.save();
+                    return user
+                })
         }
     },
     selectAllSignals: (telegram_chat_id) => {
@@ -87,29 +105,7 @@ module.exports = userController = {
             settings.transaction_currencies = tickersSymbols;
             return settings
         }).then(data => {
-            return userController.updateUserSettings(telegram_chat_id, data)
+            return userController.updateUser(telegram_chat_id, data)
         })
     }
-}
-
-var getUsers = (settingsFilters) => {
-    var filters_key = settingsFilters ? Object.keys(settingsFilters) : [];
-    var query = {};
-
-    filters_key.forEach((key) => {
-        var or_conditions = settingsFilters[key].split(',');
-        if (or_conditions.length <= 1) {
-            query['settings.' + key] = settingsFilters[key];
-        } else {
-            var or_query_array = [];
-            or_conditions.forEach(or_condition => {
-                var or_query = {};
-                or_query['settings.' + key] = or_condition;
-                or_query_array.push(or_query);
-            })
-            query['$or'] = or_query_array;
-        }
-    });
-
-    return User.find(query)
 }

@@ -14,32 +14,38 @@ chai.use(chaiHttp)
 
 var telegram_chat_id = parseInt(process.env.TELEGRAM_TEST_CHAT_ID)
 
-describe.only('Users Controller', () => {
+describe('Users Controller', () => {
 
-    it('should get all the users', () => {
+    it('Should get all the users', () => {
 
-        userCtrl.getUsers().then(users => {
-            UserModel.find().then(dbusers => {
-                expect(users).to.be.eql(dbusers)
+        return userCtrl.getUsers().then(users => {
+            return UserModel.find().then(dbusers => {
+                return expect(users).to.be.eql(dbusers)
             })
         })
     })
 
-    it('should get all the users with short horizon', () => {
+    it('Should get all the users with short horizon', async () => {
 
-        userCtrl.getUsers({ horizon: 'short' }).then(users => {
-            console.log(colors.blue(`  (Found ${users.length} users)`))
-            return UserModel.find({ 'settings.horizon': 'short' }).then(dbusers => {
-                return expect(users.length).to.be.equal(dbusers.length)
-            })
-        })
+        var usersFromCtrl = await userCtrl.getUsers({ horizon: 'short' })
+        var dbUsers = await UserModel.find({ 'settings.horizon': 'short' })
+
+        return expect(usersFromCtrl.length).to.be.equal(dbUsers.length)
     })
 
-    it('should have the new settings for the user', () => {
+    it('Should have the new settings for the user', () => {
 
         return userCtrl.updateUser(telegram_chat_id, { horizon: 'long' })
             .then((updatedUser) => {
                 return expect(updatedUser.settings.horizon).to.be.equal('long')
+            })
+    })
+
+    it('Throws exception if the chat_id is null (of course)', () => {
+
+        return userCtrl.updateUser(null, { horizon: 'long' })
+            .catch((err) => {
+                return expect(err).to.be.not.null
             })
     })
 
@@ -162,9 +168,4 @@ describe.only('Users Controller', () => {
                     })
             })
     })
-})
-
-after(() => {
-    return UserModel.remove({ telegram_chat_id: telegram_chat_id })
-        .catch(err => console.log(err))
 })
