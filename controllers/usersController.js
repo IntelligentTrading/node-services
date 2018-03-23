@@ -27,7 +27,7 @@ module.exports = userController = {
         return User.findOne({ telegram_chat_id: parseInt(telegram_chat_id) }).then(user => {
             if (!user) {
                 var error = new Error('User not found')
-                error.code = 404
+                error.statusCode = 404
                 throw error
             }
 
@@ -36,7 +36,7 @@ module.exports = userController = {
     },
     createUser: (userSettings) => {
         return User.create(userSettings).then((newUser) => {
-            return { code: 201, object: newUser }
+            return { statusCode: 201, object: newUser }
         })
     },
     updateUser: (telegram_chat_id, settings) => {
@@ -61,7 +61,7 @@ module.exports = userController = {
         var currenciesPairRoles = ['transaction', 'counter']
         if (currenciesPairRoles.indexOf(currenciesPairRole) < 0) {
             var error = new Error('Path not found')
-            error.code = 404
+            error.statusCode = 404
             return Promise.reject(error)
         }
         else {

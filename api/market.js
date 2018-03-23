@@ -80,7 +80,7 @@ var self = module.exports = {
             }
         ];
 
-        return counter_currencies;
+        return Promise.resolve(counter_currencies)
     },
     init: () => {
 

@@ -26,13 +26,7 @@ db.once('open', function () {
 });
 
 //Controllers
-var tickerController = require('./controllers/tickersController')
-var panicController = require('./controllers/panicController')
-var feedbackController = require('./controllers/feedbackController')
-var broadcastController = require('./controllers/broadcastController')
-var plansController = require('./controllers/plansController')
 var eulaController = require('./controllers/eulaController')
-var licenseController = require('./controllers/licenseController')
 
 //UTILS
 var swaggerUi = require('swagger-ui-express'),
@@ -54,8 +48,7 @@ app.get('/', function (request, response) {
     response.sendStatus(200);
 })
 
-// API
-
+// Load dynamically routes and controllers
 var routerFiles = fs.readdirSync('./api/routes')
 routerFiles.forEach(rf => {
     app.use(`/api/${rf.replace('.js', '')}`, require(`./api/routes/${rf}`))
@@ -64,29 +57,6 @@ routerFiles.forEach(rf => {
 // EULA
 app.get('/eula', eulaController.render)
 app.get('/eula_confirm', eulaController.confirm)
-
-// Tickers API
-app.get('/api/tickers', tickerController.tickers)
-app.get('/api/ticker', tickerController.ticker)
-app.get('/api/counter_currencies', tickerController.counterCurrencies)
-
-// CryptoPanic API
-app.route('/api/panic')
-    .put(panicController.updateNewsFeed)
-    .post(panicController.saveNewsFeed)
-
-// Feedback API
-app.post('/api/feedback', feedbackController.addFeedback)
-
-//License API
-app.post('/api/license/generate/:subscriptionPlan', licenseController.generateLicense)
-
-//body {licenseCode: token, telegram_chat_id: chat_id }
-app.post('/api/license/subscribe', licenseController.subscribe)
-
-app.get('/api/plans/:signal?', plansController.getPlans)
-
-app.post('/api/broadcast', broadcastController.broadcast)
 
 app.listen(app.get('port'), function () {
 
@@ -97,8 +67,8 @@ app.listen(app.get('port'), function () {
         })
         .catch((reason) => {
             console.log(reason)
-        });
-});
+        })
+})
 
 var isAuthorized = (request) => {
     var nsvc_api_key = request.header('NSVC-API-KEY');
