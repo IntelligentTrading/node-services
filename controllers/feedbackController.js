@@ -1,19 +1,26 @@
-var feedbackApi = require('../api/feedback');
+var Trello = require('trello');
+var trello = new Trello(process.env.TRELLO_KEY, process.env.TRELLO_TOKEN);
+var ITT_BOARD_ID = process.env.ITT_TRELLO_BOARD_ID;
 
-function addFeedback(req, res) {
+function addFeedback(user, chat_id, content) {
 
-    var user = req.body.user
-    var content = req.body.content
-    var chat_id = req.body.telegram_chat_id
+    return trello.getListsOnBoard(ITT_BOARD_ID)
+        .then((lists) => {
+            var issuesListResults = lists.filter(list => list.name == process.env.ITT_TRELLO_LIST);
 
-    feedbackApi.addFeedback(user, chat_id, content)
-        .then((card_result) => {
-            return res.send(card_result)
+            if (issuesListResults == undefined || issuesListResults.length <= 0)
+                throw new Error('List not found');
+
+            return issuesListResults[0];
+        }).then(issueList => {
+            var cardName = `Feedback from ${user}`;
+
+            return trello.addCard(cardName, `[Chat #${chat_id}]\n${content}`, issueList.id)
+                .then(card => {
+                    return trello.updateCardName(card.id, `[${card.shortLink}] ${cardName}`)
+                        .then(() => { return card; })
+                })
         })
-        .catch((reason) => {
-            console.log(reason.message);
-            return res.status(500).send(reason.message);
-        });
 }
 
 module.exports.addFeedback = addFeedback

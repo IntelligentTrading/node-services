@@ -7,14 +7,49 @@ var _ = require('lodash')
 var data = require('./data')
 var UserModel = require('../models/User')
 var marketapi = require('../api/market')
+var userCtrl = require('../controllers/usersController')
 var colors = require('colors')
 
 chai.use(chaiHttp)
 
-var telegram_chat_id = -1 * process.env.TELEGRAM_TEST_CHAT_ID
+var telegram_chat_id = parseInt(process.env.TELEGRAM_TEST_CHAT_ID)
 
 describe('Users Controller', () => {
-    it('GET /users Returns 200 and an array of users', () => {
+
+    it('Should get all the users', () => {
+
+        return userCtrl.getUsers().then(users => {
+            return UserModel.find().then(dbusers => {
+                return expect(users).to.be.eql(dbusers)
+            })
+        })
+    })
+
+    it('Should get all the users with short horizon', async () => {
+
+        var usersFromCtrl = await userCtrl.getUsers({ horizon: 'short' })
+        var dbUsers = await UserModel.find({ 'settings.horizon': 'short' })
+
+        return expect(usersFromCtrl.length).to.be.equal(dbUsers.length)
+    })
+
+    it('Should have the new settings for the user', () => {
+
+        return userCtrl.updateUser(telegram_chat_id, { horizon: 'long' })
+            .then((updatedUser) => {
+                return expect(updatedUser.settings.horizon).to.be.equal('long')
+            })
+    })
+
+    it('Throws exception if the chat_id is null (of course)', () => {
+
+        return userCtrl.updateUser(null, { horizon: 'long' })
+            .catch((err) => {
+                return expect(err).to.be.not.null
+            })
+    })
+
+    it('GET /api/users Returns 200 and an array of users', () => {
 
         return chai.request(app)
             .get('/api/users')
@@ -25,22 +60,28 @@ describe('Users Controller', () => {
             })
     })
 
-    it('GET /users Returns 200 and user if user exists, 404 if user does not exist', () => {
-
+    it('GET /users/telegram_chat_id Returns 200 and user if user exists', () => {
 
         return chai.request(app)
             .get('/api/users/' + telegram_chat_id)
             .set('NSVC-API-KEY', process.env.NODE_SVC_API_KEY)
             .then(res => {
-                expect(res).to.have.status(200)
-                expect(res.body.telegram_chat_id).to.be.equal(telegram_chat_id)
-            })
-            .catch(err => {
-                expect(err).to.have.status(404)
+                return expect(res).to.have.status(200)
+                //expect(res.body.telegram_chat_id).to.be.equal(telegram_chat_id)
             })
     })
 
-    it('POST /users returns 201 and new user when successful', () => {
+    it('GET /users/telegram_chat_id Returns 404 if user does not exist', () => {
+
+        return chai.request(app)
+            .get('/api/users/0000000')
+            .set('NSVC-API-KEY', process.env.NODE_SVC_API_KEY)
+            .catch(err => {
+                return expect(err).to.have.status(404)
+            })
+    })
+
+    it('POST /api/users returns 201 and new user when successful', () => {
         var newUser = data.userTemplate()
 
         return chai.request(app)
@@ -127,9 +168,4 @@ describe('Users Controller', () => {
                     })
             })
     })
-})
-
-after(() => {
-    return UserModel.remove({ telegram_chat_id: telegram_chat_id })
-        .catch(err => console.log(err))
 })

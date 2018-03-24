@@ -4,54 +4,50 @@ var Plan = require('../models/Plan')
 var User = require('../models/User')
 
 module.exports = {
-    generateLicense: (req, res) => {
-        var subscriptionPlan = req.params.subscriptionPlan;
-
+    generateLicense: (subscriptionPlan) => {
         if (!subscriptionPlan)
-            return res.status(500).send('Subscription plan cannot be undefined')
+            return Promise.reject(new Error('Subscription plan cannot be undefined.'))
 
         var license = argo.subscription.generate(subscriptionPlan)
 
-        License.create(license).then(result => {
-            res.status(201).send(license)
+        if (!license)
+            return Promise.reject(new Error('Something went wrong with the license generation. Please retry.'))
+
+        return License.create(license).then(() => {
+            return { statusCode: 201, object: license }
         })
     },
-    subscribe: (req, res) => {
-        //{licenseCode: token, telegram_chat_id: chat_id }
-        var licenseCode = req.body.licenseCode
-        var telegram_chat_id = req.body.telegram_chat_id
+    subscribe: (licenseCode, telegram_chat_id) => {
 
         if (!licenseCode || !telegram_chat_id)
-            return res.status(400).send('License code or chat id parameters required')
+            return Promise.reject(new Error('License code or chat id parameters required'))
 
-        User.findOne({ telegram_chat_id: telegram_chat_id, eula: true })
+        return User.findOne({ telegram_chat_id: telegram_chat_id, eula: true })
             .then(user => {
-                if (!user)
-                    return res.send({ success: false, message: 'EULA' })
+                if (!user) return { success: false, message: 'EULA' }
                 else {
 
                     var isMathematicallyCorrect = argo.subscription.checkMathematicalCorrectness(licenseCode)
                     var isITT = argo.isITTMember(licenseCode)
 
                     if (!isMathematicallyCorrect && !isITT)
-                        return res.send({ success: false, message: 'Token is invalid!' })
+                        return { success: false, message: 'Token is invalid!' }
 
-                    License.findOne({ code: licenseCode })
+                    return License.findOne({ code: licenseCode })
                         .then(license => {
                             if (license && license.redeemed)
-                                res.send({ success: false, message: 'Token already redeemed!' })
-                            else {
-                                if (isITT) { license = { code: licenseCode } }
-                                setUserLicense(telegram_chat_id, license, isITT).then(result => {
-                                    return res.send({ success: true, message: 'Token redeemed correctly!', user: result })
+                                return { success: false, message: 'Token already redeemed!' }
+
+                            if (isITT) { license = { code: licenseCode } }
+                            return setUserLicense(telegram_chat_id, license, isITT)
+                                .then(result => {
+                                    return { success: true, message: 'Token redeemed correctly!', user: result }
                                 }).catch(reason => {
-                                    return res.send({ success: false, message: reason.message })
+                                    return { success: false, message: reason.message }
                                 })
-                            }
                         })
                 }
             })
-            .catch(err => { console.log(err); return res.send(500) })
     }
 }
 

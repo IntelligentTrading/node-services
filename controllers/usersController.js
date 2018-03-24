@@ -1,62 +1,95 @@
-var dbapi = require('../api/userControllerHelper')
 var marketapi = require('../api/market')
 var User = require('../models/User')
 
 module.exports = userController = {
-    getUsers: (req, res) => {
-        if (req.params.telegram_chat_id) {
-            userController.getUser(req, res)
-        }
-        else {
-            dbapi.getUsers(req.query).then(users => {
-                res.send(users);
-            }).catch(reason => res.sendStatus(500).send(reason));
-        }
-    },
-    getUser: (req, res) => {
-        User.findOne({ telegram_chat_id: parseInt(req.params.telegram_chat_id) }).then(user => {
-            user ? res.send(user) : res.sendStatus(404)
-        }).catch(reason => res.status(500).send(reason));
-    },
-    createUser: (req, res) => {
-        User.create(req.body).then((newUser) => {
-            return res.status(201).send(newUser)
-        }).catch((reason) => {
-            console.log(reason.message);
-            if (reason.code == 11000 && reason.name === 'MongoError') {
-                return res.status(500).send('Duplicate Chat Id');
-            }
-            return res.status(500).send(reason.message);
-        });
-    },
-    updateUser: (req, res) => {
-        if (!req.params.telegram_chat_id)
-            throw new Error('Chat Id cannot be null')
+    getUsers: (settingsFilters) => {
+        var filters_key = settingsFilters ? Object.keys(settingsFilters) : [];
+        var query = {};
 
-        dbapi.updateUserSettings(req.params.telegram_chat_id, req.body).then(user => {
-            return res.send(user);
-        }).catch(reason => {
-            return res.status(500).send(reason)
+        filters_key.forEach((key) => {
+            var or_conditions = settingsFilters[key].split(',');
+            if (or_conditions.length <= 1) {
+                query['settings.' + key] = settingsFilters[key];
+            } else {
+                var or_query_array = [];
+                or_conditions.forEach(or_condition => {
+                    var or_query = {};
+                    or_query['settings.' + key] = or_condition;
+                    or_query_array.push(or_query);
+                })
+                query['$or'] = or_query_array;
+            }
+        })
+
+        return User.find(query)
+    },
+    getUser: (telegram_chat_id) => {
+        return User.findOne({ telegram_chat_id: parseInt(telegram_chat_id) }).then(user => {
+            if (!user) {
+                var error = new Error('User not found')
+                error.statusCode = 404
+                throw error
+            }
+
+            return user
         })
     },
-    updateUserCurrencies: (req, res) => {
+    createUser: (userSettings) => {
+        return User.create(userSettings).then((newUser) => {
+            return { statusCode: 201, object: newUser }
+        })
+    },
+    updateUser: (telegram_chat_id, settings) => {
+        if (!telegram_chat_id) {
+            return Promise.reject(new Error('Chat Id cannot be null'))
+        }
+
+        return User.findOne({ telegram_chat_id: parseInt(telegram_chat_id) }).then(user => {
+            if (settings && user) {
+
+                var settingsToUpdate = Object.keys(settings);
+                settingsToUpdate.forEach(settingToUpdate => {
+                    user.settings[settingToUpdate] = settings[settingToUpdate];
+                })
+                user.save()
+                return user
+            }
+        })
+    },
+    updateUserCurrencies: (telegram_chat_id, currenciesPairRole, settings) => {
 
         var currenciesPairRoles = ['transaction', 'counter']
-        if (currenciesPairRoles.indexOf(req.params.currenciesPairRole) < 0) {
-            res.sendStatus(404)
+        if (currenciesPairRoles.indexOf(currenciesPairRole) < 0) {
+            var error = new Error('Path not found')
+            error.statusCode = 404
+            return Promise.reject(error)
         }
         else {
-            dbapi.updateUserCurrencies(req.params.telegram_chat_id, req.body, req.params.currenciesPairRole)
-                .then((user) => {
-                    res.send(user);
-                }).catch(reason => {
-                    res.status(500).send(reason)
+            return User.findOne({ telegram_chat_id: parseInt(telegram_chat_id) })
+                .then(user => {
+                    settings.currencies.forEach((currency) => {
+                        var isTransactionCurrency = currenciesPairRole == 'transaction';
+                        var key = isTransactionCurrency ? currency.symbol : currency.index;
+
+                        if (currency.follow == 'True' || currency.follow == 'true') {
+                            user.settings[`${currenciesPairRole}_currencies`].push(key)
+                        }
+                        else {
+                            var index_of_victim = user.settings[`${currenciesPairRole}_currencies`].indexOf(key)
+                            if (index_of_victim >= 0) {
+                                user.settings[`${currenciesPairRole}_currencies`].splice(index_of_victim, 1);
+                            }
+                        }
+                    })
+
+                    user.save();
+                    return user
                 })
         }
     },
-    selectAllSignals: (req, res) => {
+    selectAllSignals: (telegram_chat_id) => {
 
-        return User.findOne({ telegram_chat_id: parseInt(req.params.telegram_chat_id) }).then(user => {
+        return User.findOne({ telegram_chat_id: parseInt(telegram_chat_id) }).then(user => {
             return Promise.all([user, marketapi.tickers(), marketapi.counterCurrencies()])
         }).then(results => {
             var user = results[0];
@@ -72,11 +105,7 @@ module.exports = userController = {
             settings.transaction_currencies = tickersSymbols;
             return settings
         }).then(data => {
-            return dbapi.updateUserSettings(req.params.telegram_chat_id, data)
-        }).then((user) => {
-            res.send(user);
-        }).catch(reason => {
-            res.status(500).send(reason)
-        });
+            return userController.updateUser(telegram_chat_id, data)
+        })
     }
 }

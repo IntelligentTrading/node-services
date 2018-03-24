@@ -22,25 +22,29 @@ beforeEach(() => {
 })
 
 describe('List of counter currencies', () => {
-    it('Should never be null', () => {
-        var counterCurrencies = marketApi.counterCurrencies();
-        assert.notEqual(counterCurrencies, null, 'It is not null');
-    })
-
     it('Should have 4 elements', () => {
-        var counterCurrencies = marketApi.counterCurrencies();
-        assert.equal(counterCurrencies.length, 4, 'It has 4 elements');
+        return marketApi.counterCurrencies()
+            .then(cc => { return expect(cc.length).to.be.equal(4) })
     })
 })
 
 describe('Market API', () => {
+
     it('Ticker fails if symbol is null', () => {
-        return marketApi.ticker().catch(err => { return expect(err.message).to.be.equal('Ticker symbol cannot be null') })
+        return marketApi.ticker()
+            .catch(err => { return expect(err.message).to.be.equal('Ticker symbol cannot be null') })
     })
 
     it('Ticker fails if symbol is not in the list', () => {
         return marketApi.ticker('XXX').catch(err => {
             return expect(err.message).to.be.equal('XXX Tickers Info not found')
+        })
+    })
+
+    it('Ticker returns a result if symbol is in the list', () => {
+        return marketApi.ticker('ETH').then(ethereum => {
+            expect(ethereum.name).to.be.equal('Ethereum')
+            expect(ethereum.symbol).to.be.equal('ETH')
         })
     })
 
@@ -68,7 +72,7 @@ describe('GET Tickers', () => {
     it('Should have status 200 with header', () => {
 
         return chai.request(app)
-            .get('/api/tickers')
+            .get('/api/tickers/transaction_currencies')
             .set('NSVC-API-KEY', process.env.NODE_SVC_API_KEY)
             .then(res => {
                 expect(res).to.have.status(200)
@@ -78,7 +82,7 @@ describe('GET Tickers', () => {
     it('Should have length > 0', () => {
 
         return chai.request(app)
-            .get('/api/tickers')
+            .get('/api/tickers/transaction_currencies')
             .set('NSVC-API-KEY', process.env.NODE_SVC_API_KEY)
             .then(res => {
                 expect(res.body).to.have.length.above(0, `Length of tickers > 0 (${res.body.length})`)
@@ -90,7 +94,7 @@ describe('GET Tickers', () => {
         return marketApi.tickers().then(tickers => {
 
             return chai.request(app)
-                .get('/api/tickers')
+                .get('/api/tickers/transaction_currencies')
                 .set('NSVC-API-KEY', process.env.NODE_SVC_API_KEY)
                 .then(res => {
                     var restTickers = res.body;

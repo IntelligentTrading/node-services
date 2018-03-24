@@ -7,22 +7,21 @@ const broadcast_markdown_opts = {
 };
 
 module.exports = {
-    broadcast: (req, res) => {
-        var message = req.body.text;
+    broadcast: (message) => {
+        return UserModel.find()
+            .then(users => {
 
-        UserModel.find().then(users => {
+                var maxSimultaneousBroadcastSize = 20
+                var slices = Math.ceil(users.length / maxSimultaneousBroadcastSize)
 
-            var maxSimultaneousBroadcastSize = 20
-            var slices = Math.ceil(users.length / maxSimultaneousBroadcastSize)
-
-            for (current_slice = 0; current_slice < slices; current_slice++) {
-                users.slice(current_slice * maxSimultaneousBroadcastSize, maxSimultaneousBroadcastSize * (current_slice + 1) - 1)
-                    .map(user => {
-                        bot.sendMessage(user.telegram_chat_id, final_message, broadcast_markdown_opts)
-                            .catch(reason => console.log(`${telegram_chat_id}:${reason}`));
-                    })
-            }
-        }).then(result => res.send(200))
-            .catch(reason => { console.log(reason); res.send(500) })
+                for (current_slice = 0; current_slice < slices; current_slice++) {
+                    users.slice(current_slice * maxSimultaneousBroadcastSize, maxSimultaneousBroadcastSize * (current_slice + 1) - 1)
+                        .map(user => {
+                            bot.sendMessage(user.telegram_chat_id, message, broadcast_markdown_opts)
+                                .catch(reason => console.log(`${telegram_chat_id}:${reason}`));
+                        })
+                }
+            })
+            .then(() => { return {} })
     }
 }
