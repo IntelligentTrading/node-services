@@ -72,7 +72,7 @@ module.exports = paymentController = {
             .then(decimalPlacesInfo => {
                 return {
                     receiverAddress: meaningfulInfo.substring(0, 64),
-                    ittTokens: parseInt(transferredTokenData, 16) / (10 ** parseInt(decimalPlacesInfo[0]))
+                    ittTokens: parseInt(transferredTokenData, 16) / (10 ** parseInt(decimalPlacesInfo))
                 }
             })
     },
