@@ -6,7 +6,9 @@ var solve = (promise, response) => {
             return response.status(status).send(resBody)
         })
         .catch(err => {
-            console.log(err)
+            if (process.env.NODE_ENV !== 'test')
+                console.log(err)
+
             var statusCode = err.statusCode ? err.statusCode : 500
             return response.status(statusCode).send(err.message)
         })

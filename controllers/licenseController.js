@@ -14,7 +14,7 @@ module.exports = {
             return Promise.reject(new Error('Something went wrong with the license generation. Please retry.'))
 
         return License.create(license).then(() => {
-            return license
+            return { statusCode: 201, object: license }
         })
     },
     subscribe: (licenseCode, telegram_chat_id) => {

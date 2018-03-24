@@ -13,7 +13,7 @@ chai.use(chaiHttp)
 
 var telegram_chat_id = process.env.TELEGRAM_TEST_CHAT_ID
 
-describe.only("2FA API", () => {
+describe("2FA API", () => {
     it('Generates a secret for chat_id', async () => {
         var secret = await twoFAController.generateSecretFor(telegram_chat_id)
         var user = await UserModel.findOne({ telegram_chat_id: telegram_chat_id })

@@ -6,9 +6,6 @@ var solve = require('./solver')
 router.get('/generate/:telegram_chat_id', (req, res) => {
     solve(twoFACtrl.generateSecretFor(req.params.telegram_chat_id), res)
 })
-router.get('/qr/:telegram_chat_id', (req, res) => {
-    solve(twoFACtrl.getQRData(req.params.telegram_chat_id), res)
-})
 router.get('/verify', (req, res) => {
     solve(twoFACtrl.verify(req.query.telegram_chat_id, req.query.token), res)
 })

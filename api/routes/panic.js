@@ -9,7 +9,7 @@ router.post('/', (req, res) => {
 
 
 router.put('/', (req, res) => {
-    solve(licenseCtrl.updateNewsFeed(req.body), res)
+    solve(panicCtrl.updateNewsFeed(req.body), res)
 })
 
 module.exports = router

@@ -10,10 +10,6 @@ module.exports = TwoFA = {
             'settings.TwoFASecret': { secret32: secret.base32, otpAuthUrl: secret.otpauth_url }
         }).then(() => { return secret })
     },
-    getQRData: (telegram_chat_id) => {
-        return UserModel.findOne({ telegram_chat_id: telegram_chat_id })
-            .then(user => { return user.settings.TwoFASecret.otpAuthUrl })
-    },
     getToken: (telegram_chat_id) => {
         if (!telegram_chat_id) throw new Error('telegram_chat_id cannot be null')
 

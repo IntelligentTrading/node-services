@@ -4,7 +4,7 @@
   "description": "ITT Node Services",
   "main": "index.js",
   "scripts": {
-    "test": "nyc --reporter=text mocha --no-timeouts --exit",
+    "test": "NODE_ENV=test nyc --reporter=text mocha --no-timeouts --exit",
     "start": "node index.js"
   },
   "repository": {
