@@ -1,10 +1,6 @@
 var UserModel = require('../models/User')
-const TelegramBot = require('node-telegram-bot-api');
-const token = process.env.TELEGRAM_BOT_TOKEN;
-const bot = new TelegramBot(token, { polling: false });
-const broadcast_markdown_opts = {
-    parse_mode: "Markdown"
-};
+const bot = require('../util/telegramBot').bot
+const broadcast_markdown_opts = require('../util/telegramBot').markdown
 
 module.exports = {
     broadcast: (message) => {

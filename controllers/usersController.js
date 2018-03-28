@@ -1,5 +1,6 @@
 var marketapi = require('../api/market')
 var User = require('../models/User')
+var wallet = require('./walletController')
 
 module.exports = userController = {
     getUsers: (settingsFilters) => {
@@ -30,12 +31,14 @@ module.exports = userController = {
                 error.statusCode = 404
                 throw error
             }
-
             return user
         })
     },
-    createUser: (userSettings) => {
-        return User.create(userSettings).then((newUser) => {
+    createUser: (userDocument) => {
+        var userReceiverAddress = wallet.getWalletAddressFor(userDocument.telegram_chat_id)
+        userDocument.settings.ittWalletReceiverAddress = userReceiverAddress
+
+        return User.create(userDocument).then((newUser) => {
             return { statusCode: 201, object: newUser }
         })
     },

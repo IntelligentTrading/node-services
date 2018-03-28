@@ -3,8 +3,11 @@ var router = express.Router()
 var paymentCtrl = require('../../controllers/paymentController')
 var solve = require('../routes/solver')
 
-router.post('/verify', (req, res) => {
-    solve(paymentCtrl.verifyTx(req.body.txHash, req.body.telegram_chat_id), res)
+const itfNotifier = require('../../util/blockchainNotifier').emitter
+const itfEvents = require('../../util/blockchainNotifier').itfEvents
+
+router.post('/verifyTransaction', (req, res) => {
+    solve(paymentCtrl.verifyTransaction(req.body), res)
 })
 
 router.get('/status/:telegram_chat_id', (req, res) => {
