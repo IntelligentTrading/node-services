@@ -53,7 +53,7 @@ describe('License Controller', () => {
             .then((response) => {
                 expect(response).to.have.status(200)
                 expect(response.body.success).to.be.true
-                expect(response.body.user.settings.subscription_plan).to.be.equal(100)
+                expect(response.body.user.settings.is_ITT_team).to.be.true
                 expect(response.body.user.token).to.be.equal(sampleToken)
             })
     })

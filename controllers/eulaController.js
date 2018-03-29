@@ -33,8 +33,7 @@ module.exports = {
                                 horizon: 'medium',
                                 is_muted: false,
                                 is_crowd_enabled: true,
-                                is_ITT_team: false,
-                                subscription_plan: 0
+                                is_ITT_team: false
                             }
 
                             var document = {

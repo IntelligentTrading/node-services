@@ -39,7 +39,6 @@ var blockchainEventEmitter = (startingBlockNumber) => {
 }
 
 module.exports.init = async () => {
-
     var lastTransaction = await Transaction.findOne()
     var startingBlockNumber = lastTransaction ? lastTransaction.blockNumber : 0
     console.log(`Listening on ${providerEndpoint} from block  ${startingBlockNumber}`)

@@ -21,7 +21,8 @@ var userSchema = new Schema({
         },
         subscription_plan: { type: Number, default: 0 }, // 0 = free
         subscriptions: {
-            free: Date,
+            free: { type: Date, default: new Date(2020, 12, 31) },
+            beta: { type: Date, default: Date.now() },
             paid: { type: Date, default: Date.now() }
         },
         ittTransactions: { type: [String], default: [] },

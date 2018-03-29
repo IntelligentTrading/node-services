@@ -1,10 +1,10 @@
 var express = require('express')
 var router = express.Router()
-var plansCtrl = require('../../controllers/plansController')
+var signalsCtrl = require('../../controllers/signalsController')
 var solve = require('./solver')
 
 router.get('/:signal?', (req, res) => {
-    solve(plansCtrl.getPlans(req.params.signal), res)
+    solve(signalsCtrl.getSignals(req.params.signal), res)
 })
 
 module.exports = router
