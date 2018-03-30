@@ -1,6 +1,6 @@
 var marketapi = require('../api/market')
 var User = require('../models/User')
-var wallet = require('./walletController')
+var walletController = require('./walletController')
 
 module.exports = userController = {
     getUsers: (settingsFilters) => {
@@ -31,11 +31,16 @@ module.exports = userController = {
                 error.statusCode = 404
                 throw error
             }
+            if (user.settings.ittWalletReceiverAddress == 'No address generated') {
+                user.settings.ittWalletReceiverAddress = walletController.getWalletAddressFor(telegram_chat_id)
+                user.save()
+            }
+
             return user
         })
     },
     createUser: (userDocument) => {
-        var userReceiverAddress = wallet.getWalletAddressFor(userDocument.telegram_chat_id)
+        var userReceiverAddress = walletController.getWalletAddressFor(userDocument.telegram_chat_id)
         userDocument.settings.ittWalletReceiverAddress = userReceiverAddress
 
         return User.create(userDocument).then((newUser) => {
