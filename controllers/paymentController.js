@@ -15,6 +15,8 @@ var contract = new ethers.Contract(ittContractAddress, abi, etherscanProvider)
 var itfEmitter = require('../util/blockchainNotifier').emitter
 var itfEvents = require('../util/blockchainNotifier').itfEvents
 
+var walletController = require('./walletController')
+
 itfEmitter.on(itfEvents.itfTransfer, tx => {
     console.log(`[Event] verifying transaction ${tx.transactionHash}`)
     verifyTransaction(tx).then(user => {
@@ -31,6 +33,7 @@ module.exports = paymentController = {
         if (!user || user.length < 0) throw new Error('User not found')
 
         var expDate = user.settings.subscriptions.paid
+
         return {
             telegram_chat_id: telegram_chat_id,
             expirationDate: expDate,
