@@ -1,6 +1,5 @@
 var argo = require('../util/argo')
 var License = require('../models/License')
-var Plan = require('../models/Plan')
 var User = require('../models/User')
 
 module.exports = {
@@ -52,31 +51,16 @@ module.exports = {
 }
 
 var setUserLicense = (telegram_chat_id, license, isItt) => {
-
-    var promises = [];
-
-    var subscriberPromise = User.findOne({ telegram_chat_id: telegram_chat_id, eula: true })
-    promises.push(subscriberPromise)
-
-    if (!isItt) {
-        var planPromise = Plan.findOne({ 'plan': license.plan })
-        promises.push(planPromise)
-    }
-
-    return Promise.all(promises).then(results => {
-        var subscriber = results[0]
-        var subscriptionPlan = results[1] ? results[1].accessLevel : 0
-        if (!subscriber)
-            throw new Error('EULA')
+    return User.findOne({ telegram_chat_id: telegram_chat_id, eula: true }).then(subscriber => {
+        if (!subscriber) throw new Error('EULA')
 
         subscriber.settings.is_ITT_team = isItt
         subscriber.token = license.code
-        subscriber.settings.subscription_plan = isItt ? 100 : subscriptionPlan
+        subscriber.settings.subscriptions[license.plan] = new Date(2020, 12, 31)
         subscriber.save()
-
-        License.findOneAndUpdate({ code: license.code }, { redeemed: true }, { new: true })
-            .catch(err => console.log(err))
-
         return subscriber
+    }).then(subscriber => {
+        return License.findOneAndUpdate({ code: license.code }, { redeemed: true }, { new: true })
+            .then(() => { return subscriber })
     })
 }

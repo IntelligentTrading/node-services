@@ -1,11 +1,8 @@
 var marketApi = require('../api/market')
-var UserModel = require('../models/User')
-const TelegramBot = require('node-telegram-bot-api');
-const token = process.env.TELEGRAM_BOT_TOKEN;
-const bot = new TelegramBot(token, { polling: false });
-const markdown_opts = {
-    parse_mode: "Markdown"
-};
+//var UserModel = require('../models/User')
+var userController = require('../controllers/usersController')
+var bot = require('../util/telegramBot').bot
+var markdown_opts = require('../util/telegramBot').markdown
 
 module.exports = {
     render: (request, response) => {
@@ -23,39 +20,32 @@ module.exports = {
         }
         else {
 
-            return UserModel.findOne({ telegram_chat_id: chat_id })
-                .then(found => {
-                    if (found)
-                        return null
-                    else {
+            userController.getUser(chat_id)
+                .catch(err => {
 
-                        return marketApi.tickers()
-                            .then(tkrs => {
-                                var tickersSymbols = tkrs.map(tkr => tkr.symbol);
-                                var ccs = marketApi.counterCurrencies();
+                    return marketApi.tickers()
+                        .then(tkrs => {
+                            var tickersSymbols = tkrs.map(tkr => tkr.symbol);
+                            var ccs = marketApi.counterCurrencies();
 
-                                var settings = {
-                                    counter_currencies: [0, 2],//ccs.map(cc => ccs.indexOf(cc)), // BTC and USDT only
-                                    transaction_currencies: tickersSymbols,
-                                    horizon: 'medium',
-                                    is_muted: false,
-                                    is_crowd_enabled: true,
-                                    is_ITT_team: false,
-                                    subscription_plan: 0
-                                }
+                            var settings = {
+                                counter_currencies: [0, 2],//ccs.map(cc => ccs.indexOf(cc)), // BTC and USDT only
+                                transaction_currencies: tickersSymbols,
+                                horizon: 'medium',
+                                is_muted: false,
+                                is_crowd_enabled: true,
+                                is_ITT_team: false
+                            }
 
-                                var document = {
-                                    telegram_chat_id: chat_id,
-                                    eula: true,
-                                    settings: settings
-                                }
+                            var document = {
+                                telegram_chat_id: chat_id,
+                                eula: true,
+                                settings: settings,
+                            }
 
-                                return UserModel.create(document)
-                                    .then(newUser => { return newUser })
-                                    .catch(err => console.log(err))
-                            })
-                            .catch(err => console.log('Market ticker error in eula controller'))
-                    }
+                            return userController.createUser(document)
+                        })
+                        .catch(err => console.log('Market ticker error in eula controller'))
                 })
                 .then((newUser) => {
 

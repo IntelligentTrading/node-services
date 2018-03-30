@@ -1,4 +1,6 @@
 var ethers = require('ethers')
+const bot = require('../util/telegramBot').bot
+const broadcast_markdown_opts = require('../util/telegramBot').markdown
 
 var network = process.env.LOCAL_ENV ? ethers.providers.networks.ropsten : ethers.providers.networks.mainnet
 console.log(`Deploying blockchain provider on ${network.name}`)
@@ -8,83 +10,55 @@ var UserModel = require('../models/User')
 var dates = require('../util/dates')
 var wallet = require('./walletController')
 var abi = require('../util/abi')
-
 var ittContractAddress = process.env.CONTRACT_ADDRESS
 var contract = new ethers.Contract(ittContractAddress, abi, etherscanProvider)
+var itfEmitter = require('../util/blockchainNotifier').emitter
+var itfEvents = require('../util/blockchainNotifier').itfEvents
+
+itfEmitter.on(itfEvents.itfTransfer, tx => {
+    console.log(`[Event] verifying transaction ${tx.transactionHash}`)
+    verifyTransaction(tx).then(user => {
+        if (user) {
+            var expDate = user.settings.subscriptions.paid
+            bot.sendMessage(user.telegram_chat_id, `A new transaction has been verified successfully. You have ${dates.getDaysLeftFrom(expDate)} days left (exp. on ${expDate})`)
+        }
+    }).catch(err => { console.log(err) })
+})
 
 module.exports = paymentController = {
     getUserStatus: async (telegram_chat_id) => {
         var user = await UserModel.findOne({ telegram_chat_id: telegram_chat_id })
-        if (!user) throw new Error('User not found')
+        if (!user || user.length < 0) throw new Error('User not found')
 
-        var expirationDate = user.settings.subscriptions.paid
-        var daysLeft = dates.getDaysLeftFrom(expirationDate)
-
+        var expDate = user.settings.subscriptions.paid
         return {
             telegram_chat_id: telegram_chat_id,
-            expirationDate: expirationDate,
-            subscriptionDaysLeft: daysLeft,
-            plan: user.settings.subscription_plan
+            expirationDate: expDate,
+            subscriptionDaysLeft: dates.getDaysLeftFrom(expDate),
+            walletAddress: user.settings.ittWalletReceiverAddress
         }
     },
-    addSubscriptionDays: async (days, telegram_chat_id) => {
-        var user = await UserModel.findOne({ telegram_chat_id: telegram_chat_id })
-        if (!user) throw new Error('User not found')
+    verifyTransaction: (transaction) => verifyTransaction
+}
 
-        var newExpirationDate = new Date(Math.max(new Date(), user.settings.subscriptions.paid) + dates.daysToMillis(days))
-        await UserModel.update({ telegram_chat_id: telegram_chat_id }, { 'settings.subscriptions.paid': newExpirationDate })
-    },
-    isAlreadyVerified: (txHash, telegram_chat_id) => {
-        return UserModel.findOne({ telegram_chat_id: telegram_chat_id }).then(user => {
-            return user.settings.ittTransactions.length > 0 && user.settings.ittTransactions.indexOf(txHash) >= 0
+function verifyTransaction(transaction) {
+    return UserModel.findOne({ 'settings.ittWalletReceiverAddress': transaction.returnValues.to })
+        .then(user => {
+
+            if (user && user.settings.ittTransactions.indexOf(transaction.transactionHash) < 0) {
+                return weiToToken(transaction.returnValues.value).then(tokens => {
+                    var newExpirationDate = new Date(Math.max(new Date(), user.settings.subscriptions.paid) + dates.daysToMillis(tokens))
+                    user.settings.subscriptions.paid = newExpirationDate
+                    user.settings.ittTransactions.push(transaction.transactionHash)
+                    user.save()
+                    return user
+                })
+            }
         })
-    },
-    addTransactionToList: async (txHash, telegram_chat_id) => {
-        var user = await UserModel.findOne({ telegram_chat_id: telegram_chat_id })
-        if (user) {
-            user.settings.ittTransactions.push(txHash)
-            user.save()
-            return user
-        }
-    },
-    verifyTx: async (txHash, telegram_chat_id) => {
+}
 
-        var isAlreadyVerified = await paymentController.isAlreadyVerified(txHash, telegram_chat_id)
-        if (isAlreadyVerified)
-            throw new Error('You cannot verify a transaction more than once')
-
-        var tx = await etherscanProvider.waitForTransaction(txHash)
-
-        if (tx.to.toLowerCase() != ittContractAddress.toLowerCase())
-            throw new Error('You can verify only ITT transactions!')
-
-        var txInfo = await paymentController.txInfoFromRawData(tx.data)
-        paymentController.checkReceivingAddress(telegram_chat_id, txInfo.receiverAddress)
-
-        await paymentController.addTransactionToList(txHash, telegram_chat_id)
-        await paymentController.addSubscriptionDays(txInfo.ittTokens, telegram_chat_id)
-        return tx
-    },
-    txInfoFromRawData: (txData) => {
-        var meaningfulInfo = txData.substring(txData.length - 128)
-        var transferredTokenData = meaningfulInfo.substring(64)
-        return contract.decimals()
-            .then(decimalPlacesInfo => {
-                return {
-                    receiverAddress: meaningfulInfo.substring(0, 64),
-                    ittTokens: parseInt(transferredTokenData, 16) / (10 ** parseInt(decimalPlacesInfo))
-                }
-            })
-    },
-    checkReceivingAddress: (telegram_chat_id, txReceiverAddress) => {
-        // ERC20 address is 160 bit in hex representation (40 chars) + a prefix (0x)
-        var expectedReceiverAddressx0 = wallet.getWalletAddressFor(telegram_chat_id)
-        // the transaction log instead uses 64 chars, so we have to drop the first 24 and add the prefix
-        var txReceiverAddress_0x = '0x' + txReceiverAddress.substring(24)
-
-        if (expectedReceiverAddressx0.toLowerCase() != txReceiverAddress_0x.toLowerCase())
-            throw new Error(`The receiver address ${txReceiverAddress_0x} of this transaction does not match your ITT wallet receiver address!`)
-
-        return true
-    }
+function weiToToken(weiValue) {
+    return contract.decimals().then(decimalPlacesInfo => {
+        return parseInt(weiValue) / (10 ** parseInt(decimalPlacesInfo))
+    })
 }

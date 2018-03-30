@@ -21,16 +21,14 @@ var userSchema = new Schema({
         },
         subscription_plan: { type: Number, default: 0 }, // 0 = free
         subscriptions: {
-            free: Date,
+            free: { type: Date, default: new Date(2020, 12, 31) },
+            beta: { type: Date, default: Date.now() },
             paid: { type: Date, default: Date.now() }
         },
         ittTransactions: { type: [String], default: [] },
+        ittWalletReceiverAddress: String,
         counter_currencies: { type: [Number], default: [0, 2] }, //0,1,2,3 => [BTC,ETH,USD,XMR]
-        transaction_currencies: { type: [String], default: ["BTC", "ETH", "BCH", "XMR", "ZEC", "DASH", "LTC"] },
-        TwoFASecret: {
-            secret32: String,
-            otpAuthUrl: String
-        }
+        transaction_currencies: { type: [String], default: ["BTC", "ETH", "BCH", "XMR", "ZEC", "DASH", "LTC"] }
     },
     eula: { type: Boolean, default: false },
     token: { type: String, default: '' },

@@ -9,6 +9,6 @@ module.exports = {
         var utc1 = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
         var utc2 = Date.UTC(expirationDate.getFullYear(), expirationDate.getMonth(), expirationDate.getDate());
 
-        return Math.floor((utc2 - utc1) / _MS_PER_DAY);
+        return ((utc2 - utc1) / _MS_PER_DAY).toFixed(1)
     }
 }

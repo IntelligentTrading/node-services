@@ -15,7 +15,6 @@ module.exports = {
                 "is_muted": false,
                 "is_crowd_enabled": false,
                 "risk": "medium",
-                "TwoFASecret": '',
                 "is_ITT_team": false,
                 "subscription_plan": 0
             }
