@@ -34,7 +34,7 @@ module.exports = paymentController = {
         return {
             telegram_chat_id: telegram_chat_id,
             expirationDate: expDate,
-            subscriptionDaysLeft: dates.getDaysLeftFrom(expDate),
+            subscriptionDaysLeft: Math.max(0, dates.getDaysLeftFrom(expDate)),
             walletAddress: user.settings.ittWalletReceiverAddress
         }
     },
