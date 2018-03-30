@@ -91,9 +91,10 @@ describe('Users Controller', () => {
             .then(res => {
                 return expect(res).to.have.status(201)
             })
+            .catch(err => console.log(err))
     })
 
-    it('POST /users returns 500 and Duplicate Chat Id', () => {
+    it('POST /users returns 500 and duplicate key', () => {
         var newUser = data.userTemplate()
 
         return chai.request(app)
@@ -102,7 +103,7 @@ describe('Users Controller', () => {
             .send(newUser)
             .catch(err => {
                 expect(err).to.have.status(500)
-                expect(err.response.text).to.be.equal('Duplicate Chat Id')
+                expect(err.response.text).to.contain('duplicate key')
             })
     })
 

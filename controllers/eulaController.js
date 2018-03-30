@@ -2,6 +2,7 @@ var marketApi = require('../api/market')
 //var UserModel = require('../models/User')
 var userController = require('../controllers/usersController')
 var bot = require('../util/telegramBot').bot
+var markdown_opts = require('../util/telegramBot').markdown
 
 module.exports = {
     render: (request, response) => {

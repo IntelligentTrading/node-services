@@ -30,7 +30,7 @@ describe("Ethereum Blockchain API", () => {
             .get('/api/payment/status/' + telegram_chat_id)
             .set('NSVC-API-KEY', process.env.NODE_SVC_API_KEY)
             .then((res) => {
-                expect(res.body.subscriptionDaysLeft).to.be.equal(Math.round(testTx.ittTokenSent))
+                expect(parseInt(res.body.subscriptionDaysLeft)).to.be.equal(0)
                 assert.isTrue(paymentApiSpy.getCall(0).args[0] == telegram_chat_id)
                 paymentApiSpy.restore()
             })

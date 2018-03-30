@@ -28,7 +28,7 @@ itfEmitter.on(itfEvents.itfTransfer, tx => {
 module.exports = paymentController = {
     getUserStatus: async (telegram_chat_id) => {
         var user = await UserModel.findOne({ telegram_chat_id: telegram_chat_id })
-        if (!user) throw new Error('User not found')
+        if (!user || user.length < 0) throw new Error('User not found')
 
         var expDate = user.settings.subscriptions.paid
         return {
