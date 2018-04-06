@@ -1,12 +1,12 @@
 var Web3 = require('web3')
+require('request-promise')
 var providerEndpoint = process.env.ETH_TEST ? 'ropsten' : 'mainnet'
 web3 = new Web3(new Web3.providers.HttpProvider(`https://${providerEndpoint}.infura.io/${process.env.INFURA_TOKEN}`))
 
 const abi = require('../util/abi')
 const _ = require('lodash')
 
-var itfEmitter = require('../util/blockchainNotifier').emitter
-var itfEvents = require('../util/blockchainNotifier').itfEvents
+var itfEmitter = require('../util/blockchainNotifier')
 var Transaction = require('../models/Transaction')
 var contract = new web3.eth.Contract(abi, process.env.CONTRACT_ADDRESS)
 
@@ -26,7 +26,7 @@ var blockchainEventEmitter = (startingBlockNumber) => {
                 var lastEvent = _.last(sortedEvents)
                 lastBlockNumber = Math.max(lastEvent.blockNumber, lastBlockNumber)
                 sortedEvents.map(eventObj => {
-                    itfEmitter.emit(itfEvents.itfTransfer, eventObj)
+                    itfEmitter.emit('itfTransfer', eventObj)
                 })
 
                 Transaction.remove({}, (err) => {
@@ -38,9 +38,10 @@ var blockchainEventEmitter = (startingBlockNumber) => {
     })
 }
 
-module.exports.init = async () => {
-    var lastTransaction = await Transaction.findOne()
-    var startingBlockNumber = lastTransaction ? lastTransaction.blockNumber : 0
-    console.log(`Listening on ${providerEndpoint} from block  ${startingBlockNumber}`)
-    setInterval(() => blockchainEventEmitter(startingBlockNumber), 10000)
+module.exports.init = () => {
+    var lastTransaction = Transaction.findOne().then(lastTransaction => {
+        var startingBlockNumber = lastTransaction ? lastTransaction.blockNumber : 0
+        console.log(`Listening on ${providerEndpoint} from block  ${startingBlockNumber}`)
+        setInterval(() => blockchainEventEmitter(startingBlockNumber), 10000)
+    })
 }

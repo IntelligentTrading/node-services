@@ -12,12 +12,11 @@ var wallet = require('./walletController')
 var abi = require('../util/abi')
 var ittContractAddress = process.env.CONTRACT_ADDRESS
 var contract = new ethers.Contract(ittContractAddress, abi, etherscanProvider)
-var itfEmitter = require('../util/blockchainNotifier').emitter
-var itfEvents = require('../util/blockchainNotifier').itfEvents
+var itfEmitter = require('../util/blockchainNotifier')
 
 var walletController = require('./walletController')
 
-itfEmitter.on(itfEvents.itfTransfer, tx => {
+itfEmitter.on('itfTransfer', tx => {
     console.log(`[Event] verifying transaction ${tx.transactionHash}`)
     verifyTransaction(tx).then(user => {
         if (user) {
