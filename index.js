@@ -5,13 +5,13 @@ var app = express()
 var fs = require('fs')
 var path = require('path')
 var marketApi = require('./api/market')
+var blockchainSvc = require('./controllers/blockchainSniffer')
 var config = require('./config')
 var database = require('./database')
-
-require('./controllers/blockchainSniffer').init()
-
 database.connect()
 config.boot(app)
+
+blockchainSvc.init()
 
 var routerFiles = fs.readdirSync('./api/routes')
 routerFiles.forEach(rf => {

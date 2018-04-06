@@ -62,11 +62,11 @@ module.exports = {
                             reply_markup: {
                                 inline_keyboard: [[{
                                     "text": "Yes",
-                                    "callback_data": "wizard.NAV:RUN_true"
+                                    "callback_data": JSON.stringify({ cmd: "wizard", n: "hrz" })
                                 },
                                 {
                                     "text": "No",
-                                    "callback_data": "wizard.NAV:RUN_false"
+                                    "callback_data": JSON.stringify({ cmd: "wizard", n: "nevermind" })
                                 }]]
                             }
                         }
