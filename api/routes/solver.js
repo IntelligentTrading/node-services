@@ -1,6 +1,9 @@
 var solve = (promise, response) => {
     return promise
         .then(result => {
+            if(!result){
+                result = 'OK'
+            }
             var status = result.statusCode ? result.statusCode : 200
             var resBody = result.object ? result.object : result
             return response.status(status).send(resBody)
