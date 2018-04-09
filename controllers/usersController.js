@@ -40,9 +40,6 @@ module.exports = userController = {
         })
     },
     createUser: (userDocument) => {
-        var userReceiverAddress = walletController.getWalletAddressFor(userDocument.telegram_chat_id)
-        userDocument.settings.ittWalletReceiverAddress = userReceiverAddress
-
         return User.create(userDocument).then((newUser) => {
             return { statusCode: 201, object: newUser }
         })
