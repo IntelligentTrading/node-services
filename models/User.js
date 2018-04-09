@@ -27,7 +27,7 @@ var userSchema = new Schema({
         },
         ittTransactions: { type: [String], default: [] },
         ittWalletReceiverAddress: { type: String, default: 'No address generated' },
-        counter_currencies: { type: [Number], default: [0, 2] }, //0,1,2,3 => [BTC,ETH,USD,XMR]
+        counter_currencies: { type: [Number], default: [2] }, //0,1,2,3 => [BTC,ETH,USD,XMR]
         transaction_currencies: { type: [String], default: ["BTC", "ETH", "BCH", "XMR", "ZEC", "DASH", "LTC"] }
     },
     eula: { type: Boolean, default: false },
