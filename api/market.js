@@ -92,7 +92,7 @@ var self = module.exports = {
         })
     },
     ittPrice: () => {
-        
+
     }
 }
 
