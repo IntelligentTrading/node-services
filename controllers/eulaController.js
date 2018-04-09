@@ -28,7 +28,8 @@ module.exports = {
                     return 'Thanks for accepting EULA, you can now subscribe with `/token user_token` or keep using the bot with the free plan.'
                 else
                     return 'You already accepted the EULA, you can now subscribe with `/token user_token` or keep using the bot with the free plan.'
-            }).then(eula_message => {
+            })
+            /*.then(eula_message => {
                 var opts =
                     {
                         parse_mode: 'Markdown',
@@ -46,7 +47,8 @@ module.exports = {
                 bot.sendMessage(chat_id, eula_message, markdown_opts).then(() => {
                     bot.sendMessage(chat_id, '💡*Hint*\nWe can walk through few configuration steps or you can do it using a /wizard. Do you wanna do it now?', opts)
                 })
-            }).catch(reason => {
+            })*/
+            .catch(reason => {
                 console.log(reason)
                 bot.sendMessage(chat_id, 'Something went wrong while accepting EULA, please retry or contact us!')
             })
