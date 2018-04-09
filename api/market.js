@@ -2,7 +2,7 @@ var ccxt = require('ccxt');
 var NodeCache = require('node-cache');
 var cache = new NodeCache();
 var _ = require('lodash');
-var coinmarketcap = require('./coinmarketcap').coinmarketcap;
+var coinmarketcap = require('./coinmarketcap')
 var poloniex = new ccxt.poloniex();
 
 var self = module.exports = {
@@ -90,6 +90,9 @@ var self = module.exports = {
                 console.log('Tickers cache initialized...');
             })
         })
+    },
+    ittPrice: () => {
+        
     }
 }
 

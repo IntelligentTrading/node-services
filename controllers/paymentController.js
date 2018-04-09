@@ -6,6 +6,7 @@ var network = process.env.LOCAL_ENV ? ethers.providers.networks.ropsten : ethers
 console.log(`Deploying blockchain provider on ${network.name}`)
 var etherscanProvider = new ethers.providers.EtherscanProvider(network)
 
+var coinmarketcap = require('../api/coinmarketcap')
 var UserModel = require('../models/User')
 var dates = require('../util/dates')
 var wallet = require('./walletController')
@@ -48,13 +49,27 @@ function verifyTransaction(transaction) {
         .then(user => {
 
             if (user && user.settings.ittTransactions.indexOf(transaction.transactionHash) < 0) {
-                return weiToToken(transaction.returnValues.value).then(tokens => {
-                    var newExpirationDate = new Date(Math.max(new Date(), user.settings.subscriptions.paid) + dates.daysToMillis(tokens))
-                    user.settings.subscriptions.paid = newExpirationDate
-                    user.settings.ittTransactions.push(transaction.transactionHash)
-                    user.save()
-                    return user
-                })
+
+                var weiToTokenPromise = weiToToken(transaction.returnValues.value)
+                var coinmarketcapPromise = coinmarketcap.fetchITT()
+
+                return Promise.all([weiToTokenPromise, coinmarketcapPromise])
+                    .then(fulfillments => {
+                        var tokens = fulfillments[0]
+                        var itt = fulfillments[1][0]
+                        //20$ in ITT = 1 month
+                        var usdPricePerSecond = 20 * 12 / 365.25 / 24 / 3600
+                        //100ITT * 0.04 = 4$
+                        var ittSeconds = tokens * itt.price_usd / usdPricePerSecond
+                        var startingDate = new Date(Math.max(new Date(), user.settings.subscriptions.paid))
+                        var newExpirationDate = startingDate.setSeconds(startingDate.getSeconds() + ittSeconds)
+                        user.settings.subscriptions.paid = newExpirationDate
+                        user.settings.ittTransactions.push(transaction.transactionHash)
+                        user.save()
+                        return user
+                    }).catch(err => {
+                        console.log(err)
+                    })
             }
         })
 }
