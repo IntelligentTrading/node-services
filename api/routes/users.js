@@ -7,9 +7,6 @@ var solve = require('./solver')
 router.post('/', (req, res) => {
     solve(usersCtrl.createUser(req.body), res)
 })
-router.get('/free', (req, res) => {
-    solve(usersCtrl.getFreeUsers(), res)
-})
 router.get('/:telegram_chat_id?', (req, res) => {
     var telegram_chat_id = req.params.telegram_chat_id
     if (telegram_chat_id)

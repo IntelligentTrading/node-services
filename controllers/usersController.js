@@ -127,8 +127,5 @@ module.exports = userController = {
     },
     getSubscriptionTemplate: (label) => {
         return SubscriptionTemplate.findOne({ label: label })
-    },
-    getFreeUsers: () => {
-        return User.find({ $and: [{ 'settings.subscriptions.paid': { $lt: new Date() } }, { 'settings.subscriptions.beta': { $lt: new Date() } }] })
     }
 }
