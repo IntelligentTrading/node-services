@@ -1,6 +1,8 @@
 var marketapi = require('../api/market')
 var User = require('../models/User')
+var SubscriptionTemplate = require('../models/SubscriptionTemplate')
 var walletController = require('./walletController')
+var dateUtil = require('../util/dates')
 
 module.exports = userController = {
     getUsers: (settingsFilters) => {
@@ -51,13 +53,17 @@ module.exports = userController = {
 
         return User.findOne({ telegram_chat_id: parseInt(telegram_chat_id) }).then(user => {
             if (settings && user) {
-
-                var settingsToUpdate = Object.keys(settings);
-                settingsToUpdate.forEach(settingToUpdate => {
-                    user.settings[settingToUpdate] = settings[settingToUpdate];
-                })
-                user.save()
-                return user
+                if (dateUtil.hasValidSubscription(user)) {
+                    var settingsToUpdate = Object.keys(settings);
+                    settingsToUpdate.forEach(settingToUpdate => {
+                        user.settings[settingToUpdate] = settings[settingToUpdate];
+                    })
+                    user.save()
+                    return user
+                }
+                else {
+                    return Promise.reject(new Error('You must subscribe in order to save settings.'))
+                }
             }
         })
     },
@@ -72,23 +78,29 @@ module.exports = userController = {
         else {
             return User.findOne({ telegram_chat_id: parseInt(telegram_chat_id) })
                 .then(user => {
-                    settings.currencies.forEach((currency) => {
-                        var isTransactionCurrency = currenciesPairRole == 'transaction';
-                        var key = isTransactionCurrency ? currency.symbol : currency.index;
 
-                        if (currency.follow == 'True' || currency.follow == 'true') {
-                            user.settings[`${currenciesPairRole}_currencies`].push(key)
-                        }
-                        else {
-                            var index_of_victim = user.settings[`${currenciesPairRole}_currencies`].indexOf(key)
-                            if (index_of_victim >= 0) {
-                                user.settings[`${currenciesPairRole}_currencies`].splice(index_of_victim, 1);
+                    if (dateUtil.hasValidSubscription(user)) {
+
+                        settings.currencies.forEach((currency) => {
+                            var isTransactionCurrency = currenciesPairRole == 'transaction';
+                            var key = isTransactionCurrency ? currency.symbol : currency.index;
+
+                            if (currency.follow == 'True' || currency.follow == 'true') {
+                                user.settings[`${currenciesPairRole}_currencies`].push(key)
                             }
-                        }
-                    })
+                            else {
+                                var index_of_victim = user.settings[`${currenciesPairRole}_currencies`].indexOf(key)
+                                if (index_of_victim >= 0) {
+                                    user.settings[`${currenciesPairRole}_currencies`].splice(index_of_victim, 1);
+                                }
+                            }
+                        })
 
-                    user.save();
-                    return user
+                        user.save();
+                        return user
+                    } else {
+                        return Promise.reject(new Error('You must subscribe in order to save settings.'))
+                    }
                 })
         }
     },
@@ -112,5 +124,8 @@ module.exports = userController = {
         }).then(data => {
             return userController.updateUser(telegram_chat_id, data)
         })
+    },
+    getSubscriptionTemplate: (label) => {
+        return SubscriptionTemplate.findOne({ label: label })
     }
 }

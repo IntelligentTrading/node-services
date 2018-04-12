@@ -44,7 +44,6 @@ module.exports = {
                         var templatedSignal = historyCtrl.applyTemplate(entry)
                         bot.sendMessage(chat_id, templatedSignal, markdown_opts)
                     })
-                    //
                 })
             }).catch(reason => {
                 console.log(reason)
