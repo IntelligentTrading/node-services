@@ -90,9 +90,6 @@ var self = module.exports = {
                 console.log('Tickers cache initialized...');
             })
         })
-    },
-    ittPrice: () => {
-
     }
 }
 

@@ -7,6 +7,7 @@ console.log(`Deploying blockchain provider on ${network.name}`)
 var etherscanProvider = new ethers.providers.EtherscanProvider(network)
 
 var coinmarketcap = require('../api/coinmarketcap')
+var marketApi = require('../api/market')
 var UserModel = require('../models/User')
 var dates = require('../util/dates')
 var wallet = require('./walletController')
@@ -51,12 +52,12 @@ function verifyTransaction(transaction) {
             if (user && user.settings.ittTransactions.indexOf(transaction.transactionHash) < 0) {
 
                 var weiToTokenPromise = weiToToken(transaction.returnValues.value)
-                var coinmarketcapPromise = coinmarketcap.fetchITT()
+                var marketApiPromise = marketApi.ticker('ITT')
 
-                return Promise.all([weiToTokenPromise, coinmarketcapPromise])
+                return Promise.all([weiToTokenPromise, marketApiPromise])
                     .then(fulfillments => {
                         var tokens = fulfillments[0]
-                        var itt = fulfillments[1][0]
+                        var itt = fulfillments[1]
                         //20$ in ITT = 1 month
                         var usdPricePerSecond = 20 * 12 / 365.25 / 24 / 3600
                         //100ITT * 0.04 = 4$
