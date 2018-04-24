@@ -2,12 +2,12 @@ var marketApi = require('../api/market')
 
 module.exports = {
     tickers: (symbol) => {
-        if (!symbol)
-            return marketApi.tickers()
-        else
-            return marketApi.ticker(symbol)
+        return marketApi.tickers(symbol)
     },
     counterCurrencies: () => {
         return marketApi.counterCurrencies()
+    },
+    itt: () => {
+        return marketApi.tickerInfo({ symbol: 'ITT' })
     }
 }
