@@ -112,7 +112,7 @@ module.exports = userController = {
             var user = results[0];
             var tkrs = results[1];
             var tickersSymbols = tkrs.map(tkr => tkr.symbol);
-            var ccs = results[2];
+            var ccs = JSON.parse(results[2])
 
             var settings = {};
             Object.keys(user.settings).forEach(property => {
