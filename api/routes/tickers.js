@@ -11,4 +11,8 @@ router.get('/counter_currencies', (req, res) => {
     solve(tickersCtrl.counterCurrencies(), res)
 })
 
+router.get('/ITT', (req, res) => {
+    solve(tickersCtrl.itt(), res)
+})
+
 module.exports = router

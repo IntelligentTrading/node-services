@@ -79,7 +79,7 @@ function getRsiSmaTemplate(signalObject) {
         rsi_header_emoji: 'ℹ️',
         rsi_general_trend: `General trend: *${(signalObject.trend == -1 ? 'Bullish' : 'Bearish')}*`,
         rsi_text: `RSI: *${rsi_trend[parseInt(signalObject.trend) + 1]}* (${parseInt(signalObject.rsi_value)}) ${rsi_emoji}`,
-        rsi_itt_bias: `ITT Bias: Trend reversal to the *${(signalObject.trend == -1 ? 'upside' : 'downside')}* is near.`,
+        rsi_itt_bias: `ITF Bias: Trend reversal to the *${(signalObject.trend == -1 ? 'upside' : 'downside')}* is near.`,
     }
 
     return rsi_sma;
@@ -94,7 +94,7 @@ function getKumoTemplate(signalObject) {
 
     var ichimoku = {
         ichimoku_header_emoji: 'ℹ️',
-        ichimoku_text: `Ichimoku: ${ichi_breakout} Cloud Breakout ${ichi_emoji}\nITT Bias: ${ichi_bias} trend continuation likely.`
+        ichimoku_text: `Ichimoku: ${ichi_breakout} Cloud Breakout ${ichi_emoji}\nITF Bias: ${ichi_bias} trend continuation likely.`
     }
 
     return ichimoku;

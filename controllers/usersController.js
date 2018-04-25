@@ -118,7 +118,7 @@ module.exports = userController = {
             Object.keys(user.settings).forEach(property => {
                 settings[property] = user.settings[property]
             })
-            settings.counter_currencies = [0, 2];
+            settings.counter_currencies = ccs.filter(cc => cc.enabled == true).map(cc => cc.index)
             settings.transaction_currencies = tickersSymbols;
             return settings
         }).then(data => {
