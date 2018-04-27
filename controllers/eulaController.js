@@ -38,12 +38,13 @@ module.exports = {
                     source: 0
                 }).then(historyEntriesJson => {
                     bot.sendMessage(chat_id, 'In the meantime, this is a short list of the latest signals sent:')
-
-                    var historyEntries = JSON.parse(historyEntriesJson).results.filter(r => r.signal != 'SMA').slice(0, 3)
-                    historyEntries.forEach(entry => {
-                        var templatedSignal = historyCtrl.applyTemplate(entry)
-                        bot.sendMessage(chat_id, templatedSignal, markdown_opts)
-                    })
+                        .then(() => {
+                            var historyEntries = JSON.parse(historyEntriesJson).results.filter(r => r.signal != 'SMA').slice(0, 3)
+                            historyEntries.forEach(entry => {
+                                var templatedSignal = historyCtrl.applyTemplate(entry)
+                                bot.sendMessage(chat_id, templatedSignal, markdown_opts)
+                            })
+                        })
                 })
             }).catch(reason => {
                 console.log(reason)
