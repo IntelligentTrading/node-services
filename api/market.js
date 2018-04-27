@@ -66,6 +66,9 @@ var self = module.exports = {
     counterCurrencies: () => {
         return core.get('tickers/counter-currencies')
     },
+    itt: () => {
+        return core.get('/itt')
+    },
     init: () => {
 
         return getCoinMarketCapTickers().then(tkrs => {

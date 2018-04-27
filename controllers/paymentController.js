@@ -52,7 +52,7 @@ function verifyTransaction(transaction) {
             if (user && user.settings.ittTransactions.indexOf(transaction.transactionHash) < 0) {
 
                 var weiToTokenPromise = weiToToken(transaction.returnValues.value)
-                var marketApiPromise = marketApi.ticker('ITT')
+                var marketApiPromise = marketApi.itt()
 
                 return Promise.all([weiToTokenPromise, marketApiPromise])
                     .then(fulfillments => {
@@ -61,7 +61,7 @@ function verifyTransaction(transaction) {
                         //20$ in ITT = 1 month
                         var usdPricePerSecond = 20 * 12 / 365.25 / 24 / 3600
                         //100ITT * 0.04 = 4$
-                        var ittSeconds = tokens * itt.price_usd / usdPricePerSecond
+                        var ittSeconds = tokens * itt.close / usdPricePerSecond
                         var startingDate = new Date(Math.max(new Date(), user.settings.subscriptions.paid))
                         var newExpirationDate = startingDate.setSeconds(startingDate.getSeconds() + ittSeconds)
                         user.settings.subscriptions.paid = newExpirationDate
