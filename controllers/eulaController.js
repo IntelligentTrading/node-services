@@ -29,22 +29,22 @@ module.exports = {
                     ? 'Thanks for accepting EULA, you can now check your /settings and subscribe to our plans or keep using the bot with the free plan.'
                     : 'You already accepted the EULA, you can now check your /settings and upgrade or keep using the bot with the current plan.'
 
-                bot.sendMessage(chat_id, eulaDoneMsg)
-            }).then(() => {
-                historyCtrl.getSignalHistory({
-                    trend: 1,
-                    horizon: 1,
-                    counter_currency: 2,
-                    source: 0
-                }).then(historyEntriesJson => {
-                    bot.sendMessage(chat_id, 'In the meantime, this is a short list of the latest signals sent:')
-                        .then(() => {
-                            var historyEntries = JSON.parse(historyEntriesJson).results.filter(r => r.signal != 'SMA').slice(0, 3)
-                            historyEntries.forEach(entry => {
-                                var templatedSignal = historyCtrl.applyTemplate(entry)
-                                bot.sendMessage(chat_id, templatedSignal, markdown_opts)
+                bot.sendMessage(chat_id, eulaDoneMsg).then(() => {
+                    historyCtrl.getSignalHistory({
+                        trend: 1,
+                        horizon: 1,
+                        counter_currency: 2,
+                        source: 0
+                    }).then(historyEntriesJson => {
+                        bot.sendMessage(chat_id, 'In the meantime, this is a short list of the latest signals sent:')
+                            .then(() => {
+                                var historyEntries = JSON.parse(historyEntriesJson).results.filter(r => r.signal != 'SMA').slice(0, 3)
+                                historyEntries.forEach(entry => {
+                                    var templatedSignal = historyCtrl.applyTemplate(entry)
+                                    bot.sendMessage(chat_id, templatedSignal, markdown_opts)
+                                })
                             })
-                        })
+                    })
                 })
             }).catch(reason => {
                 console.log(reason)
