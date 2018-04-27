@@ -57,7 +57,7 @@ function verifyTransaction(transaction) {
                 return Promise.all([weiToTokenPromise, marketApiPromise])
                     .then(fulfillments => {
                         var tokens = fulfillments[0]
-                        var itt = fulfillments[1]
+                        var itt = JSON.parse(fulfillments[1])
                         //20$ in ITT = 1 month
                         var usdPricePerSecond = 20 * 12 / 365.25 / 24 / 3600
                         //100ITT * 0.04 = 4$
