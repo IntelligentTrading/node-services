@@ -5,7 +5,7 @@ var userSchema = new Schema({
     telegram_chat_id: Number,
     settings: {
         horizon: {
-            type: String, default: 'medium'
+            type: String, default: 'short'
         },
         risk: {
             type: String, default: 'medium'
