@@ -23,7 +23,7 @@ itfEmitter.on('itfTransfer', tx => {
     verifyTransaction(tx).then(user => {
         if (user) {
             var expDate = user.settings.subscriptions.paid
-            bot.sendMessage(user.telegram_chat_id, `A new transaction has been verified successfully. You have ${dates.getDaysLeftFrom(expDate)} days left (exp. on ${expDate}). Run the /wizard to configure easily your preferences!`)
+            bot.sendMessage(user.telegram_chat_id, `A new transaction has been verified successfully. You have ${dates.getDaysLeftFrom(expDate)} days left (exp. on ${expDate}). Run the /wizard to easily configure your preferences!`)
         }
     }).catch(err => { console.log(err) })
 })
