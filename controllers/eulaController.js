@@ -32,8 +32,8 @@ module.exports = {
             }).then((eulaUser) => {
                 response.render('eula_done')
                 var eulaDoneMsg = !eulaUser.alreadyAccepted
-                    ? 'Thanks for accepting the Terms of Use, you are now subscribed to our FREE plan. Check your /settings to learn more.'
-                    : 'You already accepted the Terms of Use. Check your /settings or /subscribe for details on our subscription plans.'
+                    ? 'Thanks for accepting the EULA, you are now subscribed to our FREE plan. Check your /settings to learn more.'
+                    : 'You already accepted the EULA. Check your /settings or /subscribe for details on our subscription plans.'
 
                 bot.sendMessage(chat_id, eulaDoneMsg).then(() => {
                     historyCtrl.getSignalHistory({
@@ -52,14 +52,14 @@ module.exports = {
                                 })
                                 Promise.all(historySignalsPromises).then(() => {
                                     if (!eulaUser.alreadyAccepted) {
-                                        bot.sendMessage(chat_id, 'Are you interested in premium subscription? Click on /subscribe to learn more!', markdown_opts)
+                                        bot.sendMessage(chat_id, 'Are you interested in a premium subscription? Click on /subscribe to learn more!', markdown_opts)
                                     }
                                 })
                             })
                     })
                 }).catch(reason => {
                     console.log(reason)
-                    bot.sendMessage(chat_id, 'Something went wrong while accepting the Terms of Use, please retry or contact us!')
+                    bot.sendMessage(chat_id, 'Something went wrong while accepting the EULA, please retry or contact us!')
                 })
             })
         }
