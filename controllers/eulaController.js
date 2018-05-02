@@ -42,7 +42,7 @@ module.exports = {
                         counter_currency: 2,
                         source: 0
                     }).then(historyEntriesJson => {
-                        bot.sendMessage(chat_id, 'Here are some latest signals sent:')
+                        bot.sendMessage(chat_id, 'Here are some recent signals:')
                             .then(() => {
                                 var historyEntries = JSON.parse(historyEntriesJson).results.filter(r => r.signal != 'SMA' &&
                                     ["BTC", "ETH", "LTC", "BCH", "XRP", "XMR"].indexOf(r.transaction_currency) >= 0).slice(0, 3)
@@ -52,7 +52,7 @@ module.exports = {
                                 })
                                 Promise.all(historySignalsPromises).then(() => {
                                     if (!eulaUser.alreadyAccepted) {
-                                        bot.sendMessage(chat_id, 'Are you interested in paid subscription? Click on /subscribe to learn more!', markdown_opts)
+                                        bot.sendMessage(chat_id, 'Are you interested in premium subscription? Click on /subscribe to learn more!', markdown_opts)
                                     }
                                 })
                             })
