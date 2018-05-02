@@ -52,7 +52,7 @@ module.exports = {
                                 })
                                 Promise.all(historySignalsPromises).then(() => {
                                     if (!eulaUser.alreadyAccepted) {
-                                        bot.sendMessage(chat_id, 'Are you interested in a premium subscription? Click on /subscribe to learn more!', markdown_opts)
+                                        bot.sendMessage(chat_id, '/subscribe to get premium signals and features!', markdown_opts)
                                     }
                                 })
                             })
