@@ -20,35 +20,47 @@ module.exports = {
         }
         else {
             UserModel.findOne({ telegram_chat_id: chat_id }).then(user => {
-                user.eula = true
+                if (user.eula) {
+                    user.alreadyAccepted = true
+                }
+                else {
+                    user.eula = true
+                    user.alreadyAccepted = false
+                }
                 user.save()
                 return user
-            }).then((newUser) => {
+            }).then((eulaUser) => {
                 response.render('eula_done')
-                var eulaDoneMsg = newUser
-                    ? 'Thanks for accepting EULA, you can now check your /settings and subscribe to our plans or keep using the bot with the free plan.'
-                    : 'You already accepted the EULA, you can now check your /settings and upgrade or keep using the bot with the current plan.'
+                var eulaDoneMsg = !eulaUser.alreadyAccepted
+                    ? 'Thanks for accepting the Terms of Use, you are now subscribed to our FREE plan. Check your /settings to learn more.'
+                    : 'You already accepted the Terms of Use. Check your /settings or /subscribe for details on our subscription plans.'
 
                 bot.sendMessage(chat_id, eulaDoneMsg).then(() => {
                     historyCtrl.getSignalHistory({
                         trend: 1,
-                        horizon: 1,
+                        horizon: 0,
                         counter_currency: 2,
                         source: 0
                     }).then(historyEntriesJson => {
-                        bot.sendMessage(chat_id, 'In the meantime, this is a short list of the latest signals sent:')
+                        bot.sendMessage(chat_id, 'Here are some latest signals sent:')
                             .then(() => {
-                                var historyEntries = JSON.parse(historyEntriesJson).results.filter(r => r.signal != 'SMA').slice(0, 3)
-                                historyEntries.forEach(entry => {
+                                var historyEntries = JSON.parse(historyEntriesJson).results.filter(r => r.signal != 'SMA' &&
+                                    ["BTC", "ETH", "LTC", "BCH", "XRP", "XMR"].indexOf(r.transaction_currency) >= 0).slice(0, 3)
+                                var historySignalsPromises = historyEntries.map(entry => {
                                     var templatedSignal = historyCtrl.applyTemplate(entry)
-                                    bot.sendMessage(chat_id, templatedSignal, markdown_opts)
+                                    return bot.sendMessage(chat_id, templatedSignal, markdown_opts)
+                                })
+                                Promise.all(historySignalsPromises).then(() => {
+                                    if (!eulaUser.alreadyAccepted) {
+                                        bot.sendMessage(chat_id, 'Are you interested in paid subscription? Click on /subscribe to learn more!', markdown_opts)
+                                    }
                                 })
                             })
                     })
+                }).catch(reason => {
+                    console.log(reason)
+                    bot.sendMessage(chat_id, 'Something went wrong while accepting the Terms of Use, please retry or contact us!')
                 })
-            }).catch(reason => {
-                console.log(reason)
-                bot.sendMessage(chat_id, 'Something went wrong while accepting EULA, please retry or contact us!')
             })
         }
     }
