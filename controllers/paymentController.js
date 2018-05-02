@@ -1,6 +1,7 @@
 var ethers = require('ethers')
 const bot = require('../util/telegramBot').bot
 const broadcast_markdown_opts = require('../util/telegramBot').markdown
+const nopreview_markdown_opts = require('../util/telegramBot').nopreview_markdown_opts
 
 var network = process.env.LOCAL_ENV ? ethers.providers.networks.ropsten : ethers.providers.networks.mainnet
 console.log(`Deploying blockchain provider on ${network.name}`)
@@ -23,7 +24,12 @@ itfEmitter.on('itfTransfer', tx => {
     verifyTransaction(tx).then(user => {
         if (user) {
             var expDate = user.settings.subscriptions.paid
-            bot.sendMessage(user.telegram_chat_id, `A new transaction has been verified successfully. You have ${dates.getDaysLeftFrom(expDate)} days left (exp. on ${expDate}). Run the /wizard to easily configure your preferences!`)
+            bot.sendMessage(user.telegram_chat_id, `Subscription | Transaction confirmed
+
+[Transaction info](https://etherscan.io/tx/${tx.transactionHash})
+Premium signals days: ${dates.getDaysLeftFrom(expDate)}
+Starter plan expires on: ${expDate.toDateString()}
+Configure your preferences with the /wizard!`, nopreview_markdown_opts)
         }
     }).catch(err => { console.log(err) })
 })

@@ -38,16 +38,15 @@ module.exports = {
                 bot.sendMessage(chat_id, eulaDoneMsg).then(() => {
                     historyCtrl.getSignalHistory({
                         trend: 1,
-                        horizon: 0,
                         counter_currency: 2,
                         source: 0
                     }).then(historyEntriesJson => {
                         bot.sendMessage(chat_id, 'Here are some recent signals:')
                             .then(() => {
-                                var historyEntries = JSON.parse(historyEntriesJson).results.filter(r => r.signal != 'SMA' &&
-                                    ["BTC", "ETH", "LTC", "BCH", "XRP", "XMR"].indexOf(r.transaction_currency) >= 0).slice(0, 3)
+                                var historyEntries = JSON.parse(historyEntriesJson).results.filter(r => r.signal != 'SMA' && r.signal !='RSI_Cumulative'
+                                   && ["BTC", "ETH", "LTC", "BCH", "XRP", "XMR"].indexOf(r.transaction_currency) >= 0).slice(0, 3)
                                 var historySignalsPromises = historyEntries.map(entry => {
-                                    var templatedSignal = historyCtrl.applyTemplate(entry)
+                                    var templatedSignal = `${historyCtrl.applyTemplate(entry)}\nNotified on: ${entry.timestamp}`
                                     return bot.sendMessage(chat_id, templatedSignal, markdown_opts)
                                 })
                                 Promise.all(historySignalsPromises).then(() => {
