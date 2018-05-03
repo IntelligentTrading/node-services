@@ -1,26 +1,138 @@
 <html>
-    <style>
-        .thank-you{
-            color: white;
-            font-family:Helvetica Neue;
-            font-weight: 200;
-            margin: 30px;
-            font-size: x-large;
-        }
-
-        .header-img {
-            margin: 30px;
-        }
-
-        body{
-            background-color:black;
-            text-align:center;
-        }
-    </style>
-    <body>
-        <img class="header-img" src="http://intelligenttrading.org/wp-content/uploads/intelligent-trading-technologies-logo.png">
-        <p class="thank-you">
-            Thank you for accepting our EULA! You can now close this page and start using the BOT!
-        </p>
-    </body>
-</html>
+        <style>
+            @import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,700');
+        
+            html {
+                font-size: 16px;
+                width: 100%;
+                display: block;
+                —moz-selection: {
+                    background: #4CCFA6;
+                    color: #2A4D96;
+                }
+                ::selection {
+                    background: #4CCFA6;
+                    color: #2A4D96;
+                }
+                font-family: 'Open Sans',
+                helvetica,
+                arial,
+                sans-serif;
+                font-weight: 400;
+            }
+        
+            body {
+                width: 100%;
+                display: block;
+                background: #ffffff;
+                background: linear-gradient(to bottom,#457cf2 0,#8578f5 66%);
+            }
+        
+            h1,
+            h2,
+            h3,
+            h4,
+            h5,
+            h6 {
+                display: block;
+                color: #457CF2;
+                margin: 1rem 0 0.75rem;
+            }
+        
+            h1 {
+                font: 300 2.5rem/1.45 'Open Sans', helvetica, arial, sans-serif;
+            }
+        
+            h2 {
+                font: 300 2.15rem/1.45 'Open Sans', helvetica, arial, sans-serif;
+            }
+        
+            h3 {
+                font: 300 1.75rem/1.45 'Open Sans', helvetica, arial, sans-serif;
+            }
+        
+            h4 {
+                font: 300 1.33rem/1.45 'Open Sans', helvetica, arial, sans-serif;
+            }
+        
+            h5 {
+                font: 300 1.15rem/1.45 'Open Sans', helvetica, arial, sans-serif;
+            }
+        
+            h6 {
+                font: 300 1rem/1.45 'Open Sans', helvetica, arial, sans-serif;
+            }
+        
+            ul {
+                margin: 0;
+                padding: 0;
+            }
+        
+            ul li {
+                font: 300 1rem/1.75rem 'Open Sans', helvetica, arial, sans-serif;
+                color: #2d4371;
+            }
+        
+            p {
+                font: 300 1rem/1.75rem 'Open Sans', helvetica, arial, sans-serif;
+                letter-spacing: 0;
+                color: #2d4371;
+                margin: 0.25rem 0 1rem 0;
+            }
+        
+            a {
+                color: #457CF2;
+            }
+        
+            .container {
+                max-width: 75rem;
+                margin-right: auto;
+                margin-left: auto;
+                display: -ms-flexbox;
+                display: flex;
+                -ms-flex-flow: row wrap;
+                flex-flow: row wrap;
+                position: relative;
+                height: 100%;
+            }
+        
+            .inner {
+                flex: 0 0 100%;
+                max-width: 100%;
+                padding-top: 6rem;
+        /*        -ms-flex-item-align: center;
+                -ms-grid-row-align: center;
+                align-self: center;*/
+            }
+        
+            .thank-you {
+                color: white;
+                font-family: Helvetica Neue;
+                font-weight: 200;
+                margin: 30px;
+                font: 300 1.5rem/2 'Open Sans';
+                text-align: center;
+            }
+        
+            .logo {
+                width: 160px;
+                height: auto;
+                display: block;
+                margin: 0 auto;
+            }
+        </style>
+        
+        <body>
+        
+            <div class="container">
+                <div class="inner">
+                    <img class="logo" src="http://intelligenttrading.org/wp-content/uploads/itf-logo.png">
+                    <p class="thank-you">
+                        Thank you for accepting our EULA! You can now close this page and start using the BOT!
+                    </p>
+                </div>
+            </div>
+        
+        </body>
+        
+        </html>
