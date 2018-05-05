@@ -4,6 +4,7 @@ var Schema = mongoose.Schema;
 var subscriptionTemplateSchema = new Schema({
     label: String, //free
     tickers: [String],
+    exchanges: [String],
     horizon: String
 })
 
