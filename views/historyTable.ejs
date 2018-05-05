@@ -1,0 +1,33 @@
+<table class="table history">
+    <thead class="thead-dark">
+        <tr>
+            <th>ID</th>
+            <th>Timestamp</th>
+            <th>Signal</th>
+            <th>Ticker</th>
+            <th>Counter</th>
+            <th>Trend</th>
+            <th>Horizon</th>
+            <th>Exchange</th>
+            <th>Plan</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% history.results.forEach((record) => { %>
+            <%- include('signal',{record:record}) %>
+                <% }) %>
+    </tbody>
+</table>
+<nav aria-label="...">
+    <ul class="pagination">
+        <li class="page-item">
+            <a class="page-link" href="history?p=<%= history.previous ? unescape(history.previous.split('cursor=')[1]) : '' %>">Previous</a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="history?p=%>">Home</a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="history?p=<%= history.next ? unescape(history.next.split('cursor=')[1]) : '' %>">Next</a>
+        </li>
+    </ul>
+</nav>

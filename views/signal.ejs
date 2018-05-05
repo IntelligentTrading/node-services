@@ -1,0 +1,50 @@
+<%
+    var horizons = ["short","medium","long"]
+    var counter_currencies = ["BTC","ETH","USDT"]
+    var trends = ["🔻","=","▲"]
+    var exchanges = ["Poloniex","Bittrex","Binance"]
+%>
+
+    <style>
+        .plan {
+            margin: 2px
+        }
+    </style>
+
+    <tr>
+        <td>
+            <%= record.id %>
+        </td>
+        <td>
+            <%= record.timestamp %>
+        </td>
+        <td>
+            <%= record.signal %>
+        </td>
+        <td>
+            <%= record.transaction_currency %>
+        </td>
+        <td>
+            <%= counter_currencies[record.counter_currency] %>
+        </td>
+        <td>
+            <%= trends[parseInt(record.trend)+1] %>
+        </td>
+        <td>
+            <%= horizons[record.horizon] %>
+        </td>
+        <td>
+            <%= exchanges[record.source]%>
+        </td>
+        <td>
+            <span class="plan badge badge-light <%= record.isForPlan.isForFree ? '' :'d-none'%>">
+                FREE
+            </span>
+            <span class="plan badge badge-info <%= record.isForPlan.isForNonno ? '' :'d-none'%>">
+                FREE+
+            </span>
+            <span class="plan badge badge-primary <%= record.isForPlan.isForTier ? '' :'d-none'%>">
+                Starter
+            </span>
+        </td>
+    </tr>

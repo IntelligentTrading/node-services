@@ -23,6 +23,9 @@ var eulaController = require('./controllers/eulaController')
 app.get('/eula', eulaController.render)
 app.get('/eula_confirm', eulaController.confirm)
 
+var dashboardCtrl = require('./controllers/dashboardController')
+app.get('/dashboard/history', dashboardCtrl.render)
+
 app.listen(app.get('port'), function () {
 
     marketApi.init()
