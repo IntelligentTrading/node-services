@@ -1,13 +1,12 @@
 <style>
-    .skipped {
-        background-color: rgba(255, 0, 0, 0.3)
-    }
+    
 </style>
 
 <table class="table history">
     <thead class="thead-dark">
         <tr>
             <th>ID</th>
+            <th>SQS Id</th>
             <th>Status</th>
             <th>Rejections</th>
             <th>Reasons</th>
@@ -22,30 +21,28 @@
                     <%= ta.signalId %>
                 </td>
                 <td>
-                    <%= skipped ? 'Skipped' : 'Dispatched' %>
+                    <%= ta.awsSQSId %>
                 </td>
                 <td>
-                    <span class="badge <%= ta.rejections.length > 0 ? 'badge-warning': 'badge-info'%>">
+                    <span class="badge <%= skipped ? 'badge-warning': 'badge-info'%>">
+                        <%= skipped ? 'Skipped' : 'Dispatched' %>
+                    </span>
+                </td>
+                <td>
+                    <span class="<%= ta.rejections.length > 0 ? 'badge badge-warning': ''%>">
                         <%= ta.rejections.length %>
                     </span>
                 </td>
                 <td>
-                    <%= ta.reasons.join(',') %>
+                    <% ta.reasons.forEach(reason => {
+                        var smallReason = reason.replace('too','').replace('is','').replace('a','').trim()
+                    %>
+                        <span class="badge badge-light">
+                            <%= smallReason.toUpperCase() %>
+                        </span>
+                        <%}) %>
                 </td>
             </tr>
             <% }) %>
     </tbody>
 </table>
-<nav aria-label="...">
-    <ul class="pagination">
-        <li class="page-item">
-            <a class="page-link" href="#">Previous</a>
-        </li>
-        <li class="page-item">
-            <a class="page-link" href="history?p=%>">Home</a>
-        </li>
-        <li class="page-item">
-            <a class="page-link" href="#">Next</a>
-        </li>
-    </ul>
-</nav>

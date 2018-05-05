@@ -1,6 +1,8 @@
 var historyCtrl = require('./historyController')
 var tradingAlertsCtrl = require('./tradingAlertsController')
 var signalDispatchingUtil = require('../util/signalDispatchingUtils')
+var dateUtils = require('../util/dates')
+var _ = require('lodash')
 
 module.exports = {
     render: (request, response) => {
@@ -17,7 +19,15 @@ module.exports = {
                 }))
             })
 
-            Promise.all(analysisPromises).then(() => response.render('history', { history: history, tradingAlerts: results[0] }))
+            Promise.all(analysisPromises).then(() => {
+                var recent = history.results[0]
+                history.hoursFromLastSignal = hoursSinceLastSignal(recent)
+                response.render('history', { history: history, tradingAlerts: results[0] })
+            })
         })
     }
+}
+
+var hoursSinceLastSignal = (signal) => {
+    return (dateUtils.getDaysLeftFrom(signal.timestamp) * -24).toFixed(1)
 }
