@@ -1,0 +1,51 @@
+<style>
+    .skipped {
+        background-color: rgba(255, 0, 0, 0.3)
+    }
+</style>
+
+<table class="table history">
+    <thead class="thead-dark">
+        <tr>
+            <th>ID</th>
+            <th>Status</th>
+            <th>Rejections</th>
+            <th>Reasons</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% tradingAlerts.forEach((ta) => { 
+            var skipped = ta.reasons && ta.reasons.length > 0
+        %>
+            <tr class="<%= skipped? 'skipped':'dispatched' %>">
+                <td>
+                    <%= ta.signalId %>
+                </td>
+                <td>
+                    <%= skipped ? 'Skipped' : 'Dispatched' %>
+                </td>
+                <td>
+                    <span class="badge <%= ta.rejections.length > 0 ? 'badge-warning': 'badge-info'%>">
+                        <%= ta.rejections.length %>
+                    </span>
+                </td>
+                <td>
+                    <%= ta.reasons.join(',') %>
+                </td>
+            </tr>
+            <% }) %>
+    </tbody>
+</table>
+<nav aria-label="...">
+    <ul class="pagination">
+        <li class="page-item">
+            <a class="page-link" href="#">Previous</a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="history?p=%>">Home</a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="#">Next</a>
+        </li>
+    </ul>
+</nav>
