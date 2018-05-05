@@ -54,6 +54,12 @@
                     <%- include('dispatcherTable',{tradingAlerts:tradingAlerts}) %>
                 </div>
             </div>
+            <span class="badge badge-light">Hours since last signal
+                <span class="badge <%= history.hoursFromLastSignal > 2 ? 'badge-warning':'badge-success'%>">
+                    <%= history.hoursFromLastSignal %>
+                </span>
+            </span>
+
             <span style="font-size: 9">
                 (Last reload:
                 <%= new Date().toString() %>)</span>
