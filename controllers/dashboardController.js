@@ -8,7 +8,7 @@ var _ = require('lodash')
 module.exports = {
     render: (request, response) => {
         //ad auth
-        var opts = { page_size: 500 }
+        var opts = { page_size: 100 }
 
         Promise.all([tradingAlertsCtrl.getAll(), historyCtrl.getSignalHistory(opts), usersCtrl.getUsers()]).then((results) => {
             var history = JSON.parse(results[1])
@@ -33,6 +33,14 @@ module.exports = {
 
                 user.currentPlan = currentPlan
             })
+
+            var oneWeekAgo = new Date()
+            oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
+            var oneMonthAgo = new Date()
+            oneMonthAgo.setDate(oneMonthAgo.getDate() - 30)
+            users.oneWeekOldUsers = users.filter(user => user.created > oneWeekAgo).length
+            users.oneMonthOldUsers = users.filter(user => user.created > oneMonthAgo).length
+            users.oneMonthOldTier1Users = users.filter(user => dateUtils.hasValidSubscription(user) && user.created > oneMonthAgo).length
 
             Promise.all(analysisPromises).then(() => {
                 var recent = history.results[0]

@@ -1,13 +1,37 @@
 <style>
+    .userIndicator{
+        padding: 5px;
+        margin: 5px
+    }
 </style>
+
+<div>
+    <span class="badge badge-light userIndicator">Users onboard in the last week
+        <span class="badge badge-warning">
+            <%= users.oneWeekOldUsers%>
+        </span>
+    </span>
+    <span class="badge badge-light userIndicator">Users onboard in the last month
+        <span class="badge badge-warning">
+            <%= users.oneMonthOldUsers%>
+        </span>
+    </span>
+    <span class="badge badge-light userIndicator">Tier 1 users onboard in the last month
+        <span class="badge badge-warning">
+            <%= users.oneMonthOldTier1Users%>
+        </span>
+    </span>
+</div>
 
 <table id="tbl-users" class="table history">
     <thead class="thead-dark">
         <tr>
             <th>Chat Id</th>
             <th>EULA</th>
+            <th>Horizon</th>
             <th>Subscription</th>
             <th>Valid until</th>
+            <th>Wallet</th>
         </tr>
     </thead>
     <tbody>
@@ -16,15 +40,22 @@
             <tr>
                 <td>
                     <%= user.telegram_chat_id %>
+                        <%= user.settings.is_ITT_team ? '👑' : '' %>
                 </td>
                 <td>
-                    <%= user.eula %>
+                    <%= user.eula ? '✓' : '𐄂' %>
+                </td>
+                <td>
+                    <%= user.settings.horizon %>
                 </td>
                 <td>
                     <%= user.currentPlan.plan%>
                 </td>
                 <td>
                     <%= user.currentPlan.exp%>
+                </td>
+                <td>
+                    <%= user.settings.ittWalletReceiverAddress%>
                 </td>
             </tr>
             <% }) %>
