@@ -3,10 +3,19 @@
 <head>
     <meta content="text/html; charset=UTF-8" http-equiv="content-type">
     <title>Signal history</title>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4"
         crossorigin="anonymous">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.12/css/all.css" integrity="sha384-G0fIWCsCzJIMAVNQPfjH08cyYaUtMwjJwqiRKxxE/rx96Uroj1BtIQ6MLJuheaO9"
         crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.css">
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.js"></script>
+
     <style type="text/css">
         .table-title {
             font-weight: lighter;
@@ -37,6 +46,15 @@
             height: 500px;
             position: absolute;
         }
+
+        .container-fluid {
+            margin: 20px;
+            padding: 20px
+        }
+
+        .tab-content {
+            padding: 20px
+        }
     </style>
 </head>
 
@@ -44,14 +62,28 @@
     <div id="app">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-7">
 
-                    <label class="display-6 table-title">Historical Signals</label>
-                    <%- include('historyTable',{history:history}) %>
-                </div>
-                <div class="col">
-                    <label class="display-6 table-title">Dispatched Signals </label>
-                    <%- include('dispatcherTable',{tradingAlerts:tradingAlerts}) %>
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Signal History</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Dispatched Signals</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="contact-tab" data-toggle="tab" href="#user" role="tab" aria-controls="user" aria-selected="false">Users</a>
+                    </li>
+                </ul>
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                        <%- include('historyTable',{history:history}) %>
+                    </div>
+                    <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                        <%- include('dispatcherTable',{tradingAlerts:tradingAlerts}) %>
+                    </div>
+                    <div class="tab-pane fade" id="user" role="tabpanel" aria-labelledby="user-tab">
+                        <%- include('usersTable',{users:users}) %>
+                    </div>
                 </div>
             </div>
             <span class="badge badge-light">Hours since last signal
@@ -69,6 +101,14 @@
     setInterval(() => {
         location.reload(true)
     }, 30 * 60 * 1000)
+
+
+    $(document).ready(function () {
+        $('#tbl-history').DataTable();
+        $('#tbl-users').DataTable();
+        $('#tbl-dispatcher').DataTable();
+    });
+
 </script>
 
 </html>
