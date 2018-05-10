@@ -125,6 +125,13 @@ module.exports = userController = {
             return userController.updateUser(telegram_chat_id, data)
         })
     },
+    resetSignals: (telegram_chat_id) => {
+        return User.findOne({ telegram_chat_id: parseInt(telegram_chat_id) }).then(user => {
+            user.settings.transaction_currencies = ["BTC", "ETH", "BCH", "XMR", "ZEC", "DASH", "LTC"]
+            user.save()
+            return user
+        })
+    },
     getSubscriptionTemplate: (label) => {
         return SubscriptionTemplate.findOne({ label: label })
     }
