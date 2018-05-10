@@ -31,10 +31,8 @@ var userSchema = new Schema({
         transaction_currencies: { type: [String], default: ["BTC", "ETH", "BCH", "XMR", "ZEC", "DASH", "LTC"] }
     },
     eula: { type: Boolean, default: false },
-    token: { type: String, default: '' },
-    created: { type: Date, default: Date.now() }
-});
+    token: { type: String, default: '' }
+}, { timestamps: true })
 
-
-var User = mongoose.model('User', userSchema);
+var User = mongoose.model('User', userSchema)
 module.exports = User
