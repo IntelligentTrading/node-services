@@ -1,5 +1,5 @@
 <style>
-    .userIndicator{
+    .userIndicator {
         padding: 5px;
         margin: 5px
     }
@@ -31,6 +31,7 @@
             <th>Horizon</th>
             <th>Subscription</th>
             <th>Valid until</th>
+            <th>ITT Token sent</th>
             <th>Wallet</th>
         </tr>
     </thead>
@@ -53,6 +54,9 @@
                 </td>
                 <td>
                     <%= user.currentPlan.exp%>
+                </td>
+                <td>
+                    
                 </td>
                 <td>
                     <%= user.settings.ittWalletReceiverAddress%>

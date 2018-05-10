@@ -48,6 +48,13 @@ module.exports = {
                 response.render('history', { history: history, tradingAlerts: results[0], users: users })
             })
         })
+    },
+    auth: (request, response, next) => {
+        return usersCtrl.getUser(request.query.id).then(user => {
+            return user.settings.is_ITT_team
+        }).catch(() => {
+            return false
+        })
     }
 }
 
