@@ -71,7 +71,7 @@ function verifyTransaction(transaction) {
                         var startingDate = new Date(Math.max(new Date(), user.settings.subscriptions.paid))
                         var newExpirationDate = startingDate.setSeconds(startingDate.getSeconds() + ittSeconds)
                         user.settings.subscriptions.paid = newExpirationDate
-                        user.settings.ittTransactions.push(transaction.transactionHash)
+                        user.settings.ittTransactions.push({ tx: transaction.transactionHash, total: tokens })
                         user.save()
                         return user
                     }).catch(err => {
