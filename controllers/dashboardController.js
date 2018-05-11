@@ -35,18 +35,25 @@ module.exports = {
                     user.currentPlan = currentPlan
                 })
 
+                var oneDayAgo = new Date()
+                oneDayAgo.setDate(oneDayAgo.getDate() - 1)
                 var oneWeekAgo = new Date()
                 oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
                 var oneMonthAgo = new Date()
                 oneMonthAgo.setDate(oneMonthAgo.getDate() - 30)
-                users.oneWeekOldUsers = users.filter(user => user.created > oneWeekAgo).length
-                users.oneMonthOldUsers = users.filter(user => user.created > oneMonthAgo).length
-                users.oneMonthOldTier1Users = users.filter(user => dateUtils.hasValidSubscription(user) && user.created > oneMonthAgo).length
+                users.oneDayOldUsers = users.filter(user => user.createdAt > oneDayAgo).length
+                users.oneWeekOldUsers = users.filter(user => user.createdAt > oneWeekAgo).length
+                users.oneMonthOldUsers = users.filter(user => user.createdAt > oneMonthAgo).length
+                users.oneMonthOldTier1Users = users.filter(user => dateUtils.hasValidSubscription(user) && user.createdAt > oneMonthAgo).length
+
+                users.TotalFree = users.filter(user => user.currentPlan.plan == "FREE").length
+                users.TotalFreePlus = users.filter(user => user.currentPlan.plan == "BETA").length
+                users.TotalTier1 = users.filter(user => user.currentPlan.plan == "PAID").length
 
                 return Promise.all(analysisPromises).then(() => {
                     var recent = history.results[0]
                     history.hoursFromLastSignal = hoursSinceLastSignal(recent)
-                    return { history: history, tradingAlerts: results[0], users: users }
+                    return { login: loginData(request), history: history, tradingAlerts: results[0], users: users }
                     //response.render('history', { history: history, tradingAlerts: results[0], users: users })
                 })
             })
@@ -62,4 +69,12 @@ module.exports = {
 
 var hoursSinceLastSignal = (signal) => {
     return (dateUtils.getDaysLeftFrom(signal.timestamp) * -24).toFixed(1)
+}
+
+
+var loginData = (req) => {
+    return {
+        first_name: req.query.first_name,
+        avatar: req.query.photo_url
+    }
 }

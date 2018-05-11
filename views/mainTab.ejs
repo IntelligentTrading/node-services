@@ -1,0 +1,50 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
+<style>
+    .users-card {
+        width: 350px;
+        height: 350px;
+    }
+</style>
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm">
+            <%- include('usersStats',{label:'Total Users',statsData: users.length}) %>
+        </div>
+        <div class="col-sm">
+            <%- include('usersStats',{label:'Last 24h',statsData: users.oneDayOldUsers}) %>
+        </div>
+        <div class="col-sm">
+            <%- include('usersStats',{label:'Last 7 days',statsData: users.oneWeekOldUsers}) %>
+        </div>
+        <div class="col-sm">
+            <%- include('usersStats',{label:'Last 30 days',statsData: users.oneMonthOldUsers}) %>
+        </div>
+    </div>
+    <div class="row">
+            <div class="col-sm">
+                <canvas id="myChart" width="300" height="300"></canvas>
+            </div>
+        </div>
+</div>
+
+
+<script>
+    var ctx = document.getElementById("myChart");
+    var myDoughnutChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ["FREE", "FREE+", "Tier 1"],
+            datasets: [{
+                data: [ <%- users.TotalFree %>,  <%- users.TotalFreePlus %>,  <%- users.TotalTier1 %>],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)']
+            }]
+        },
+            options: {
+                responsive: false
+            }
+    });
+</script>
