@@ -1,18 +1,35 @@
 <html>
 
 <head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4"
+        crossorigin="anonymous">
+    <style>
+        .login-card {
+            /* width: 250px; */
+            /* display: inline-flex; */
+            margin-top: 50px;
+            margin-left: auto;
+            margin-right: auto;
+            width: 40%;
+        }
+
+        .login-header {
+            width: 80px
+        }
+    </style>
 </head>
 
-<body>
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-        crossorigin="anonymous"></script>
-    <script async src="https://telegram.org/js/telegram-widget.js?4" data-telegram-login="fdl_dev_bot" data-size="medium" data-auth-url="https://tasty-starfish-40.localtunnel.me/dashboard/history"
-        data-request-access="write"></script>
-    <script type="text/javascript">
-        function onTelegramAuth(user) {
-            alert('Logged in as ' + user.first_name + ' ' + user.last_name + ' (' + user.id + (user.username ? ', @' + user.username : '') + ')');
-        }
-    </script>
+<body class="container-fluid">
+    <div class="card text-center login-card">
+        <div class="card-header">
+            <img src="./assets/logo.jpg" class="rounded-circle login-header">
+        </div>
+        <div class="card-body">
+            <p class="card-text">To access the admin dashboard you have to be an ITT team member.</p>
+            <script async src="https://telegram.org/js/telegram-widget.js?4" data-telegram-login="fdl_dev_bot" data-size="medium" data-auth-url="/dashboard/history"
+                data-request-access="write"></script>
+        </div>
+    </div>
 
 </body>
 

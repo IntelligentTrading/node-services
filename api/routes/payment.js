@@ -1,7 +1,7 @@
 var express = require('express')
 var router = express.Router()
 var paymentCtrl = require('../../controllers/paymentController')
-var solve = require('../routes/solver')
+var solve = require('../../util/solver')
 
 const itfNotifier = require('../../util/blockchainNotifier').emitter
 const itfEvents = require('../../util/blockchainNotifier').itfEvents

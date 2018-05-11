@@ -10,28 +10,24 @@ var config = require('./config')
 var database = require('./database')
 database.connect()
 config.boot(app)
+app.use(express.static('public'))
 
 blockchainSvc.init()
 
-var routerFiles = fs.readdirSync('./api/routes')
-routerFiles.forEach(rf => {
+var apiRouterFiles = fs.readdirSync('./api/routes')
+apiRouterFiles.forEach(rf => {
     app.use(`/api/${rf.replace('.js', '')}`, require(`./api/routes/${rf}`))
+})
+
+var dashboardRouterFiles = fs.readdirSync('./dashboard/routes')
+dashboardRouterFiles.forEach(rf => {
+    app.use(`/dashboard/${rf.replace('.js', '')}`, require(`./dashboard/routes/${rf}`))
 })
 
 //! EULA -> this will probably be deleted or changed
 var eulaController = require('./controllers/eulaController')
 app.get('/eula', eulaController.render)
 app.get('/eula_confirm', eulaController.confirm)
-
-var dashboardCtrl = require('./controllers/dashboardController')
-app.all('/auth', (req, res, next) => res.render('login'))
-
-app.use('/dashboard', function (req, res, next) {
-    dashboardCtrl.auth(req).then((isAuthorized => {
-        isAuthorized ? next() : res.redirect('/auth')
-    })).catch(() => res.redirect('/auth'))
-})
-app.get('/dashboard/history', dashboardCtrl.render)
 
 app.listen(app.get('port'), function () {
 

@@ -1,7 +1,7 @@
 var express = require('express')
 var router = express.Router()
 var panicCtrl = require('../../controllers/panicController')
-var solve = require('./solver')
+var solve = require('../../util/solver')
 
 router.post('/', (req, res) => {
     solve(panicCtrl.saveNewsFeed(req.body), res)

@@ -1,7 +1,7 @@
 var express = require('express')
 var router = express.Router()
 var licenseCtrl = require('../../controllers/licenseController')
-var solve = require('./solver')
+var solve = require('../../util/solver')
 
 router.post('/generate/:subscriptionPlan', (req, res) => {
     solve(licenseCtrl.generateLicense(req.params.subscriptionPlan), res)

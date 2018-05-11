@@ -1,7 +1,7 @@
 var express = require('express')
 var router = express.Router()
 var tickersCtrl = require('../../controllers/tickersController')
-var solve = require('./solver')
+var solve = require('../../util/solver')
 
 router.get('/transaction_currencies/:symbol?', (req, res) => {
     solve(tickersCtrl.tickers(req.params.symbol), res)
