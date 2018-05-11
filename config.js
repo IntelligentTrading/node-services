@@ -25,7 +25,7 @@ module.exports.boot = (app) => {
         }).catch(() => res.redirect('/auth'))
     })
 
-    app.all('/auth', (req, res, next) => res.render('login'))
+    app.all('/auth', (req, res, next) => res.render('login', { botName: process.env.BOT_NAME }))
 
     app.set('view engine', 'ejs')
     app.set('port', (process.env.PORT || 5002))
