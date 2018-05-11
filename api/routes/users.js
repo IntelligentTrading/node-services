@@ -23,6 +23,9 @@ router.put('/:telegram_chat_id/currencies/:currenciesPairRole', (req, res) => {
 router.put('/:telegram_chat_id/select_all_signals', (req, res) => {
     solve(usersCtrl.selectAllSignals(req.params.telegram_chat_id), res)
 })
+router.put('/:telegram_chat_id/resetSignals', (req, res) => {
+    solve(usersCtrl.resetSignals(req.params.telegram_chat_id), res)
+})
 router.get('/template/:label', (req, res) => {
     solve(usersCtrl.getSubscriptionTemplate(req.params.label), res)
 })
