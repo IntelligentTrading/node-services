@@ -1,0 +1,36 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4"
+        crossorigin="anonymous">
+    <style>
+        .login-card {
+            /* width: 250px; */
+            /* display: inline-flex; */
+            margin-top: 50px;
+            margin-left: auto;
+            margin-right: auto;
+            width: 40%;
+        }
+
+        .login-header {
+            width: 80px
+        }
+    </style>
+</head>
+
+<body class="container-fluid">
+    <div class="card text-center login-card">
+        <div class="card-header">
+            <img src="./assets/logo.jpg" class="rounded-circle login-header">
+        </div>
+        <div class="card-body">
+            <p class="card-text">To access the admin dashboard you have to be an ITT team member.</p>
+            <script async src="https://telegram.org/js/telegram-widget.js?4" data-telegram-login="fdl_dev_bot" data-size="medium" data-auth-url="/dashboard/history"
+                data-request-access="write"></script>
+        </div>
+    </div>
+
+</body>
+
+</html>

@@ -77,6 +77,11 @@
                 <div class="tab-content" id="myTabContent">
                     <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
                         <%- include('historyTable',{history:history}) %>
+                            <span class="badge badge-light">Hours since last signal
+                                <span class="badge <%= history.hoursFromLastSignal > 2 ? 'badge-warning':'badge-success'%>">
+                                    <%= history.hoursFromLastSignal %>
+                                </span>
+                            </span>
                     </div>
                     <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
                         <%- include('dispatcherTable',{tradingAlerts:tradingAlerts}) %>
@@ -86,11 +91,6 @@
                     </div>
                 </div>
             </div>
-            <span class="badge badge-light">Hours since last signal
-                <span class="badge <%= history.hoursFromLastSignal > 2 ? 'badge-warning':'badge-success'%>">
-                    <%= history.hoursFromLastSignal %>
-                </span>
-            </span>
 
             <span style="font-size: 9">
                 (Last reload:

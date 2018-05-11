@@ -1,7 +1,7 @@
 var express = require('express')
 var router = express.Router()
 var feedbackCtrl = require('../../controllers/feedbackController')
-var solve = require('./solver')
+var solve = require('../../util/solver')
 
 router.post('/', (req, res) => {
     var user = req.body.user

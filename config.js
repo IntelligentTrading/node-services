@@ -1,6 +1,7 @@
 var bodyParser = require('body-parser')
 var swaggerUi = require('swagger-ui-express'),
     swaggerDocument = require('./docs/swagger.json');
+var dashboardCtrl = require('./controllers/dashboardController')
 
 var isAuthorized = (request) => {
     var nsvc_api_key = request.header('NSVC-API-KEY');
@@ -17,6 +18,14 @@ module.exports.boot = (app) => {
         else
             next();
     })
+
+    app.use('/dashboard', function (req, res, next) {
+        dashboardCtrl.auth(req).then(isAuthorized => {
+            isAuthorized ? next() : res.redirect('/auth')
+        }).catch(() => res.redirect('/auth'))
+    })
+
+    app.all('/auth', (req, res, next) => res.render('login'))
 
     app.set('view engine', 'ejs')
     app.set('port', (process.env.PORT || 5002))
