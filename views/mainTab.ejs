@@ -22,19 +22,28 @@
         </div>
     </div>
     <div class="row">
-            <div class="col-sm">
-                <canvas id="myChart" width="300" height="300"></canvas>
-            </div>
+        <div class="col-sm">
+            <canvas id="totalUsersChart" width="250" height="250"></canvas>
         </div>
+        <div class="col-sm">
+            <canvas id="total24hNewUsersChart" width="250" height="250"></canvas>
+        </div>
+        <div class="col-sm">
+            <canvas id="total7DaysNewUsersChart" width="250" height="250"></canvas>
+        </div>
+        <div class="col-sm">
+            <canvas id="total30DaysNewUsersChart" width="250" height="250"></canvas>
+        </div>
+    </div>
 </div>
 
 
 <script>
-    var ctx = document.getElementById("myChart");
-    var myDoughnutChart = new Chart(ctx, {
+    var ctx = document.getElementById("totalUsersChart");
+    var totalUsersChartObj = new Chart(ctx, {
         type: 'doughnut',
         data: {
-            labels: ["FREE", "FREE+", "Tier 1"],
+            labels: ["FREE", "FREE+", "Tier1"],
             datasets: [{
                 data: [ <%- users.TotalFree %>,  <%- users.TotalFreePlus %>,  <%- users.TotalTier1 %>],
                 backgroundColor: [
@@ -43,8 +52,62 @@
                     'rgba(255, 206, 86, 0.2)']
             }]
         },
-            options: {
-                responsive: false
-            }
+        options: {
+            responsive: false
+        }
     });
+
+    var ctx2 = document.getElementById("total24hNewUsersChart");
+    var total24hNewUsersChartObj = new Chart(ctx2, {
+        type: 'doughnut',
+        data: {
+            labels: ["FREE", "FREE+", "Tier 1"],
+            datasets: [{
+                data: [ <%- users.oneDayOldFreeUsers %>,  <%- users.oneDayOldFreePlusUsers %>,  <%- users.oneDayOldTier1Users %>],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)']
+            }]
+        },
+        options: {
+            responsive: false
+        }
+    });
+
+    var ctx3 = document.getElementById("total7DaysNewUsersChart");
+    var total7DaysNewUsersChartObj = new Chart(ctx3, {
+        type: 'doughnut',
+        data: {
+            labels: ["FREE", "FREE+", "Tier 1"],
+            datasets: [{
+                data: [ <%- users.oneWeekOldFreeUsers %>,  <%- users.oneWeekOldFreePlusUsers %>,  <%- users.oneWeekOldTier1Users %>],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)']
+            }]
+        },
+        options: {
+            responsive: false
+    }})
+
+    var ctx4 = document.getElementById("total30DaysNewUsersChart");
+    var total30DaysNewUsersChartObj = new Chart(ctx4, {
+        type: 'doughnut',
+        data: {
+            labels: ["FREE", "FREE+", "Tier 1"],
+            datasets: [{
+                data: [ <%- users.oneMonthOldFreeUsers %>,  <%- users.oneMonthOldFreePlusUsers %>,  <%- users.oneMonthOldTier1Users %>],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)']
+            }]
+        },
+        options: {
+            responsive: false
+        }
+    });
+
 </script>
