@@ -4,7 +4,7 @@ var broadcastCtrl = require('../../controllers/broadcastController')
 var solve = require('../../util/solver')
 
 router.post('/', (req, res) => {
-    solve(broadcastCtrl.broadcast(req.body.message), res)
+    solve(broadcastCtrl.broadcast(req.body.message, req.query), res)
 })
 
 module.exports = router

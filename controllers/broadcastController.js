@@ -1,20 +1,46 @@
 var UserModel = require('../models/User')
 const bot = require('../util/telegramBot').bot
 const broadcast_markdown_opts = require('../util/telegramBot').markdown
+var dateUtil = require('../util/dates')
 
 module.exports = {
-    broadcast: (message) => {
+    /**
+     * filter must be any property of the UserModel inclusive. 
+     * List of filters:
+     * plan=free,beta,paid
+     * no filter = deliver to everybody
+     */
+    broadcast: (message, deliverTo) => {
         return UserModel.find()
             .then(users => {
+                var receivers = []
+                if (deliverTo) {
+                    var userPlans = deliverTo.plan.split(',').map(p => p.toLowerCase())
+
+                    if (userPlans.indexOf('free') > -1) {
+                        receivers = users.filter(user => !dateUtil.hasValidSubscription(user))
+                    }
+                    if (userPlans.indexOf('beta') > -1) {
+                        var betaUsrs = users.filter(user => dateUtil.hasValidSubscription(user) && dateUtil.getDaysLeftFrom(user.settings.subscriptions.paid) <= 0)
+                        receivers = receivers.concat(betaUsrs)
+                    }
+                    if (userPlans.indexOf('paid') > -1) {
+                        var paidUsrs = users.filter(user => dateUtil.getDaysLeftFrom(user.settings.subscriptions.paid) > 0)
+                        receivers = receivers.concat(paidUsrs)
+                    }
+                }
+                else {
+                    receivers = users
+                }
 
                 var maxSimultaneousBroadcastSize = 20
-                var slices = Math.ceil(users.length / maxSimultaneousBroadcastSize)
+                var slices = Math.ceil(receivers.length / maxSimultaneousBroadcastSize)
 
                 for (current_slice = 0; current_slice < slices; current_slice++) {
-                    users.slice(current_slice * maxSimultaneousBroadcastSize, maxSimultaneousBroadcastSize * (current_slice + 1) - 1)
+                    receivers.slice(current_slice * maxSimultaneousBroadcastSize, maxSimultaneousBroadcastSize * (current_slice + 1) - 1)
                         .map(user => {
                             bot.sendMessage(user.telegram_chat_id, message, broadcast_markdown_opts)
-                                .catch(reason => console.log(`${telegram_chat_id}:${reason}`));
+                                .catch(reason => console.log(`${user.telegram_chat_id}:${reason}`));
                         })
                 }
             })
