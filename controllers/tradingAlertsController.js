@@ -5,6 +5,6 @@ module.exports = {
         return TradingAlert.create(ta)
     },
     getAll: () => {
-        return TradingAlert.find({}).sort({ signalId: -1 })
+        return TradingAlert.find({}).sort({ signalId: -1 }).limit(100)
     }
 }
