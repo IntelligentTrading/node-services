@@ -5,7 +5,7 @@ var solve = require('../../util/solver')
 
 router.get('/', (req, res) => {
     dashboardCtrl.load(req).then(data => {
-        res.render('history', data)
+        res.render('panel', data)
     }).catch(() => res.render('error'))
 })
 
