@@ -4,6 +4,10 @@
         width: 350px;
         height: 350px;
     }
+
+    .col-sm {
+        font-weight: lighter
+    }
 </style>
 
 <div class="container">
@@ -33,6 +37,37 @@
         </div>
         <div class="col-sm">
             <canvas id="total30DaysNewUsersChart" width="250" height="250"></canvas>
+        </div>
+    </div>
+    <div class="row">
+        <hr />
+    </div>
+    <div class="row">
+        <div class="col-sm">
+            Horizon Summary
+        </div>
+        <div class="col-sm">
+            Users alerts setting
+        </div>
+        <div class="col-sm">
+            Crypto Panic setting
+        </div>
+        <div class="col-sm">
+            Active users today
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm">
+            <canvas id="totalHorizonChart" width="250" height="250"></canvas>
+        </div>
+        <div class="col-sm">
+            <canvas id="totalMutedChart" width="250" height="250"></canvas>
+        </div>
+        <div class="col-sm">
+            <canvas id="totalCryptoEnabledChart" width="250" height="250"></canvas>
+        </div>
+        <div class="col-sm">
+            <canvas id="totalActiveTodayChart" width="250" height="250"></canvas>
         </div>
     </div>
 </div>
@@ -103,6 +138,75 @@
                     'rgba(255, 99, 132, 0.2)',
                     'rgba(54, 162, 235, 0.2)',
                     'rgba(255, 206, 86, 0.2)']
+            }]
+        },
+        options: {
+            responsive: false
+        }
+    });
+
+    var ctx5 = document.getElementById("totalHorizonChart");
+    var totalHorizonChartObj = new Chart(ctx5, {
+        type: 'doughnut',
+        data: {
+            labels: ["Short", "Medium", "Long"],
+            datasets: [{
+                data: [ <%- users.TotalShort %>,  <%- users.TotalMedium %>,  <%- users.TotalLong %>],
+                backgroundColor: [
+                    'rgba(255, 0, 0, 0.2)',
+                    'rgba(0, 162, 0, 0.2)',
+                    'rgba(0, 0, 86, 0.2)']
+            }]
+        },
+        options: {
+            responsive: false
+        }
+    });
+
+    var ctx6 = document.getElementById("totalMutedChart");
+    var totalMutedChartObj = new Chart(ctx6, {
+        type: 'doughnut',
+        data: {
+            labels: ["Alert On", "Alert Off"],
+            datasets: [{
+                data: [ <%- users.length - users.TotalMuted %>,  <%- users.TotalMuted %>],
+                backgroundColor: [
+                'rgba(0, 162, 0, 0.2)',    
+                'rgba(255, 0, 0, 0.2)']
+            }]
+        },
+        options: {
+            responsive: false
+        }
+    });
+
+    var ctx7 = document.getElementById("totalCryptoEnabledChart");
+    var totalCryptoEnabledChartObj = new Chart(ctx7, {
+        type: 'doughnut',
+        data: {
+            labels: ["Feed On", "Feed Off"],
+            datasets: [{
+                data: [ <%- users.TotalCryptoEnabled %>,  <%- users.length - users.TotalCryptoEnabled %>],
+                backgroundColor: [
+                'rgba(0, 162, 0, 0.2)',    
+                'rgba(255, 0, 0, 0.2)']
+            }]
+        },
+        options: {
+            responsive: false
+        }
+    });
+
+    var ctx8 = document.getElementById("totalActiveTodayChart");
+    var totalActiveTodayChartObj = new Chart(ctx8, {
+        type: 'doughnut',
+        data: {
+            labels: ["Active", "Inactive"],
+            datasets: [{
+                data: [ <%- users.ActiveToday %>,  <%- users.length - users.ActiveToday %>],
+                backgroundColor: [
+                'rgba(0, 162, 0, 0.2)',    
+                'rgba(255, 0, 0, 0.2)']
             }]
         },
         options: {
