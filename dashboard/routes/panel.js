@@ -6,7 +6,10 @@ var solve = require('../../util/solver')
 router.get('/', (req, res) => {
     dashboardCtrl.load(req).then(data => {
         res.render('panel', data)
-    }).catch(() => res.render('error'))
+    }).catch((err) => {
+        console.log(err)
+        res.render('error')
+    })
 })
 
 module.exports = router

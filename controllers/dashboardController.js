@@ -21,12 +21,12 @@ module.exports = {
                 })
 
                 var users = results[2]
-                buildUserData(users)
+                var userData = buildUserData(users)
 
                 return Promise.all(analysisPromises).then(() => {
                     var recent = history.results[0]
                     history.hoursFromLastSignal = hoursSinceLastSignal(recent)
-                    return { login: loginData(request), history: history, tradingAlerts: results[0], users: users }
+                    return { login: loginData(request), history: history, tradingAlerts: results[0], users: userData }
                 })
             })
     },
@@ -78,26 +78,28 @@ var buildUserData = (users) => {
     eula_users.oneWeekOldUsers = eula_users.filter(user => user.createdAt > oneWeekAgo).length
     eula_users.oneMonthOldUsers = eula_users.filter(user => user.createdAt > oneMonthAgo).length
 
-    eula_users.oneDayOldFreeUsers = users.filter(user => !dateUtils.hasValidSubscription(user) && user.createdAt > oneDayAgo).length
-    eula_users.oneDayOldFreePlusUsers = users.filter(user => dateUtils.getDaysLeftFrom(user.settings.subscriptions.beta) > 0 && user.createdAt > oneDayAgo).length
-    eula_users.oneDayOldTier1Users = users.filter(user => dateUtils.getDaysLeftFrom(user.settings.subscriptions.paid) > 0 && user.createdAt > oneDayAgo).length
+    eula_users.oneDayOldFreeUsers = eula_users.filter(user => !dateUtils.hasValidSubscription(user) && user.createdAt > oneDayAgo).length
+    eula_users.oneDayOldFreePlusUsers = eula_users.filter(user => dateUtils.getDaysLeftFrom(user.settings.subscriptions.beta) > 0 && user.createdAt > oneDayAgo).length
+    eula_users.oneDayOldTier1Users = eula_users.filter(user => dateUtils.getDaysLeftFrom(user.settings.subscriptions.paid) > 0 && user.createdAt > oneDayAgo).length
 
-    eula_users.oneMonthOldFreeUsers = users.filter(user => !dateUtils.hasValidSubscription(user) && user.createdAt > oneMonthAgo).length
-    eula_users.oneMonthOldFreePlusUsers = users.filter(user => dateUtils.getDaysLeftFrom(user.settings.subscriptions.beta) > 0 && user.createdAt > oneMonthAgo).length
-    eula_users.oneMonthOldTier1Users = users.filter(user => dateUtils.getDaysLeftFrom(user.settings.subscriptions.paid) > 0 && user.createdAt > oneMonthAgo).length
+    eula_users.oneMonthOldFreeUsers = eula_users.filter(user => !dateUtils.hasValidSubscription(user) && user.createdAt > oneMonthAgo).length
+    eula_users.oneMonthOldFreePlusUsers = eula_users.filter(user => dateUtils.getDaysLeftFrom(user.settings.subscriptions.beta) > 0 && user.createdAt > oneMonthAgo).length
+    eula_users.oneMonthOldTier1Users = eula_users.filter(user => dateUtils.getDaysLeftFrom(user.settings.subscriptions.paid) > 0 && user.createdAt > oneMonthAgo).length
 
-    eula_users.oneWeekOldFreeUsers = users.filter(user => !dateUtils.hasValidSubscription(user) && user.createdAt > oneWeekAgo).length
-    eula_users.oneWeekOldFreePlusUsers = users.filter(user => dateUtils.getDaysLeftFrom(user.settings.subscriptions.beta) > 0 && user.createdAt > oneWeekAgo).length
-    eula_users.oneWeekOldTier1Users = users.filter(user => dateUtils.getDaysLeftFrom(user.settings.subscriptions.paid) > 0 && user.createdAt > oneWeekAgo).length
+    eula_users.oneWeekOldFreeUsers = eula_users.filter(user => !dateUtils.hasValidSubscription(user) && user.createdAt > oneWeekAgo).length
+    eula_users.oneWeekOldFreePlusUsers = eula_users.filter(user => dateUtils.getDaysLeftFrom(user.settings.subscriptions.beta) > 0 && user.createdAt > oneWeekAgo).length
+    eula_users.oneWeekOldTier1Users = eula_users.filter(user => dateUtils.getDaysLeftFrom(user.settings.subscriptions.paid) > 0 && user.createdAt > oneWeekAgo).length
 
-    users.TotalMuted = users.filter(user => user.settings.is_muted).length
-    users.TotalCryptoEnabled = users.filter(user => user.settings.is_crowd_enabled).length
+    eula_users.TotalMuted = eula_users.filter(user => user.settings.is_muted).length
+    eula_users.TotalCryptoEnabled = eula_users.filter(user => user.settings.is_crowd_enabled).length
 
-    users.TotalShort = users.filter(user => user.settings.horizon == 'short').length
-    users.TotalMedium = users.filter(user => user.settings.horizon == 'medium').length
-    users.TotalLong = users.filter(user => user.settings.horizon == 'long').length
+    eula_users.TotalShort = eula_users.filter(user => user.settings.horizon == 'short').length
+    eula_users.TotalMedium = eula_users.filter(user => user.settings.horizon == 'medium').length
+    eula_users.TotalLong = eula_users.filter(user => user.settings.horizon == 'long').length
 
-    users.TotalFree = users.filter(user => user.currentPlan.plan == "FREE").length
-    users.TotalFreePlus = users.filter(user => user.currentPlan.plan == "BETA").length
-    users.TotalTier1 = users.filter(user => user.currentPlan.plan == "PAID").length
+    eula_users.TotalFree = eula_users.filter(user => user.currentPlan.plan == "FREE").length
+    eula_users.TotalFreePlus = eula_users.filter(user => user.currentPlan.plan == "BETA").length
+    eula_users.TotalTier1 = eula_users.filter(user => user.currentPlan.plan == "PAID").length
+
+    return eula_users
 }
