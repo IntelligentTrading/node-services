@@ -39,7 +39,7 @@
                     <%= user.currentPlan.exp%>
                 </td>
                 <td>
-                    
+                    <%= user.settings.ittTransactions ?  user.settings.ittTransactions.reduce(function (e1,e2) { return (e1.total || 0) + (e2.total || 0)},0) : 0 %>
                 </td>
                 <td>
                     <%= user.settings.ittWalletReceiverAddress%>
