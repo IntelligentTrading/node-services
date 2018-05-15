@@ -99,6 +99,9 @@
                 <li class="nav-item">
                     <a class="nav-link" id="contact-tab" data-toggle="tab" href="#user" role="tab" aria-controls="user" aria-selected="false">Users</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="tools-tab" data-toggle="tab" href="#tools" role="tab" aria-controls="tools" aria-selected="false">Tools</a>
+                </li>
             </ul>
             <div class="tab-content" id="myTabContent">
                 <div class="tab-pane fade show active" id="main" role="tabpanel" aria-labelledby="main-tab">
@@ -117,6 +120,9 @@
                 </div>
                 <div class="tab-pane fade" id="user" role="tabpanel" aria-labelledby="user-tab">
                     <%- include('usersTab',{users:users}) %>
+                </div>
+                <div class="tab-pane fade" id="tools" role="tabpanel" aria-labelledby="tools-tab">
+                    <%- include('toolsTab') %>
                 </div>
             </div>
         </div>

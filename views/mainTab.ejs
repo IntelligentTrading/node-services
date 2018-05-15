@@ -167,11 +167,13 @@
     var totalMutedChartObj = new Chart(ctx6, {
         type: 'doughnut',
         data: {
-            labels: ["Alert On", "Alert Off"],
-            datasets: [{
-                data: [ <%- users.length - users.TotalMuted %>,  <%- users.TotalMuted %>],
+            labels: ["Alert On", "Free Muted","Free+ Muted","Tier1 Muted"],
+            datasets: [
+            {
+                data: [ <%- users.length - users.TotalMuted %>, <%- users.TotalFreeMuted %>,  <%- users.TotalFreePlusMuted %>,<%- users.TotalTier1Muted %>],
                 backgroundColor: [
                 'rgba(0, 162, 0, 0.2)',    
+                'rgba(0, 0, 162, 0.2)',
                 'rgba(255, 0, 0, 0.2)']
             }]
         },

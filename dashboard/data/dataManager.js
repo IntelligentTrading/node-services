@@ -27,19 +27,27 @@ var buildUserData = (users) => {
     users_data.oneWeekOldUsers = users_data.filter(user => user.createdAt > oneWeekAgo).length
     users_data.oneMonthOldUsers = users_data.filter(user => user.createdAt > oneMonthAgo).length
 
-    users_data.oneDayOldFreeUsers = users_data.filter(user => !dateUtils.hasValidSubscription(user) && user.createdAt > oneDayAgo).length
-    users_data.oneDayOldFreePlusUsers = users_data.filter(user => dateUtils.getDaysLeftFrom(user.settings.subscriptions.beta) > 0 && user.createdAt > oneDayAgo).length
-    users_data.oneDayOldTier1Users = users_data.filter(user => dateUtils.getDaysLeftFrom(user.settings.subscriptions.paid) > 0 && user.createdAt > oneDayAgo).length
+    var freeUsers = users_data.filter(user => user.currentPlan.plan == "FREE")
+    var freePlusUsers = users_data.filter(user => user.currentPlan.plan == "BETA")
+    var tier1Users = users_data.filter(user => user.currentPlan.plan == "PAID")
 
-    users_data.oneMonthOldFreeUsers = users_data.filter(user => !dateUtils.hasValidSubscription(user) && user.createdAt > oneMonthAgo).length
-    users_data.oneMonthOldFreePlusUsers = users_data.filter(user => dateUtils.getDaysLeftFrom(user.settings.subscriptions.beta) > 0 && user.createdAt > oneMonthAgo).length
-    users_data.oneMonthOldTier1Users = users_data.filter(user => dateUtils.getDaysLeftFrom(user.settings.subscriptions.paid) > 0 && user.createdAt > oneMonthAgo).length
+    users_data.oneDayOldFreeUsers = freeUsers.filter(user => user.createdAt > oneDayAgo).length
+    users_data.oneDayOldFreePlusUsers = freePlusUsers.filter(user => user.createdAt > oneDayAgo).length
+    users_data.oneDayOldTier1Users = tier1Users.filter(user => user.createdAt > oneDayAgo).length
 
-    users_data.oneWeekOldFreeUsers = users_data.filter(user => !dateUtils.hasValidSubscription(user) && user.createdAt > oneWeekAgo).length
-    users_data.oneWeekOldFreePlusUsers = users_data.filter(user => dateUtils.getDaysLeftFrom(user.settings.subscriptions.beta) > 0 && user.createdAt > oneWeekAgo).length
-    users_data.oneWeekOldTier1Users = users_data.filter(user => dateUtils.getDaysLeftFrom(user.settings.subscriptions.paid) > 0 && user.createdAt > oneWeekAgo).length
+    users_data.oneMonthOldFreeUsers = freeUsers.filter(user => user.createdAt > oneMonthAgo).length
+    users_data.oneMonthOldFreePlusUsers = freePlusUsers.filter(user => user.createdAt > oneMonthAgo).length
+    users_data.oneMonthOldTier1Users = tier1Users.filter(user => user.createdAt > oneMonthAgo).length
+
+    users_data.oneWeekOldFreeUsers = freeUsers.filter(user => user.createdAt > oneWeekAgo).length
+    users_data.oneWeekOldFreePlusUsers = freePlusUsers.filter(user => user.createdAt > oneWeekAgo).length
+    users_data.oneWeekOldTier1Users = tier1Users.filter(user => user.createdAt > oneWeekAgo).length
 
     users_data.TotalMuted = users_data.filter(user => user.settings.is_muted).length
+    users_data.TotalFreeMuted = freeUsers.filter(user => user.settings.is_muted).length
+    users_data.TotalFreePlusMuted = freePlusUsers.filter(user => user.settings.is_muted).length
+    users_data.TotalTier1Muted = tier1Users.filter(user => user.settings.is_muted).length
+
     users_data.TotalCryptoEnabled = users_data.filter(user => user.settings.is_crowd_enabled).length
     users_data.ActiveToday = users_data.filter(user => user.updatedAt > oneDayAgo).length
 
@@ -47,9 +55,9 @@ var buildUserData = (users) => {
     users_data.TotalMedium = users_data.filter(user => user.settings.horizon == 'medium').length
     users_data.TotalLong = users_data.filter(user => user.settings.horizon == 'long').length
 
-    users_data.TotalFree = users_data.filter(user => user.currentPlan.plan == "FREE").length
-    users_data.TotalFreePlus = users_data.filter(user => user.currentPlan.plan == "BETA").length
-    users_data.TotalTier1 = users_data.filter(user => user.currentPlan.plan == "PAID").length
+    users_data.TotalFree = freeUsers.length
+    users_data.TotalFreePlus = freePlusUsers.length
+    users_data.TotalTier1 = tier1Users.length
 
     return users_data
 }
