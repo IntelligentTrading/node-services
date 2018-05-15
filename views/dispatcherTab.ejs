@@ -1,8 +1,7 @@
 <style>
-    
 </style>
 
-<table  id ="tbl-dispatcher" class="table history">
+<table id="tbl-dispatcher" class="table history">
     <thead class="thead-dark">
         <tr>
             <th>ID</th>
@@ -34,15 +33,61 @@
                     </span>
                 </td>
                 <td>
-                    <% ta.reasons.forEach(reason => {
-                        var smallReason = reason.replace('too','').replace('is','').replace('a','').trim()
-                    %>
-                        <span class="badge badge-light">
-                            <%= smallReason.toUpperCase() %>
+                    <% if(ta.rejections.length > 0){%>
+                        <span class="badge badge-light" data-toggle="modal" data-target="#reasonsModal" data-ta-reasons="<%-ta.reasons %>">
+                            <i class="fas fa-eye"></i>
                         </span>
-                        <%}) %>
+                        <%} else {%>
+
+
+                            <% ta.reasons.forEach(reason => {
+                        var smallReason = reason.replace('too','').replace('is','').replace('a','').trim()%>
+                                <span class="badge badge-light">
+                                    <%= smallReason.toUpperCase() %>
+                                </span>
+                                <%})} %>
                 </td>
             </tr>
             <% }) %>
     </tbody>
 </table>
+
+
+<div class="modal fade" id="reasonsModal" tabindex="-1" role="dialog" aria-labelledby="reasonsModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Dispatching rejections and reasons</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table>
+                    <tbody id="reasonsModalId">
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $('#reasonsModal').on('show.bs.modal', function (e) {
+        //get data-id attribute of the clicked element 
+        var reasons = $(e.relatedTarget).data('ta-reasons');
+        //populate the textbox 
+        var tbody = ''
+        if (reasons) {
+            reasons.split(',').forEach(reason => {
+                console.log(reason)
+                tbody+='<tr><td style="text-align:left">'+reason+'</td></tr>'
+                $(e.currentTarget).find('tbody[id="reasonsModalId"]').html(tbody)
+            })
+        }
+    });
+</script>

@@ -3,7 +3,7 @@ var tradingAlertsCtrl = require('./tradingAlertsController')
 var usersCtrl = require('./usersController')
 var signalDispatchingUtil = require('../util/signalDispatchingUtils')
 var dateUtils = require('../util/dates')
-var dataManager =require('../dashboard/data/dataManager')
+var dataManager = require('../dashboard/data/dataManager')
 var dashboardSecurity = require('../dashboard/util/checkTelegramSignature')
 var _ = require('lodash')
 
@@ -42,6 +42,9 @@ module.exports = {
         }).catch(() => {
             return false
         })
+    },
+    broadcast: (request, response, next) => {
+        
     }
 }
 
