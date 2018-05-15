@@ -1,4 +1,6 @@
 var dateUtils = require('../../util/dates')
+var _ = require('lodash')
+var moment = require('moment')
 
 var buildUserData = (users) => {
     var users_data = users
@@ -59,6 +61,19 @@ var buildUserData = (users) => {
     users_data.TotalFreePlus = freePlusUsers.length
     users_data.TotalTier1 = tier1Users.length
 
+    var grouped_users_data = _.groupBy(users_data, (user) => {
+        var date = moment(user.createdAt).format().split('T')[0]
+        return date
+    })
+
+    var grouped_sorted_users_data_array = _.sortBy(_.map(grouped_users_data, function (group, day) {
+        return {
+            day: day,
+            total: group.length
+        }
+    }), 'day')
+
+    users_data.UsersTimeline = grouped_sorted_users_data_array
     return users_data
 }
 
