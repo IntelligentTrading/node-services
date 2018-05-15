@@ -12,6 +12,8 @@
             <th>Chat Id</th>
             <th>EULA</th>
             <th>Horizon</th>
+            <th>Crowd Sentiment</th>
+            <th>Alerts</th>
             <th>Subscription</th>
             <th>Valid until</th>
             <th>ITT Token sent</th>
@@ -31,6 +33,12 @@
                 </td>
                 <td>
                     <%= user.settings.horizon %>
+                </td>
+                <td>
+                    <%= user.settings.is_crowd_enabled ? 'ON' : 'OFF' %>
+                </td>
+                <td>
+                    <%= !user.settings.is_muted ? 'ON' : 'OFF' %>
                 </td>
                 <td>
                     <%= user.currentPlan.plan%>
