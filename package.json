@@ -44,7 +44,8 @@
     "speakeasy": "^2.0.0",
     "swagger-ui-express": "^2.0.15",
     "trello": "^0.8.0",
-    "web3": "^1.0.0-beta.33"
+    "web3": "^1.0.0-beta.33",
+    "moment": "^2.22.1"
   },
   "devDependencies": {
     "nyc": "^11.4.1"

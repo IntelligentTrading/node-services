@@ -11,6 +11,9 @@
 </style>
 
 <div class="container">
+        <div class="row">
+                <canvas id="usersTimelineChart" width="1200" height="300"></canvas>
+            </div>
     <div class="row">
         <div class="col-sm">
             <%- include('usersStats',{label:'Total Users',statsData: users.length}) %>
@@ -209,6 +212,22 @@
                 backgroundColor: [
                 'rgba(0, 162, 0, 0.2)',    
                 'rgba(255, 0, 0, 0.2)']
+            }]
+        },
+        options: {
+            responsive: false
+        }
+    });
+
+    var timelineCtx = document.getElementById("usersTimelineChart");
+    var usersTimelineChartObj = new Chart(timelineCtx, {
+        type: 'line',
+        data: {
+        labels:[<%-users.UsersTimeline.map(u => '"'+u.day+'"')%>],
+        datasets: [{
+            label:'New users / day',
+            data: [<%- users.UsersTimeline.map(u => u.total)%>],
+            fill:false,borderColor:"rgb(75, 192, 192)",lineTension:0.1
             }]
         },
         options: {
