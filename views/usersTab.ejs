@@ -11,6 +11,7 @@
         <tr>
             <th>Chat Id</th>
             <th>EULA</th>
+            <th>Joined on</th>
             <th>Horizon</th>
             <th>Crowd Sentiment</th>
             <th>Alerts</th>
@@ -30,6 +31,9 @@
                 </td>
                 <td>
                     <%= user.eula ? '✓' : '𐄂' %>
+                </td>
+                <td>
+                    <%= user.createdAt %>
                 </td>
                 <td>
                     <%= user.settings.horizon %>

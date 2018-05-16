@@ -25,25 +25,27 @@ var buildUserData = (users) => {
     var oneMonthAgo = new Date()
     oneMonthAgo.setDate(oneMonthAgo.getDate() - 30)
 
-    users_data.oneDayOldUsers = users_data.filter(user => user.createdAt > oneDayAgo).length
-    users_data.oneWeekOldUsers = users_data.filter(user => user.createdAt > oneWeekAgo).length
-    users_data.oneMonthOldUsers = users_data.filter(user => user.createdAt > oneMonthAgo).length
+    moment().from()
+
+    users_data.oneDayOldUsers = users_data.filter(user => moment(user.createdAt).isBetween(oneDayAgo,Date.now())).length
+    users_data.oneWeekOldUsers = users_data.filter(user => moment(user.createdAt).isBetween(oneWeekAgo,Date.now())).length
+    users_data.oneMonthOldUsers = users_data.filter(user => moment(user.createdAt).isBetween(oneMonthAgo,Date.now())).length
 
     var freeUsers = users_data.filter(user => user.currentPlan.plan == "FREE")
     var freePlusUsers = users_data.filter(user => user.currentPlan.plan == "BETA")
     var tier1Users = users_data.filter(user => user.currentPlan.plan == "PAID")
 
-    users_data.oneDayOldFreeUsers = freeUsers.filter(user => user.createdAt > oneDayAgo).length
-    users_data.oneDayOldFreePlusUsers = freePlusUsers.filter(user => user.createdAt > oneDayAgo).length
-    users_data.oneDayOldTier1Users = tier1Users.filter(user => user.createdAt > oneDayAgo).length
+    users_data.oneDayOldFreeUsers = freeUsers.filter(user => moment(user.createdAt).isBetween(oneDayAgo,Date.now())).length
+    users_data.oneDayOldFreePlusUsers = freePlusUsers.filter(user => moment(user.createdAt).isBetween(oneDayAgo,Date.now())).length
+    users_data.oneDayOldTier1Users = tier1Users.filter(user => moment(user.createdAt).isBetween(oneDayAgo,Date.now())).length
 
-    users_data.oneMonthOldFreeUsers = freeUsers.filter(user => user.createdAt > oneMonthAgo).length
-    users_data.oneMonthOldFreePlusUsers = freePlusUsers.filter(user => user.createdAt > oneMonthAgo).length
-    users_data.oneMonthOldTier1Users = tier1Users.filter(user => user.createdAt > oneMonthAgo).length
+    users_data.oneMonthOldFreeUsers = freeUsers.filter(user => moment(user.createdAt).isBetween(oneMonthAgo,Date.now())).length
+    users_data.oneMonthOldFreePlusUsers = freePlusUsers.filter(user => moment(user.createdAt).isBetween(oneMonthAgo,Date.now())).length
+    users_data.oneMonthOldTier1Users = tier1Users.filter(user => moment(user.createdAt).isBetween(oneMonthAgo,Date.now())).length
 
-    users_data.oneWeekOldFreeUsers = freeUsers.filter(user => user.createdAt > oneWeekAgo).length
-    users_data.oneWeekOldFreePlusUsers = freePlusUsers.filter(user => user.createdAt > oneWeekAgo).length
-    users_data.oneWeekOldTier1Users = tier1Users.filter(user => user.createdAt > oneWeekAgo).length
+    users_data.oneWeekOldFreeUsers = freeUsers.filter(user => moment(user.createdAt).isBetween(oneWeekAgo,Date.now())).length
+    users_data.oneWeekOldFreePlusUsers = freePlusUsers.filter(user => moment(user.createdAt).isBetween(oneWeekAgo,Date.now())).length
+    users_data.oneWeekOldTier1Users = tier1Users.filter(user => moment(user.createdAt).isBetween(oneWeekAgo,Date.now())).length
 
     users_data.TotalMuted = users_data.filter(user => user.settings.is_muted).length
     users_data.TotalFreeMuted = freeUsers.filter(user => user.settings.is_muted).length
