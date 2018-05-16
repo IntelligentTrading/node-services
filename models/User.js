@@ -26,6 +26,7 @@ var userSchema = new Schema({
             paid: { type: Date, default: Date.now() }
         },
         ittTransactions: [{ tx: { type: String }, total: { type: Number } }],
+        subscriptionRenewed: { plan: String, on: Date },
         ittWalletReceiverAddress: { type: String, default: 'No address generated' },
         counter_currencies: { type: [Number], default: [2] }, //0,1,2,3 => [BTC,ETH,USD,XMR]
         transaction_currencies: { type: [String], default: ["BTC", "ETH", "BCH", "XMR", "ZEC", "DASH", "LTC"] }
