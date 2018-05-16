@@ -72,6 +72,7 @@ function verifyTransaction(transaction) {
                         var newExpirationDate = startingDate.setSeconds(startingDate.getSeconds() + ittSeconds)
                         user.settings.subscriptions.paid = newExpirationDate
                         user.settings.ittTransactions.push({ tx: transaction.transactionHash, total: tokens })
+                        user.settings.subscriptionRenewed = { plan: 'paid', on: Date.now() }
                         user.save()
                         return user
                     }).catch(err => {
