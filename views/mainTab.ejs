@@ -16,16 +16,16 @@
             </div>
     <div class="row">
         <div class="col-sm">
-            <%- include('usersStats',{label:'Total Users',statsData: users.length}) %>
+            <%- include('usersStats',{label:'Total Users',sublabel:'No Eula',statsData: users.length, secondary: ((users.length-users.TotalEula)*100/users.length).toFixed(1)+'%'}) %>
         </div>
         <div class="col-sm">
-            <%- include('usersStats',{label:'Last 24h',statsData: users.oneDayOldUsers}) %>
+            <%- include('usersStats',{label:'Last 24h',sublabel:'No Eula',statsData: users.oneDayOldUsers, secondary:((users.oneDayOldUsers-users.oneDayOldUsersEula)*100/users.oneDayOldUsers).toFixed(1)+'%'}) %>
         </div>
         <div class="col-sm">
-            <%- include('usersStats',{label:'Last 7 days',statsData: users.oneWeekOldUsers}) %>
+            <%- include('usersStats',{label:'Last 7 days',sublabel:'No Eula',statsData: users.oneWeekOldUsers, secondary:((users.oneWeekOldUsers-users.oneWeekOldUsersEula)*100/users.oneWeekOldUsers).toFixed(1)+'%'}) %>
         </div>
         <div class="col-sm">
-            <%- include('usersStats',{label:'Last 30 days',statsData: users.oneMonthOldUsers}) %>
+            <%- include('usersStats',{label:'Last 30 days',sublabel:'No Eula',statsData: users.oneMonthOldUsers, secondary:((users.oneMonthOldUsers-users.oneMonthOldUsersEula)*100/users.oneMonthOldUsers).toFixed(1)+'%'}) %>
         </div>
     </div>
     <div class="row">

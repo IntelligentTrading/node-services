@@ -28,8 +28,11 @@ var buildUserData = (users) => {
     moment().from()
 
     users_data.oneDayOldUsers = users_data.filter(user => moment(user.createdAt).isBetween(oneDayAgo, Date.now())).length
+    users_data.oneDayOldUsersEula = users_data.filter(user => user.eula && moment(user.createdAt).isBetween(oneDayAgo, Date.now())).length
     users_data.oneWeekOldUsers = users_data.filter(user => moment(user.createdAt).isBetween(oneWeekAgo, Date.now())).length
+    users_data.oneWeekOldUsersEula = users_data.filter(user =>user.eula && moment(user.createdAt).isBetween(oneWeekAgo, Date.now())).length
     users_data.oneMonthOldUsers = users_data.filter(user => moment(user.createdAt).isBetween(oneMonthAgo, Date.now())).length
+    users_data.oneMonthOldUsersEula = users_data.filter(user => user.eula && moment(user.createdAt).isBetween(oneMonthAgo, Date.now())).length
 
     var freeUsers = users_data.filter(user => user.currentPlan.plan == "FREE")
     var freePlusUsers = users_data.filter(user => user.currentPlan.plan == "BETA")
@@ -40,10 +43,12 @@ var buildUserData = (users) => {
     users_data.oneDayOldTier1Users = users_data.filter(user => user.settings.subscriptionRenewed.on != null && moment(user.settings.subscriptionRenewed.on).isBetween(oneDayAgo, Date.now())).length
 
     users_data.oneWeekOldFreeUsers = freeUsers.filter(user => moment(user.createdAt).isBetween(oneWeekAgo, Date.now())).length
+    users_data.oneWeekOldFreeUsersEula = freeUsers.filter(user => user.eula && moment(user.createdAt).isBetween(oneWeekAgo, Date.now())).length
     users_data.oneWeekOldFreePlusUsers = freePlusUsers.filter(user => moment(user.createdAt).isBetween(oneWeekAgo, Date.now())).length
     users_data.oneWeekOldTier1Users = users_data.filter(user => user.settings.subscriptionRenewed.on != null && moment(user.settings.subscriptionRenewed.on).isBetween(oneWeekAgo, Date.now())).length
 
     users_data.oneMonthOldFreeUsers = freeUsers.filter(user => moment(user.createdAt).isBetween(oneMonthAgo, Date.now())).length
+    users_data.oneMonthOldFreeUsersEula = freeUsers.filter(user =>user.eula && moment(user.createdAt).isBetween(oneMonthAgo, Date.now())).length
     users_data.oneMonthOldFreePlusUsers = freePlusUsers.filter(user => moment(user.createdAt).isBetween(oneMonthAgo, Date.now())).length
     users_data.oneMonthOldTier1Users = users_data.filter(user => user.settings.subscriptionRenewed.on != null && moment(user.settings.subscriptionRenewed.on).isBetween(oneMonthAgo, Date.now())).length
 
@@ -60,6 +65,7 @@ var buildUserData = (users) => {
     users_data.TotalLong = users_data.filter(user => user.settings.horizon == 'long').length
 
     users_data.TotalFree = freeUsers.length
+    users_data.TotalEula = users.filter(u => u.eula).length
     users_data.TotalFreePlus = freePlusUsers.length
     users_data.TotalTier1 = tier1Users.length
 
