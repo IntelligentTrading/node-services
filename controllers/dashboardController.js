@@ -42,9 +42,6 @@ module.exports = {
         }).catch(() => {
             return false
         })
-    },
-    broadcast: (request, response, next) => {
-        
     }
 }
 
