@@ -108,12 +108,15 @@
                     <%- include('mainTab') %>
                 </div>
                 <div class="tab-pane fade" id="home" role="tabpanel" aria-labelledby="home-tab">
+                    <div class="row">
+                        <div class="col-sm">
+                            <%- include('lastSignal',{label:'Last signal',statsData: history.timeFromLastSignal, health: history.signalHealth}) %>
+                        </div>
+                        <div class="col-sm">
+                            <%- include('lastSignal',{label:'Last signal FREE',statsData: history.timeFromLastFreeSignal, health: history.freeSignalHealth}) %>
+                        </div>
+                    </div>
                     <%- include('historyTab',{history:history}) %>
-                        <span class="badge badge-light">Hours since last signal
-                            <span class="badge <%= history.hoursFromLastSignal > 2 ? 'badge-warning':'badge-success'%>">
-                                <%= history.hoursFromLastSignal %>
-                            </span>
-                        </span>
                 </div>
                 <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
                     <%- include('dispatcherTab',{tradingAlerts:tradingAlerts}) %>
