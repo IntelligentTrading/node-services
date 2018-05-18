@@ -1,0 +1,32 @@
+<style>
+        .stat-description {
+            font-size: smaller;
+            font-weight: 300;
+        }
+    
+        .stat-value {
+            font-size: large;
+            font-weight: 100;
+        }
+
+        .container {
+            text-align: center
+        }
+    </style>
+    
+    <div class="container">
+        <div class="row">
+            <div class="col-sm stat-description">
+                <%= label%> 
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm stat-value">
+                <%= statsData%> <% if(health){%>
+                    <i style="color: green" class="far fa-check-circle"></i>
+                    <%} else {%>
+                <i style="color: red" class="fas fa-exclamation-triangle"></i> 
+                <%}%>
+            </div>
+        </div>
+    </div>

@@ -5,14 +5,19 @@ var signalDispatchingUtil = require('../util/signalDispatchingUtils')
 var dateUtils = require('../util/dates')
 var dataManager = require('../dashboard/data/dataManager')
 var dashboardSecurity = require('../dashboard/util/checkTelegramSignature')
+var moment = require('moment')
 var _ = require('lodash')
 
 module.exports = {
     load: (request, response) => {
         //ad auth
         var opts = { page_size: 100 }
+        var free = {
+            source: 0, transaction_currencies: 'BTC+ETH+BCH+XMR+ZEC+DASH+LTC',
+            counter_currency: 2, trend: 1, page_size: 5
+        }
 
-        return Promise.all([tradingAlertsCtrl.getAll(), historyCtrl.getSignalHistory(opts), usersCtrl.getUsers()])
+        return Promise.all([tradingAlertsCtrl.getAll(), historyCtrl.getSignalHistory(opts), usersCtrl.getUsers(), historyCtrl.getSignalHistory(free)])
             .then((results) => {
                 var history = JSON.parse(results[1])
                 var analysisPromises = []
@@ -24,10 +29,16 @@ module.exports = {
 
                 var users = results[2]
                 var userData = dataManager.buildUserData(users)
+                var freeSignalsHistory = JSON.parse(results[3]).results
 
                 return Promise.all(analysisPromises).then(() => {
-                    var recent = history.results[0]
-                    history.hoursFromLastSignal = hoursSinceLastSignal(recent)
+                    var mostRecentSignal = _.sortBy(history.results, 'timestamp')[0]
+                    var mostRecentFreeSignal = freeSignalsHistory.find(fsh => ["RSI", "kumo_breakout"].indexOf(fsh.signal) >= 0)
+                    history.timeFromLastSignal = moment(mostRecentSignal.timestamp).fromNow()
+                    history.signalHealth = Math.abs(moment(mostRecentSignal.timestamp).diff(moment(),'hours')) <= 2
+                    history.timeFromLastFreeSignal = moment(mostRecentFreeSignal.timestamp).fromNow()
+                    history.freeSignalHealth = Math.abs(moment(mostRecentFreeSignal.timestamp).diff(moment(),'hours')) <= 8
+
                     return { login: loginData(request), history: history, tradingAlerts: results[0], users: userData }
                 })
             })
@@ -44,11 +55,6 @@ module.exports = {
         })
     }
 }
-
-var hoursSinceLastSignal = (signal) => {
-    return (dateUtils.getDaysLeftFrom(signal.timestamp) * -24).toFixed(1)
-}
-
 
 var loginData = (req) => {
     return {
