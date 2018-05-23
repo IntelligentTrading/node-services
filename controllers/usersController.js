@@ -3,6 +3,8 @@ var User = require('../models/User')
 var SubscriptionTemplate = require('../models/SubscriptionTemplate')
 var walletController = require('./walletController')
 var dateUtil = require('../util/dates')
+var eventBus = require('../events/eventBus')
+var moment = require('moment')
 
 module.exports = userController = {
     getUsers: (settingsFilters) => {
@@ -43,6 +45,7 @@ module.exports = userController = {
     },
     createUser: (userDocument) => {
         return User.create(userDocument).then((newUser) => {
+            eventBus.emit('userCreated', newUser)
             return { statusCode: 201, object: newUser }
         })
     },
@@ -134,5 +137,12 @@ module.exports = userController = {
     },
     getSubscriptionTemplate: (label) => {
         return SubscriptionTemplate.findOne({ label: label })
+    },
+    lastNotifiedSignal: (logObject) => {
+        var lastUpdateObject = {
+            signalId: logObject.signalId, on: moment()
+        }
+
+        return User.update({ telegram_chat_id: { "$in": logObject.subscribersIds } }, { 'settings.lastSignalReceived': lastUpdateObject }, { 'multi': true })
     }
 }

@@ -14,7 +14,7 @@ module.exports = {
         var opts = { page_size: 100 }
         var free = {
             source: 0, transaction_currencies: 'BTC+ETH+BCH+XMR+ZEC+DASH+LTC',
-            counter_currency: 2, trend: 1, page_size: 5
+            counter_currency: 2, trend: 1
         }
 
         return Promise.all([tradingAlertsCtrl.getAll(), historyCtrl.getSignalHistory(opts), usersCtrl.getUsers(), historyCtrl.getSignalHistory(free)])
