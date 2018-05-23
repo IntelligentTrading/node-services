@@ -29,5 +29,8 @@ router.put('/:telegram_chat_id/resetSignals', (req, res) => {
 router.get('/template/:label', (req, res) => {
     solve(usersCtrl.getSubscriptionTemplate(req.params.label), res)
 })
+router.post('/notified', (req, res) => {
+    solve(usersCtrl.lastNotifiedSignal(req.body), res)
+})
 
 module.exports = router
