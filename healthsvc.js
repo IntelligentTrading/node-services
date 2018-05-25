@@ -53,7 +53,9 @@ function lastSignalDeliveredCheck() {
     console.log('Checking signals delivered to users...')
 
     var not_enough_signals_message =
-        `🔴 *Configuration Warning*\n\nIt looks like you're missing signals and cryptomarket updates due to your current subscription plan or configuration.
+        `⚠️*Configuration Warning*
+        
+It looks like you're missing signals and cryptomarket updates due to your current subscription plan or configuration.
 Check your /settings or /subscribe for a better experience!
 Our [User Guide](http://intelligenttrading.org/guides/bot-user-guide/) can help to configure the bot properly.`
 
