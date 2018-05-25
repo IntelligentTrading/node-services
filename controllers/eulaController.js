@@ -11,7 +11,7 @@ module.exports = {
             return response.sendStatus(500)
         }
         var eula_url = `/eula_confirm?u=${chat_id}`;
-        response.render('eula', { eula_url: eula_url }, );
+        response.render('eula2', { eula_url: eula_url }, );
     },
     confirm: (request, response) => {
         var chat_id = request.query.u;
