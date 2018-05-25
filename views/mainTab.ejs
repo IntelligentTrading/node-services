@@ -228,6 +228,11 @@
             label:'New users / day',
             data: [<%- users.UsersTimeline.map(u => u.total)%>],
             fill:false,borderColor:"rgb(75, 192, 192)",lineTension:0.1
+            },
+            {
+            label:'Total users / day',
+            data: [<%- users.RunningTotalDayByDay.map(u => u.total)%>],
+            fill:false,borderColor:"rgb(250, 0, 0)",lineTension:0.1
             }]
         },
         options: {
