@@ -30,7 +30,7 @@ var buildUserData = (users) => {
     users_data.oneDayOldUsers = users_data.filter(user => moment(user.createdAt).isBetween(oneDayAgo, Date.now())).length
     users_data.oneDayOldUsersEula = users_data.filter(user => user.eula && moment(user.createdAt).isBetween(oneDayAgo, Date.now())).length
     users_data.oneWeekOldUsers = users_data.filter(user => moment(user.createdAt).isBetween(oneWeekAgo, Date.now())).length
-    users_data.oneWeekOldUsersEula = users_data.filter(user =>user.eula && moment(user.createdAt).isBetween(oneWeekAgo, Date.now())).length
+    users_data.oneWeekOldUsersEula = users_data.filter(user => user.eula && moment(user.createdAt).isBetween(oneWeekAgo, Date.now())).length
     users_data.oneMonthOldUsers = users_data.filter(user => moment(user.createdAt).isBetween(oneMonthAgo, Date.now())).length
     users_data.oneMonthOldUsersEula = users_data.filter(user => user.eula && moment(user.createdAt).isBetween(oneMonthAgo, Date.now())).length
 
@@ -48,7 +48,7 @@ var buildUserData = (users) => {
     users_data.oneWeekOldTier1Users = users_data.filter(user => user.settings.subscriptionRenewed.on != null && moment(user.settings.subscriptionRenewed.on).isBetween(oneWeekAgo, Date.now())).length
 
     users_data.oneMonthOldFreeUsers = freeUsers.filter(user => moment(user.createdAt).isBetween(oneMonthAgo, Date.now())).length
-    users_data.oneMonthOldFreeUsersEula = freeUsers.filter(user =>user.eula && moment(user.createdAt).isBetween(oneMonthAgo, Date.now())).length
+    users_data.oneMonthOldFreeUsersEula = freeUsers.filter(user => user.eula && moment(user.createdAt).isBetween(oneMonthAgo, Date.now())).length
     users_data.oneMonthOldFreePlusUsers = freePlusUsers.filter(user => moment(user.createdAt).isBetween(oneMonthAgo, Date.now())).length
     users_data.oneMonthOldTier1Users = users_data.filter(user => user.settings.subscriptionRenewed.on != null && moment(user.settings.subscriptionRenewed.on).isBetween(oneMonthAgo, Date.now())).length
 
@@ -82,6 +82,18 @@ var buildUserData = (users) => {
     }), 'day')
 
     users_data.UsersTimeline = grouped_sorted_users_data_array
+
+    users_data.RunningTotalDayByDay = []
+    var temp_total = 0
+    grouped_sorted_users_data_array.forEach(group => {
+        temp_total += group.total
+        users_data.RunningTotalDayByDay.push({
+            day: group.day,
+            total: temp_total
+        })
+    })
+
+
     return users_data
 }
 

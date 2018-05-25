@@ -1,24 +1,88 @@
-<form action="" method="POST">
+<div>
+    <label>
+        Copy and paste:
+        <br/>
+        <br/>
+        <code>
+                    🔴 *Test header*<br/>
+                    [Interesting Link](http://hooooooooo.com/)<br/>
+
+                    Test<br/><br/>
+        </code> to send a message which will render as follows:
+    </label>
+    <br/>
+    <div style="border-color: lightgrey;padding:10">
+        <samp> 🔴
+            <b>Test header</b><br/>
+            <a href="http://hooooooooo.com/">Interesting Link</a>
+            <br/> Test
+        </samp>
+    </div>
+</div>
+<br/>
+<hr/>
+<form id="broadcastForm">
     <div class="form-group">
-        <label for="exampleFormControlSelect2">Deliver to the following plans:</label>
+        <label for="exampleFormControlSelect2">Deliver to the following plans (no selection = deliver to ALL):</label>
         <br />
         <div class="form-check form-check-inline">
-            <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="free">
+            <input class="form-check-input" type="checkbox" name="cbFree" value="free">
             <label class="form-check-label" for="inlineCheckbox1">FREE</label>
-          </div>
-          <div class="form-check form-check-inline">
-            <input class="form-check-input" type="checkbox" id="inlineCheckbox2" value="beta">
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" name="cbBeta" value="beta">
             <label class="form-check-label" for="inlineCheckbox2">FREE+</label>
-          </div>
-          <div class="form-check form-check-inline">
-            <input class="form-check-input" type="checkbox" id="inlineCheckbox3" value="paid">
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" name="cbPaid" value="paid">
             <label class="form-check-label" for="inlineCheckbox3">PAID</label>
-          </div>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" name="cbITT" value="itt">
+            <label class="form-check-label" for="inlineCheckbox4">ITT Team Only</label>
+        </div>
     </div>
     <div class="form-group">
         <label for="exampleFormControlTextarea1">Message to broadcast:</label>
-        <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+        <textarea class="form-control" name="message" rows="3" required></textarea>
         <br/>
-        <button type="submit" class="btn btn-primary mb-2">Broadcast</button>
+        <button id="btnSubmit" type="submit" class="btn btn-primary mb-2">Broadcast</button>
     </div>
 </form>
+
+<script>
+    function sendBroadcastMessage() {
+        var authUrl = new URLSearchParams(window.location.search)
+        var actionUrl = "/dashboard/tools/broadcast" + '?' + authUrl.toString()
+
+        console.log('sending broadcast...')
+        console.log(actionUrl)
+        $.post({
+            url: actionUrl,
+            data: $("#broadcastForm").serialize(), // serializes the form's elements.
+            success: function (data) {
+                $("#btnSubmit").attr('class', 'btn btn-success mb-2')
+                $("#btnSubmit").text('Sent')
+                setTimeout(() => {
+                    $("#btnSubmit").attr('class', 'btn btn-primary mb-2')
+                    $("#btnSubmit").text('Broadcast')
+                }, 3000)
+            },
+            error: function (data) {
+                $("#btnSubmit").attr('class', 'btn btn-danger mb-2')
+                $("#btnSubmit").text('Error')
+                setTimeout(() => {
+                    $("#btnSubmit").attr('class', 'btn btn-primary mb-2')
+                    $("#btnSubmit").text('Broadcast')
+                }, 3000)
+            }
+        });
+    }
+
+    $(function () {
+        $("#broadcastForm").submit(function (event) {
+            event.preventDefault();
+            sendBroadcastMessage()
+        })
+    })
+</script>

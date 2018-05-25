@@ -6,6 +6,9 @@ module.exports.bot = bot
 module.exports.markdown = {
     parse_mode: "Markdown"
 }
+module.exports.html = {
+    parse_mode: "HTML"
+}
 module.exports.nopreview_markdown_opts = {
     parse_mode: "Markdown",
     disable_web_page_preview: "true"
