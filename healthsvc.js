@@ -6,6 +6,7 @@ var database = require('./database')
 database.connect()
 
 var historyCtrl = require('./controllers/historyController')
+var userCtrl = require('./controllers/usersController')
 var UserModel = require('./models/User')
 var dateUtil = require('./util/dates')
 var moment = require('moment')
@@ -54,7 +55,7 @@ function lastSignalDeliveredCheck() {
 
     var not_enough_signals_message =
         `⚠️*Configuration Warning*
-        
+
 It looks like you're missing signals and cryptomarket updates due to your current subscription plan or configuration.
 Check your /settings or /subscribe for a better experience!
 Our [User Guide](http://intelligenttrading.org/guides/bot-user-guide/) can help to configure the bot properly.`
@@ -71,6 +72,8 @@ Our [User Guide](http://intelligenttrading.org/guides/bot-user-guide/) can help 
                 telegramBot.sendMessage(blind_user.telegram_chat_id, not_enough_signals_message, markdown)
                     .catch(err => console.log(err))
             })
+
+            return userCtrl.lastNotifiedSignal({ subscribersIds: blind_users.map(u => u.telegram_chat_id), signalId: -1 })
         })
 }
 
@@ -86,6 +89,7 @@ function checkWrongConfigurations() {
                 telegramBot.sendMessage(nccu.telegram_chat_id, no_counter_currencies_message, markdown)
                     .catch(err => console.log(err))
             })
+            return userCtrl.lastNotifiedSignal({ subscribersIds: no_counter_currencies_users.map(u => u.telegram_chat_id), signalId: -1 })
         }
     })
 }
@@ -105,6 +109,8 @@ function checkWeakConfigurations() {
                     telegramBot.sendMessage(fcu.telegram_chat_id, not_enough_currencies_message, markdown)
                         .catch(err => console.log(err))
                 })
+
+                return userCtrl.lastNotifiedSignal({ subscribersIds: few_currencies_users.map(u => u.telegram_chat_id), signalId: -1 })
             }
         })
     }
