@@ -68,28 +68,33 @@ Our [User Guide](http://intelligenttrading.org/guides/bot-user-guide/) can help 
         .then(users => {
             var blind_users = _.concat(users[0], users[1], users[2])
 
-            blind_users.forEach(blind_user => {
-                telegramBot.sendMessage(blind_user.telegram_chat_id, not_enough_signals_message, markdown)
+            var messagePromises = blind_users.map(blind_user => {
+                return telegramBot.sendMessage(blind_user.telegram_chat_id, not_enough_signals_message, markdown)
                     .catch(err => console.log(err))
             })
 
-            return userCtrl.lastNotifiedSignal({ subscribersIds: blind_users.map(u => u.telegram_chat_id), signalId: -1 })
+            return Promise.all(messagePromises).then(() => {
+                return userCtrl.lastNotifiedSignal({ subscribersIds: blind_users.map(u => u.telegram_chat_id), signalId: -1 })
+            }).catch(err => console.log(err))
         })
 }
 
 function checkWrongConfigurations() {
     console.log('Checking possible misconfigurations...')
 
-    var no_counter_currencies_message = '🔴 *Configuration Warning*\n\nYou have no valid trading pair selected and no signals can be delivered!\n Check your signals /settings to be sure you have at least one valid trading pair!'
+    var no_counter_currencies_message = '⚠️ *Configuration Warning*\n\nYou have no valid trading pair selected and no signals can be delivered!\n Check your signals /settings to be sure you have at least one valid trading pair!'
 
     return UserModel.find({ 'settings.counter_currencies.0': { $exists: false } }).then(no_counter_currencies_users => {
 
         if (no_counter_currencies_users) {
-            no_counter_currencies_users.filter(user => user.eula).forEach(nccu => {
-                telegramBot.sendMessage(nccu.telegram_chat_id, no_counter_currencies_message, markdown)
+            var messagePromises = no_counter_currencies_users.filter(user => user.eula).map(nccu => {
+                return telegramBot.sendMessage(nccu.telegram_chat_id, no_counter_currencies_message, markdown)
                     .catch(err => console.log(err))
             })
-            return userCtrl.lastNotifiedSignal({ subscribersIds: no_counter_currencies_users.map(u => u.telegram_chat_id), signalId: -1 })
+
+            return Promise.all(messagePromises).then(() => {
+                return userCtrl.lastNotifiedSignal({ subscribersIds: no_counter_currencies_users.map(u => u.telegram_chat_id), signalId: -1 })
+            }).catch(err => console.log(err))
         }
     })
 }
@@ -100,17 +105,19 @@ function checkWeakConfigurations() {
 
         console.log('Checking possible weak configurations...')
 
-        var not_enough_currencies_message = '🔴 *Configuration Warning*\n\nYou might not have enough valid trading pair selected!\n Check your /settings and choose more coins to get more signals!'
+        var not_enough_currencies_message = '⚠️ *Configuration Warning*\n\nYou might not have enough valid trading pair selected!\n Check your /settings and choose more coins to get more signals!'
 
         return UserModel.find({ 'settings.transaction_currencies.9': { $exists: false } }).then(few_currencies_users => {
 
             if (few_currencies_users) {
-                few_currencies_users.filter(user => user.eula && dateUtil.hasValidSubscription(user)).forEach(fcu => {
-                    telegramBot.sendMessage(fcu.telegram_chat_id, not_enough_currencies_message, markdown)
+                var promises = few_currencies_users.filter(user => user.eula && dateUtil.hasValidSubscription(user)).map(fcu => {
+                    return telegramBot.sendMessage(fcu.telegram_chat_id, not_enough_currencies_message, markdown)
                         .catch(err => console.log(err))
                 })
 
-                return userCtrl.lastNotifiedSignal({ subscribersIds: few_currencies_users.map(u => u.telegram_chat_id), signalId: -1 })
+                return Promise.all(promises).then(() => {
+                    return userCtrl.lastNotifiedSignal({ subscribersIds: few_currencies_users.map(u => u.telegram_chat_id), signalId: -1 })
+                }).catch((err) => console.log(err))
             }
         })
     }
