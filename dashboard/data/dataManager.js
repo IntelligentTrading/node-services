@@ -58,7 +58,7 @@ var buildUserData = (users) => {
     users_data.TotalTier1Muted = tier1Users.filter(user => user.settings.is_muted).length
 
     users_data.TotalCryptoEnabled = users_data.filter(user => user.settings.is_crowd_enabled).length
-    users_data.ActiveToday = users_data.filter(user => user.updatedAt > oneDayAgo).length
+    users_data.ActiveToday = users_data.filter(user => user.lastActiveInteractionAt > oneDayAgo).length
 
     users_data.TotalShort = users_data.filter(user => user.settings.horizon == 'short').length
     users_data.TotalMedium = users_data.filter(user => user.settings.horizon == 'medium').length

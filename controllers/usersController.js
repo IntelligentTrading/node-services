@@ -68,6 +68,11 @@ module.exports = userController = {
                     return Promise.reject(new Error('You must subscribe in order to save settings.'))
                 }
             }
+            //Update interaction only
+            if (user && !settings) {
+                user.save()
+                return user
+            }
         })
     },
     updateUserCurrencies: (telegram_chat_id, currenciesPairRole, settings) => {
