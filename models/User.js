@@ -32,9 +32,20 @@ var userSchema = new Schema({
         counter_currencies: { type: [Number], default: [2] }, //0,1,2,3 => [BTC,ETH,USD,XMR]
         transaction_currencies: { type: [String], default: ["BTC", "ETH", "BCH", "XMR", "ZEC", "DASH", "LTC"] }
     },
+    lastActiveInteractionAt: Date,
     eula: { type: Boolean, default: false },
     token: { type: String, default: '' }
 }, { timestamps: true })
+
+userSchema.pre('save', function (next) {
+    this.lastActiveInteractionAt = Date.now();
+    next()
+})
+
+userSchema.pre('update', function (next) {
+    this.lastActiveInteractionAt = Date.now();
+    next()
+})
 
 var User = mongoose.model('User', userSchema)
 module.exports = User
