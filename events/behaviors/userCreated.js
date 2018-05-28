@@ -12,5 +12,5 @@ module.exports.do = (user) => {
                 telegramBot.sendMessage(user.telegram_chat_id, eulaMsg, markdown).catch(err => console.log(err))
             }
         })
-    }, 15 * 1000) //15 * 60 * 1000 = 15 minutes
+    }, 15 * 60 * 1000) //15 * 60 * 1000 = 15 minutes
 }
