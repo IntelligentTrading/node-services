@@ -13,8 +13,8 @@ var moment = require('moment')
 var _ = require('lodash')
 
 
-const MAX_HOURS_WITHOUT_SIGNAL_SHORT = 3
-const MAX_HOURS_WITHOUT_SIGNAL_MEDIUM = 9
+const MAX_HOURS_WITHOUT_SIGNAL_SHORT = 24
+const MAX_HOURS_WITHOUT_SIGNAL_MEDIUM = 24
 const MAX_HOURS_WITHOUT_SIGNAL_LONG = 60
 
 var free = {
