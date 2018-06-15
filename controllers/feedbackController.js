@@ -1,26 +1,28 @@
-var Trello = require('trello');
-var trello = new Trello(process.env.TRELLO_KEY, process.env.TRELLO_TOKEN);
-var ITT_BOARD_ID = process.env.ITT_TRELLO_BOARD_ID;
+var asana = require('asana')
+var personalAccessToken = '0/261ce63e9226c51bf3dde5f1c3196423'; //process.env.ASANA_TOKEN
+var projectId = 710996572287963
+var sectionId = 710996572287966
 
-function addFeedback(user, chat_id, content) {
+// Construct an Asana client
+var client = asana.Client.create().useAccessToken(personalAccessToken);
 
-    return trello.getListsOnBoard(ITT_BOARD_ID)
-        .then((lists) => {
-            var issuesListResults = lists.filter(list => list.name == process.env.ITT_TRELLO_LIST);
+function asanaTask(user, chat_id, content) {
 
-            if (issuesListResults == undefined || issuesListResults.length <= 0)
-                throw new Error('List not found');
+    var task = {
+        "projects": `${projectId}`,
+        "memberships": [
+            {
+                "project": `${projectId}`,
+                "section": `${sectionId}`
 
-            return issuesListResults[0];
-        }).then(issueList => {
-            var cardName = `Feedback from ${user}`;
+            }],
+        "name": `From ${user} / ${chat_id}`,
+        "notes": `${content}`
+    }
 
-            return trello.addCard(cardName, `[Chat #${chat_id}]\n${content}`, issueList.id)
-                .then(card => {
-                    return trello.updateCardName(card.id, `[${card.shortLink}] ${cardName}`)
-                        .then(() => { return card; })
-                })
-        })
+    return client.tasks.create(task).then(result => {
+        return result
+    }).catch(err => console.log(err))
 }
 
-module.exports.addFeedback = addFeedback
+module.exports.asana = asanaTask
