@@ -82,7 +82,7 @@ Our [User Guide](http://intelligenttrading.org/guides/bot-user-guide/) can help 
 function checkWrongConfigurations() {
     console.log('Checking possible misconfigurations...')
 
-    var no_counter_currencies_message = '⚠️ *Configuration Warning*\n\nYou have no valid trading pair selected and no signals can be delivered!\n Check your signals /settings to be sure you have at least one valid trading pair!'
+    var no_counter_currencies_message = '⚠️ *Configuration Warning*\n\nYou have no valid trading pairs selected and no signals can be delivered!\n Check your signals /settings to be sure you have at least one valid trading pair!'
 
     return UserModel.find({ 'settings.counter_currencies.0': { $exists: false } }).then(no_counter_currencies_users => {
 
@@ -105,7 +105,7 @@ function checkWeakConfigurations() {
 
         console.log('Checking possible weak configurations...')
 
-        var not_enough_currencies_message = '⚠️ *Configuration Warning*\n\nYou might not have enough valid trading pair selected!\n Check your /settings and choose more coins to get more signals!'
+        var not_enough_currencies_message = '⚠️ *Configuration Warning*\n\nYou might not have enough valid trading pairs selected!\n Check your /settings and choose more coins to get more signals!'
 
         return UserModel.find({ 'settings.transaction_currencies.9': { $exists: false } }).then(few_currencies_users => {
 
