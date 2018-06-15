@@ -1,5 +1,5 @@
 var asana = require('asana')
-var personalAccessToken = '0/261ce63e9226c51bf3dde5f1c3196423'; //process.env.ASANA_TOKEN
+var personalAccessToken = process.env.ASANA_TOKEN
 var projectId = 710996572287963
 var sectionId = 710996572287966
 
