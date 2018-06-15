@@ -105,7 +105,7 @@ function checkWeakConfigurations() {
 
         console.log('Checking possible weak configurations...')
 
-        var not_enough_currencies_message = '⚠️ *Configuration Warning*\n\nYou might not have enough valid trading pair selected!\n Check your /settings and choose more coins to get more signals!'
+        var not_enough_currencies_message = '⚠️ *Configuration Warning*\n\nYou might not have enough valid trading pairs selected!\n Check your /settings and choose more coins to get more signals!'
 
         return UserModel.find({ 'settings.transaction_currencies.9': { $exists: false } }).then(few_currencies_users => {
 
