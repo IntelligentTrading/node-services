@@ -25,6 +25,9 @@ var userSchema = new Schema({
             beta: { type: Date, default: Date.now() },
             paid: { type: Date, default: Date.now() }
         },
+        indicators: [{
+            label: { type: String }, name: { type: String }, available: { type: Boolean }, enabled: { type: Boolean },
+        }],
         ittTransactions: [{ tx: { type: String }, total: { type: Number } }],
         subscriptionRenewed: { plan: String, on: Date },
         lastSignalReceived: { signalId: Number, on: Date },
@@ -39,6 +42,13 @@ var userSchema = new Schema({
 
 userSchema.pre('save', function (next) {
     this.lastActiveInteractionAt = Date.now();
+
+    if (!this.settings.indicators) {
+        this.settings.indicators = [
+            { label: 'RSI', name: 'RSI', available: true, enabled: true },
+            { label: 'Ichimoku', name: 'kumo_breakout', available: true, enabled: true },
+            { label: 'ITF RSI', name: 'RSI_Cumulative', available: false, enabled: false }]
+    }
     next()
 })
 
