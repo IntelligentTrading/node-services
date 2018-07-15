@@ -43,7 +43,7 @@ var userSchema = new Schema({
 userSchema.pre('save', function (next) {
     this.lastActiveInteractionAt = Date.now();
 
-    if (!this.settings.indicators) {
+    if (!this.settings.indicators || this.settings.indicators.length <= 0) {
         this.settings.indicators = [
             { label: 'RSI', name: 'RSI', available: true, enabled: true },
             { label: 'Ichimoku', name: 'kumo_breakout', available: true, enabled: true },
