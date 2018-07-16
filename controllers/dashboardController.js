@@ -14,7 +14,9 @@ module.exports = {
         var opts = { page_size: 100 }
         var free = {
             source: 0, transaction_currencies: 'BTC+ETH+BCH+XMR+ZEC+DASH+LTC',
-            counter_currency: 2, trend: 1
+            counter_currency: 2, trend: 1, page_size: 200,
+            startdate: moment().add(-7, "days").format(),
+            end: moment().format()
         }
 
         return Promise.all([tradingAlertsCtrl.getAll(), historyCtrl.getSignalHistory(opts), usersCtrl.getUsers(), historyCtrl.getSignalHistory(free)])
@@ -35,9 +37,9 @@ module.exports = {
                     var mostRecentSignal = _.sortBy(history.results, 'timestamp')[0]
                     var mostRecentFreeSignal = freeSignalsHistory.find(fsh => ["RSI", "kumo_breakout"].indexOf(fsh.signal) >= 0)
                     history.timeFromLastSignal = moment(mostRecentSignal.timestamp).fromNow()
-                    history.signalHealth = Math.abs(moment(mostRecentSignal.timestamp).diff(moment(),'hours')) <= 2
+                    history.signalHealth = Math.abs(moment(mostRecentSignal.timestamp).diff(moment(), 'hours')) <= 2
                     history.timeFromLastFreeSignal = moment(mostRecentFreeSignal.timestamp).fromNow()
-                    history.freeSignalHealth = Math.abs(moment(mostRecentFreeSignal.timestamp).diff(moment(),'hours')) <= 8
+                    history.freeSignalHealth = Math.abs(moment(mostRecentFreeSignal.timestamp).diff(moment(), 'hours')) <= 8
 
                     return { login: loginData(request), history: history, tradingAlerts: results[0], users: userData }
                 })
