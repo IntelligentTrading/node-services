@@ -115,7 +115,11 @@
                         <div class="col-sm">
                             <%- include('lastSignal',{label:'Last signal FREE',statsData: history.timeFromLastFreeSignal, health: history.freeSignalHealth}) %>
                         </div>
+                        <div class="col-sm">
+                            <%- include('lastSignal',{label:'Last signal with rejections',statsData: history.lastTradingAlertWithRejectionsLabel, health: history.freeSignalHealth}) %>
+                        </div>
                     </div>
+                    <br />
                     <%- include('historyTab',{history:history}) %>
                 </div>
                 <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
