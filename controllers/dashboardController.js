@@ -19,7 +19,7 @@ module.exports = {
             end: moment().format()
         }
 
-        return Promise.all([tradingAlertsCtrl.getAll(), historyCtrl.getSignalHistory(opts), usersCtrl.getUsers(), historyCtrl.getSignalHistory(free)])
+        return Promise.all([tradingAlertsCtrl.getAll(), historyCtrl.getSignalHistory(opts), usersCtrl.getUsers(), historyCtrl.getSignalHistory(free),tradingAlertsCtrl.getLastRejected()])
             .then((results) => {
                 var history = JSON.parse(results[1])
                 var analysisPromises = []
@@ -32,7 +32,7 @@ module.exports = {
                 // I start from 5 because sometimes my user ID has misconfiguration for debugging or dev purposes and it might give a false positive
                 // In any case, the number of rejections should be > 10 to be meaningful
 
-                var lastSignalWithRejections = _.last(results[0].filter(ta => ta.rejections.length > 5))
+                var lastSignalWithRejections = results[4][0]
                 history.lastTradingAlertWithRejectionsLabel = lastSignalWithRejections ? `ID:${lastSignalWithRejections.signalId}, Rejections: ${lastSignalWithRejections.rejections.length}` : 'N/A'
 
                 var users = results[2]

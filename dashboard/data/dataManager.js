@@ -16,7 +16,7 @@ var buildUserData = (users, lastRejectedSignal) => {
         }
 
         user.currentPlan = currentPlan
-        user.hasBlockedOrLeft = lastRejectedSignal.rejections.includes(user.telegram_chat_id)
+        user.hasBlockedOrLeft = lastRejectedSignal ? lastRejectedSignal.rejections.includes(user.telegram_chat_id) : undefined
         user.LastActive = user.lastActiveInteractionAt ? 'Active '+moment(user.lastActiveInteractionAt).fromNow() : ''
     })
 
