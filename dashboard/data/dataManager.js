@@ -2,7 +2,7 @@ var dateUtils = require('../../util/dates')
 var _ = require('lodash')
 var moment = require('moment')
 
-var buildUserData = (users) => {
+var buildUserData = (users, lastRejectedSignal) => {
     var users_data = users
     users_data.map(user => {
         var currentPlan = { plan: 'FREE', exp: user.settings.subscriptions.free }
@@ -16,6 +16,8 @@ var buildUserData = (users) => {
         }
 
         user.currentPlan = currentPlan
+        user.hasBlockedOrLeft = lastRejectedSignal.rejections.includes(user.telegram_chat_id)
+        user.LastActive = user.lastActiveInteractionAt ? 'Active '+moment(user.lastActiveInteractionAt).fromNow() : ''
     })
 
     var oneDayAgo = new Date()

@@ -29,8 +29,14 @@ module.exports = {
                     }))
                 })
 
+                // I start from 5 because sometimes my user ID has misconfiguration for debugging or dev purposes and it might give a false positive
+                // In any case, the number of rejections should be > 10 to be meaningful
+
+                var lastSignalWithRejections = _.last(results[0].filter(ta => ta.rejections.length > 5))
+                history.lastTradingAlertWithRejectionsLabel = lastSignalWithRejections ? `ID:${lastSignalWithRejections.signalId}, Rejections: ${lastSignalWithRejections.rejections.length}` : 'N/A'
+
                 var users = results[2]
-                var userData = dataManager.buildUserData(users)
+                var userData = dataManager.buildUserData(users,lastSignalWithRejections)
                 var freeSignalsHistory = JSON.parse(results[3]).results
 
                 return Promise.all(analysisPromises).then(() => {
@@ -40,11 +46,6 @@ module.exports = {
                     history.signalHealth = Math.abs(moment(mostRecentSignal.timestamp).diff(moment(), 'hours')) <= 2
                     history.timeFromLastFreeSignal = moment(mostRecentFreeSignal.timestamp).fromNow()
                     history.freeSignalHealth = Math.abs(moment(mostRecentFreeSignal.timestamp).diff(moment(), 'hours')) <= 8
-
-                    // I start from 5 because sometimes my user ID has misconfiguration for debugging or dev purposes and it might give a false positive
-                    // In any case, the number of rejections should be > 10 to be meaningful
-                    var lastSignalWithRejections = _.last(results[0].filter(ta => ta.rejections.length > 5))
-                    history.lastTradingAlertWithRejectionsLabel = lastSignalWithRejections ? `ID:${lastSignalWithRejections.signalId}, Rejections: ${lastSignalWithRejections.rejections.length}` : 'N/A'
 
                     return { login: loginData(request), history: history, tradingAlerts: results[0], users: userData }
                 })

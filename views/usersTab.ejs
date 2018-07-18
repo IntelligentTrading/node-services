@@ -15,6 +15,7 @@
             <th>Horizon</th>
             <th>Crowd Sentiment</th>
             <th>Alerts</th>
+            <th>Bot Status</th>
             <th>Subscription</th>
             <th>Valid until</th>
             <th>ITT Token sent</th>
@@ -43,6 +44,13 @@
                 </td>
                 <td>
                     <%= !user.settings.is_muted ? 'ON' : 'OFF' %>
+                </td>
+                <td>
+                        <% if(user.hasBlockedOrLeft){%>
+                            <label style="color: red">Blocked</label>
+                            <%} else {%>
+                                <label style="color: green"><%=user.LastActive %></label>
+                        <%}%>
                 </td>
                 <td>
                     <%= user.currentPlan.plan%>
