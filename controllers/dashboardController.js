@@ -41,6 +41,11 @@ module.exports = {
                     history.timeFromLastFreeSignal = moment(mostRecentFreeSignal.timestamp).fromNow()
                     history.freeSignalHealth = Math.abs(moment(mostRecentFreeSignal.timestamp).diff(moment(), 'hours')) <= 8
 
+                    // I start from 1 because sometimes my user ID has misconfiguration for debugging or dev purposes and it might give a false positive
+                    // In any case, the number of rejections should be > 10 to be meaningful
+                    var lastSignalWithRejections = _.last(results[0].filter(ta => ta.rejections.length > 1))
+                    history.lastTradingAlertWithRejectionsLabel = `ID:${lastSignalWithRejections.signalId}, Rejections: ${lastSignalWithRejections.rejections.length}`
+
                     return { login: loginData(request), history: history, tradingAlerts: results[0], users: userData }
                 })
             })
