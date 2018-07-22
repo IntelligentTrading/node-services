@@ -28,6 +28,9 @@ var userSchema = new Schema({
         indicators: [{
             label: { type: String }, name: { type: String }, available: { type: Boolean }, enabled: { type: Boolean },
         }],
+        exchanges: [{
+            label: { type: String }, index: { type: Number }, enabled: { type: Boolean },
+        }],
         ittTransactions: [{ tx: { type: String }, total: { type: Number } }],
         subscriptionRenewed: { plan: String, on: Date },
         lastSignalReceived: { signalId: Number, on: Date },
@@ -49,6 +52,13 @@ userSchema.pre('save', function (next) {
             { label: 'Ichimoku', name: 'kumo_breakout', available: true, enabled: true },
             { label: 'ITF Proprietary 1', name: 'RSI_Cumulative', available: false, enabled: true },
             { label: 'Volume Based Indicator', name: 'VBI', available: false, enabled: true },]
+    }
+
+    if (!this.settings.exchanges || this.settings.exchanges.length <= 0) {
+        this.settings.exchanges = [
+            { label: 'Poloniex', index: 0, enabled: true },
+            { label: 'Bittrex', index: 1, enabled: true },
+            { label: 'Binance', index: 2, enabled: true }]
     }
     next()
 })
