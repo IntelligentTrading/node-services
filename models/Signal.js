@@ -3,7 +3,8 @@ var Schema = mongoose.Schema;
 
 var signalSchema = new Schema({
     label: String,
-    deliverTo: [String]
+    deliverTo: [String],
+    guide_url: String
 });
 
 
