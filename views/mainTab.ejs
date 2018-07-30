@@ -16,32 +16,50 @@
             </div>
     <div class="row">
         <div class="col-sm">
-            <%- include('usersStats',{label:'Total Users',sublabel:'No Eula',statsData: users.length, secondary: ((users.length-users.TotalEula)*100/users.length).toFixed(1)+'%'}) %>
+            <%- include('usersStats',{label:'Total Users',sublabel:'No EULA',statsData: users.length, secondary: ((users.length-users.TotalEula)*100/users.length).toFixed(1)+'%'}) %>
         </div>
         <div class="col-sm">
-            <%- include('usersStats',{label:'Last 24h',sublabel:'No Eula',statsData: users.oneDayOldUsers, secondary:((users.oneDayOldUsers-users.oneDayOldUsersEula)*100/users.oneDayOldUsers).toFixed(1)+'%'}) %>
+            <%- include('usersStats',{label:'Total Blocked Users',sublabel:null,statsData: users.TotalBlocked, secondary: null}) %>
         </div>
         <div class="col-sm">
-            <%- include('usersStats',{label:'Last 7 days',sublabel:'No Eula',statsData: users.oneWeekOldUsers, secondary:((users.oneWeekOldUsers-users.oneWeekOldUsersEula)*100/users.oneWeekOldUsers).toFixed(1)+'%'}) %>
-        </div>
-        <div class="col-sm">
-            <%- include('usersStats',{label:'Last 30 days',sublabel:'No Eula',statsData: users.oneMonthOldUsers, secondary:((users.oneMonthOldUsers-users.oneMonthOldUsersEula)*100/users.oneMonthOldUsers).toFixed(1)+'%'}) %>
+            <%- include('usersStats',{label:'Total Ever Paid Users',sublabel:'Total tokens',statsData: users.TotalAllTimePayingUsers, secondary: users.AllTimePaidTokens}) %>
         </div>
     </div>
     <div class="row">
         <div class="col-sm">
-            <canvas id="totalUsersChart" width="250" height="250"></canvas>
+            <canvas id="totalUsersChart" width="auto" height="250" style="display:inline"></canvas>
         </div>
         <div class="col-sm">
-            <canvas id="total24hNewUsersChart" width="250" height="250"></canvas>
+                <canvas id="totalBlockedUsersChart" width="auto" height="250" style="display:inline"></canvas>
+            </div>
+            <div class="col-sm">
+                    <canvas id="totalEverPaidUsersChart" width="auto" height="250" style="display:inline"></canvas>
+                </div>
+    </div>
+    <hr />
+    <div class="row">
+        <div class="col-sm">
+            <%- include('usersStats',{label:'Last 24 hours',sublabel:'No EULA',statsData: users.oneDayOldUsers, secondary:((users.oneDayOldUsers-users.oneDayOldUsersEula)*100/users.oneDayOldUsers).toFixed(1)+'%'}) %>
         </div>
         <div class="col-sm">
-            <canvas id="total7DaysNewUsersChart" width="250" height="250"></canvas>
+            <%- include('usersStats',{label:'Last 7 days',sublabel:'No EULA',statsData: users.oneWeekOldUsers, secondary:((users.oneWeekOldUsers-users.oneWeekOldUsersEula)*100/users.oneWeekOldUsers).toFixed(1)+'%'}) %>
         </div>
         <div class="col-sm">
-            <canvas id="total30DaysNewUsersChart" width="250" height="250"></canvas>
+            <%- include('usersStats',{label:'Last 30 days',sublabel:'No EULA',statsData: users.oneMonthOldUsers, secondary:((users.oneMonthOldUsers-users.oneMonthOldUsersEula)*100/users.oneMonthOldUsers).toFixed(1)+'%'}) %>
         </div>
     </div>
+    <div class="row">
+        <div class="col-sm">
+            <canvas id="total24hNewUsersChart" width="auto" height="250" style="display:inline"></canvas>
+        </div>
+        <div class="col-sm">
+            <canvas id="total7DaysNewUsersChart" width="auto" height="250" style="display:inline"></canvas>
+        </div>
+        <div class="col-sm">
+            <canvas id="total30DaysNewUsersChart" width="auto" height="250" style="display:inline"></canvas>
+        </div>
+    </div>
+    <hr />
     <div class="row">
         <hr />
     </div>
@@ -55,22 +73,16 @@
         <div class="col-sm">
             Crypto Panic setting
         </div>
-        <div class="col-sm">
-            Active users today
-        </div>
     </div>
     <div class="row">
         <div class="col-sm">
-            <canvas id="totalHorizonChart" width="250" height="250"></canvas>
+            <canvas id="totalHorizonChart" width="auto" height="250" style="display:inline"></canvas>
         </div>
         <div class="col-sm">
-            <canvas id="totalMutedChart" width="250" height="250"></canvas>
+            <canvas id="totalMutedChart" width="auto" height="250" style="display:inline"></canvas>
         </div>
         <div class="col-sm">
-            <canvas id="totalCryptoEnabledChart" width="250" height="250"></canvas>
-        </div>
-        <div class="col-sm">
-            <canvas id="totalActiveTodayChart" width="250" height="250"></canvas>
+            <canvas id="totalCryptoEnabledChart" width="auto" height="250" style="display:inline"></canvas>
         </div>
     </div>
 </div>
@@ -84,6 +96,42 @@
             labels: ["FREE", "FREE+", "Tier1"],
             datasets: [{
                 data: [ <%- users.TotalFree %>,  <%- users.TotalFreePlus %>,  <%- users.TotalTier1 %>],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)']
+            }]
+        },
+        options: {
+            responsive: false
+        }
+    });
+
+    var ctx1 = document.getElementById("totalBlockedUsersChart");
+    var totalBlockedUsersChartObj = new Chart(ctx1, {
+        type: 'doughnut',
+        data: {
+            labels: ["FREE", "FREE+", "Tier1"],
+            datasets: [{
+                data: [ <%- users.TotalBlockedFree %>,  <%- users.TotalBlockedFreePlus %>,  <%- users.TotalBlockedTier1 %>],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)']
+            }]
+        },
+        options: {
+            responsive: false
+        }
+    });
+
+    var ctx11 = document.getElementById("totalEverPaidUsersChart");
+    var totalEverPaidUsersChartObj = new Chart(ctx11, {
+        type: 'doughnut',
+        data: {
+            labels: ["FREE", "FREE+", "Tier1"],
+            datasets: [{
+                data: [ <%- users.TotalAllTimePayingFree %>,  <%- users.TotalAllTimePayingFreePlus %>,  <%- users.TotalAllTimePayingTier1 %>],
                 backgroundColor: [
                     'rgba(255, 99, 132, 0.2)',
                     'rgba(54, 162, 235, 0.2)',
@@ -192,23 +240,6 @@
             labels: ["Feed On", "Feed Off"],
             datasets: [{
                 data: [ <%- users.TotalCryptoEnabled %>,  <%- users.length - users.TotalCryptoEnabled %>],
-                backgroundColor: [
-                'rgba(0, 162, 0, 0.2)',    
-                'rgba(255, 0, 0, 0.2)']
-            }]
-        },
-        options: {
-            responsive: false
-        }
-    });
-
-    var ctx8 = document.getElementById("totalActiveTodayChart");
-    var totalActiveTodayChartObj = new Chart(ctx8, {
-        type: 'doughnut',
-        data: {
-            labels: ["Active", "Inactive"],
-            datasets: [{
-                data: [ <%- users.ActiveToday %>,  <%- users.length - users.ActiveToday %>],
                 backgroundColor: [
                 'rgba(0, 162, 0, 0.2)',    
                 'rgba(255, 0, 0, 0.2)']

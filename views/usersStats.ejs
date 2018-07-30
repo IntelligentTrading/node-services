@@ -5,11 +5,11 @@
     }
 
     .stat-value {
-        font-size: x-large;
-        font-weight: 100;
+        font-size: x-large !important;
+        font-weight: 100 !important;
     }
     .stat-value-sec {
-        font-size: x-large;
+        font-size: medium;
         font-weight: 100;
         color: rgba(255, 0, 0, 0.4)
     }
@@ -22,12 +22,11 @@
 <div class="container">
     <div class="row">
         <div class="col-sm stat-description">
-            <%= label%> <small style="color:rgba(255, 0, 0, 0.4)">(<%=sublabel %>)</small>
+            <%= label%> <small style="color:rgba(255, 0, 0, 0.4)"><% if(secondary != null){%>(<%=sublabel %>)<%}%></small>
         </div>
     </div>
     <div class="row">
         <div class="col-sm stat-value">
-            +
             <%= statsData%>
         </div>
         <% if(secondary != null){%>
