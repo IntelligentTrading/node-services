@@ -22,7 +22,7 @@
             <%- include('usersStats',{label:'Total Blocked Users',sublabel:null,statsData: users.TotalBlocked, secondary: null}) %>
         </div>
         <div class="col-sm">
-            <%- include('usersStats',{label:'Total Ever Paid Users',sublabel:'Total tokens',statsData: users.TotalAllTimePayingUsers, secondary: users.AllTimePaidTokens}) %>
+            <%- include('usersStats',{label:'Total Ever Paid Users',sublabel:'Total tokens',statsData: users.TotalAllTimePayingUsers, secondary: users.AllTimePaidTokens.toFixed(1)}) %>
         </div>
     </div>
     <div class="row">
@@ -62,6 +62,17 @@
     <hr />
     <div class="row">
         <hr />
+    </div>
+    <div class="row">
+        <div class="col-sm">
+            Total: <%=users.length %>
+        </div>
+        <div class="col-sm">
+            Total: <%=users.length %>
+        </div>
+        <div class="col-sm">
+            Total: <%=users.length %>
+        </div>
     </div>
     <div class="row">
         <div class="col-sm">

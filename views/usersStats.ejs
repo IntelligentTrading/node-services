@@ -7,11 +7,14 @@
     .stat-value {
         font-size: x-large !important;
         font-weight: 100 !important;
+        text-align: right;
     }
     .stat-value-sec {
         font-size: medium;
         font-weight: 100;
-        color: rgba(255, 0, 0, 0.4)
+        color: rgba(255, 0, 0, 0.4);
+        text-align: left;
+        top: 8px
     }
 
     .container {
@@ -31,6 +34,8 @@
         </div>
         <% if(secondary != null){%>
         <div class="col-sm stat-value-sec">(<%= secondary %>)</div>
-        <%}%>
+        <%} else {%>
+            <div class="col-sm stat-value-sec"> </div>
+        <%} %>
     </div>
 </div>

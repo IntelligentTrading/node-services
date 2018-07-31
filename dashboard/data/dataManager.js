@@ -65,6 +65,7 @@ var buildUserData = (users, lastRejectedSignal) => {
     users_data.TotalShort = users_data.filter(user => user.settings.horizon == 'short').length
     users_data.TotalMedium = users_data.filter(user => user.settings.horizon == 'medium').length
     users_data.TotalLong = users_data.filter(user => user.settings.horizon == 'long').length
+    users_data.TotalHorizon = users_data.TotalShort + users_data.TotalMedium + users_data.TotalLong
 
     users_data.TotalFree = freeUsers.length
     users_data.TotalEula = users.filter(u => u.eula).length
