@@ -17,7 +17,7 @@ var buildUserData = (users, lastRejectedSignal) => {
 
         user.currentPlan = currentPlan
         user.hasBlockedOrLeft = lastRejectedSignal ? lastRejectedSignal.rejections.includes(user.telegram_chat_id) : undefined
-        user.LastActive = user.lastActiveInteractionAt ? 'Active '+moment(user.lastActiveInteractionAt).fromNow() : ''
+        user.LastActive = user.lastActiveInteractionAt ? 'Active ' + moment(user.lastActiveInteractionAt).fromNow() : ''
     })
 
     var oneDayAgo = new Date()
@@ -65,11 +65,23 @@ var buildUserData = (users, lastRejectedSignal) => {
     users_data.TotalShort = users_data.filter(user => user.settings.horizon == 'short').length
     users_data.TotalMedium = users_data.filter(user => user.settings.horizon == 'medium').length
     users_data.TotalLong = users_data.filter(user => user.settings.horizon == 'long').length
+    users_data.TotalHorizon = users_data.TotalShort + users_data.TotalMedium + users_data.TotalLong
 
     users_data.TotalFree = freeUsers.length
     users_data.TotalEula = users.filter(u => u.eula).length
     users_data.TotalFreePlus = freePlusUsers.length
     users_data.TotalTier1 = tier1Users.length
+
+    users_data.TotalBlocked = users_data.filter(user => user.hasBlockedOrLeft).length
+    users_data.TotalBlockedFree = freeUsers.filter(user => user.eula && user.hasBlockedOrLeft).length
+    users_data.TotalBlockedFreePlus = freePlusUsers.filter(user => user.eula && user.hasBlockedOrLeft).length
+    users_data.TotalBlockedTier1 = tier1Users.filter(user => user.eula && user.hasBlockedOrLeft).length
+
+    users_data.AllTimePaidTokens = _.sumBy(users_data.filter(user => user.eula && user.settings.ittTransactions.length > 0), function (u) { return _.sumBy(u.settings.ittTransactions, function(t){return t.total}) })
+    users_data.TotalAllTimePayingFree = freeUsers.filter(user => user.eula && user.settings.ittTransactions.length > 0).length
+    users_data.TotalAllTimePayingFreePlus = freePlusUsers.filter(user => user.eula && user.settings.ittTransactions.length > 0).length
+    users_data.TotalAllTimePayingTier1 = tier1Users.filter(user => user.eula && user.settings.ittTransactions.length > 0).length
+    users_data.TotalAllTimePayingUsers = users_data.TotalAllTimePayingFree + users_data.TotalAllTimePayingFreePlus + users_data.TotalAllTimePayingTier1
 
     var grouped_users_data = _.groupBy(users_data, (user) => {
         var date = moment(user.createdAt).format().split('T')[0]
