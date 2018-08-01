@@ -5,6 +5,7 @@ var walletController = require('./walletController')
 var dateUtil = require('../util/dates')
 var eventBus = require('../events/eventBus')
 var moment = require('moment')
+var referral = require('../util/referral')
 
 module.exports = userController = {
     getUsers: (settingsFilters) => {
@@ -37,6 +38,11 @@ module.exports = userController = {
             }
             if (user.settings.ittWalletReceiverAddress == 'No address generated') {
                 user.settings.ittWalletReceiverAddress = walletController.getWalletAddressFor(telegram_chat_id)
+                user.save()
+            }
+            if (!user.settings.referral) {
+                user.settings.referral = referral.referralGenerator(telegram_chat_id)
+                user.settings.referred_count = 0
                 user.save()
             }
 
@@ -149,5 +155,29 @@ module.exports = userController = {
         }
 
         return User.update({ telegram_chat_id: { "$in": logObject.subscribersIds } }, { 'settings.lastSignalReceived': lastUpdateObject }, { 'multi': true })
+    },
+    checkReferral: (telegram_chat_id, code) => {
+        var checkResult = referral.check(telegram_chat_id, code)
+        if (checkResult.valid) {
+
+            return User.find({ telegram_chat_id: { $in: [telegram_chat_id, checkResult.referee_telegram_id] } })
+                .then(users => {
+                    var referred_user = users.filter(u => u.telegram_chat_id == telegram_chat_id)[0]
+                    var referrer_user = users.filter(u => u.telegram_chat_id == checkResult.referee_telegram_id)[0]
+
+                    if (!referrer_user) return 'Invalid referral code!'
+
+                    if (!referred_user.settings.referred_by_code) {
+                        referred_user.settings.referred_by_code = code
+                        referrer_user.settings.referred_count += 1
+                        referred_user.save()
+                        referrer_user.save()
+                        return 'Saved that referral code! Thanks 🙏'
+                    }
+                    return 'You already used a referral code!'
+                })
+        }
+
+        return Promise.reject(new Error(checkResult.reason))
     }
 }

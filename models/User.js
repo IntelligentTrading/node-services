@@ -1,5 +1,6 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
+var referral = require('../util/referral')
 
 var userSchema = new Schema({
     telegram_chat_id: Number,
@@ -36,7 +37,10 @@ var userSchema = new Schema({
         lastSignalReceived: { signalId: Number, on: Date },
         ittWalletReceiverAddress: { type: String, default: 'No address generated' },
         counter_currencies: { type: [Number], default: [2] }, //0,1,2,3 => [BTC,ETH,USD,XMR]
-        transaction_currencies: { type: [String], default: ["BTC", "ETH", "BCH", "XMR", "ZEC", "DASH", "LTC"] }
+        transaction_currencies: { type: [String], default: ["BTC", "ETH", "BCH", "XMR", "ZEC", "DASH", "LTC"] },
+        referral: String,
+        referred_by_code: String,
+        referred_count: { type: Number, default: 0 },
     },
     lastActiveInteractionAt: Date,
     eula: { type: Boolean, default: false },
@@ -60,6 +64,12 @@ userSchema.pre('save', function (next) {
             { label: 'Bittrex', index: 1, enabled: true },
             { label: 'Binance', index: 2, enabled: true }]
     }
+
+    if (!this.settings.referral) {
+        this.settings.referral = referral.referralGenerator(this.telegram_chat_id)
+        this.settings.referred_count = 0
+    }
+
     next()
 })
 

@@ -32,5 +32,8 @@ router.get('/template/:label', (req, res) => {
 router.post('/notified', (req, res) => {
     solve(usersCtrl.lastNotifiedSignal(req.body), res)
 })
+router.post('/referral', (req, res) => {
+    solve(usersCtrl.checkReferral(req.body.telegram_chat_id, req.body.code), res)
+})
 
 module.exports = router
