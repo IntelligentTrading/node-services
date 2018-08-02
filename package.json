@@ -1,5 +1,5 @@
 {
-  "name": "itt-node-services",
+  "name": "itf-node-services",
   "version": "1.0.0",
   "description": "ITT Node Services",
   "main": "index.js",
@@ -17,7 +17,7 @@
     "AI",
     "crypto"
   ],
-  "author": "Francesco De Lisi @ ITT",
+  "author": "Francesco De Lisi @ ITF",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/IntelligentTrading/node-services/issues"
