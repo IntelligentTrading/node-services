@@ -28,9 +28,9 @@ function checkSubscriptionExpDate() {
 
                 var expiringSubscriptionMessage = ''
                 if (inNDays.includes('ago'))
-                    expiringSubscriptionMessage = '❌ *Your subscription has expired!*\n\nRenew now to regain access to your premium alerts.\n/subscribe or [check the pricing page](https://intelligenttrading.org/pricing/)'
+                    expiringSubscriptionMessage = '❌ *Your subscription has expired!*\n\n/subscribe to regain access to your premium alerts.\n[Visit the pricing page](https://intelligenttrading.org/pricing/) to view all plan features.'
                 else
-                    expiringSubscriptionMessage = `⚠️ *Your plan expires ${(inNDays == 'in a day' ? 'tomorrow' : inNDays)}.*\n\nRenew now to extend your subscription${inNDays == 'today' || inNDays == 'tomorrow' ? ', or you will lose access to all of your alerts' : ''}.\n/subscribe or [check the pricing page](https://intelligenttrading.org/pricing/)`
+                    expiringSubscriptionMessage = `⚠️ *Your plan expires ${(inNDays == 'in a day' ? 'tomorrow' : inNDays)}.*\n\/subscribe now to extend your subscription${inNDays == 'today' || inNDays == 'tomorrow' ? ', or you will lose access to all of your alerts' : ''}.\n[Visit the pricing page](https://intelligenttrading.org/pricing/) to view all plan features.`
 
                 notifications.push(telegramBot.sendMessage(u.telegram_chat_id, expiringSubscriptionMessage, markdown))
             })
