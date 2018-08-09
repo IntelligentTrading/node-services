@@ -3,6 +3,9 @@ var blockchainUtil = require('../util/blockchainUtil')
 var Hashids = require('hashids')
 var hashid = new Hashids();
 
+var DIECIMILA_THRESHOLD = process.env.ETH_TEST ? 4 : 10000
+var CENTOMILA_THRESHOLD = process.env.ETH_TEST ? 5 : 100000
+
 module.exports = stakingController = {
     addWallet: (telegram_chat_id, wallet) => {
         if (telegram_chat_id && blockchainUtil.isAddress(wallet)) {
@@ -29,13 +32,7 @@ module.exports = stakingController = {
         var balancePromises = []
         return User.find({ 'settings.staking.veriSigned': true }).then(stakingUsers => {
             stakingUsers.forEach(stakingUser => {
-                var balancePromise = blockchainUtil.getBalance(stakingUser.settings.staking.walletAddress)
-                    .then(balance => {
-                        stakingUser.settings.staking.diecimila = balance > 10000
-                        stakingUser.settings.staking.centomila = balance > 100000
-                        stakingUser.save()
-                    })
-
+                var balancePromise = stakingController.updateStakingFor(stakingUser)
                 balancePromises.push(balancePromise)
             })
 
@@ -43,16 +40,21 @@ module.exports = stakingController = {
         })
     },
     refreshSingleStakingStatus: (telegram_chat_id) => {
-        var balancePromises = []
         return User.findOne({ 'settings.staking.veriSigned': true, telegram_chat_id: telegram_chat_id })
             .then(stakingUser => {
-                return blockchainUtil.getBalance(stakingUser.settings.staking.walletAddress)
-                    .then(balance => {
-                        stakingUser.settings.staking.diecimila = balance > 10000
-                        stakingUser.settings.staking.centomila = balance > 100000
-                        stakingUser.save()
-                        return stakingUser
-                    })
+                return stakingController.updateStakingFor(stakingUser)
+            })
+    },
+    updateStakingFor: (user) => {
+        if (!user.settings.staking || !user.settings.staking.walletAddress)
+            return user
+
+        return blockchainUtil.getBalance(user.settings.staking.walletAddress)
+            .then(balance => {
+                user.settings.staking.diecimila = balance >= DIECIMILA_THRESHOLD
+                user.settings.staking.centomila = balance >= CENTOMILA_THRESHOLD
+                user.save()
+                return user
             })
     }
 }
