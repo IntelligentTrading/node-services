@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var tradingAlertSchema = new Schema({
-    signalId: Number,
+    signalId: String,
     awsSQSId: String,
     rejections: [Number], //chat ids with error
     reasons: [String],
