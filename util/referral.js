@@ -11,6 +11,8 @@ module.exports = {
 
         //avoid self referrals
         var decoded_telegram_id = hashids.decode(referee_code.substring(3)).join('')
+        if (!decoded_telegram_id) return { valid: false, reason: 'Code is not valid' }
+
         if (parseInt(decoded_telegram_id) !== referred_telegram_chat_id)
             return { valid: true, referee_telegram_id: decoded_telegram_id }
         else
