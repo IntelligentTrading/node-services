@@ -15,9 +15,13 @@ module.exports = {
         return { signature: signature, address: result, verified: address.toLowerCase() === result.toLowerCase() }
     },
     getBalance: (address) => {
-        return contract.methods.balanceOf(address).call().then(tknBalance => {
-            console.log(`${address} has ${web3.utils.fromWei(tknBalance)} ITT`)
-            return parseFloat(web3.utils.fromWei(tknBalance))
+
+        return contract.methods.decimals().call().then((decimals) => {
+            return contract.methods.balanceOf(address).call().then(tknBalance => {
+                var finalBalance = tknBalance / Math.pow(10, decimals)
+                console.log(`${address} has ${finalBalance} ITT`)
+                return parseFloat(finalBalance)
+            })
         })
     }
 }
