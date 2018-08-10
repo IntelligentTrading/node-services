@@ -36,4 +36,5 @@ router.post('/referral', (req, res) => {
     solve(usersCtrl.checkReferral(req.body.telegram_chat_id, req.body.code), res)
 })
 
+
 module.exports = router

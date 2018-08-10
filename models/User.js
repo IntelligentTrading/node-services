@@ -20,7 +20,13 @@ var userSchema = new Schema({
         is_ITT_team: {
             type: Boolean, default: false
         },
-        subscription_plan: { type: Number, default: 0 }, // 0 = free
+        staking: {
+            walletAddress: { type: String },
+            diecimila: { type: Boolean, default: false },
+            centomila: { type: Boolean, default: false },
+            confirmationCode: String,
+            veriSigned: { type: Boolean, default: false }
+        },
         subscriptions: {
             free: { type: Date, default: new Date(2020, 12, 31) },
             beta: { type: Date, default: Date.now() },

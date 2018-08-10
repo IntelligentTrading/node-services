@@ -6,6 +6,7 @@ var dateUtil = require('../util/dates')
 var eventBus = require('../events/eventBus')
 var moment = require('moment')
 var referral = require('../util/referral')
+var stakingCtrl = require('./stakingController')
 
 module.exports = userController = {
     getUsers: (settingsFilters) => {
@@ -44,6 +45,11 @@ module.exports = userController = {
                 user.settings.referral = referral.referralGenerator(telegram_chat_id)
                 user.settings.referred_count = 0
                 user.save()
+            }
+            return user
+        }).then(user => {
+            if (user.settings.staking) {
+                return stakingCtrl.updateStakingFor(user)
             }
 
             return user
