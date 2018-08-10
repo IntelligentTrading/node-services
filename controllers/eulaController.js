@@ -53,7 +53,8 @@ module.exports = {
                                     if (!eulaUser.alreadyAccepted) {
                                         bot.sendMessage(chat_id, '/subscribe to get premium signals and features!', markdown_opts)
                                             .then(() => {
-                                                bot.sendMessage(chat_id, 'If you have a *referral code*, please copy/paste into the chat here.', markdown_opts)
+                                                if (!eulaUser.settings.referred_by_code)
+                                                    bot.sendMessage(chat_id, 'If you have a *referral code*, please copy/paste into the chat here.', markdown_opts)
                                             })
                                     }
                                 })
