@@ -1,7 +1,7 @@
 var asana = require('asana')
 var personalAccessToken = process.env.ASANA_TOKEN
 var projectId = 710996572287963
-var sectionId = 710996572287966
+var sectionId = 710996572287964
 
 // Construct an Asana client
 var client = asana.Client.create().useAccessToken(personalAccessToken);
