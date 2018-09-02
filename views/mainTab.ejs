@@ -104,13 +104,15 @@
     var totalUsersChartObj = new Chart(ctx, {
         type: 'doughnut',
         data: {
-            labels: ["FREE", "FREE+", "Tier1"],
+            labels: ["FREE", "FREE+", "Tier1","Pro","Advanced"],
             datasets: [{
-                data: [ <%- users.TotalFree %>,  <%- users.TotalFreePlus %>,  <%- users.TotalTier1 %>],
+                data: [ <%- users.TotalFree %>,  <%- users.TotalFreePlus %>,  <%- users.TotalTier1 %>, <%- users.TotalPro %>,  <%- users.TotalAdvanced %>],
                 backgroundColor: [
                     'rgba(255, 99, 132, 0.2)',
                     'rgba(54, 162, 235, 0.2)',
-                    'rgba(255, 206, 86, 0.2)']
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(20, 206, 86, 0.2)',
+                    'rgba(20, 186, 86, 0.2)']
             }]
         },
         options: {

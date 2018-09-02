@@ -6,7 +6,11 @@ var buildUserData = (users, lastRejectedSignal) => {
     var users_data = users
     users_data.map(user => {
         var currentPlan = { plan: 'FREE', exp: user.settings.subscriptions.free }
-        if (dateUtils.getDaysLeftFrom(user.settings.subscriptions.paid) > 0) {
+        if (user.settings.staking) {
+            if (user.settings.staking.centomila) currentPlan.plan = 'Advanced'
+            else if (user.settings.staking.diecimila) currentPlan.plan = 'Pro'
+        }
+        else if (dateUtils.getDaysLeftFrom(user.settings.subscriptions.paid) > 0) {
             currentPlan.plan = 'PAID'
             currentPlan.exp = user.settings.subscriptions.paid
         }
@@ -39,6 +43,8 @@ var buildUserData = (users, lastRejectedSignal) => {
     var freeUsers = users_data.filter(user => user.currentPlan.plan == "FREE")
     var freePlusUsers = users_data.filter(user => user.currentPlan.plan == "BETA")
     var tier1Users = users_data.filter(user => user.currentPlan.plan == "PAID")
+    var proUsers = users_data.filter(user => user.currentPlan.plan == "Pro")
+    var advancedUsers = users_data.filter(user => user.currentPlan.plan == "Advanced")
 
     users_data.oneDayOldFreeUsers = freeUsers.filter(user => moment(user.createdAt).isBetween(oneDayAgo, Date.now())).length
     users_data.oneDayOldFreePlusUsers = freePlusUsers.filter(user => moment(user.createdAt).isBetween(oneDayAgo, Date.now())).length
@@ -58,6 +64,8 @@ var buildUserData = (users, lastRejectedSignal) => {
     users_data.TotalFreeMuted = freeUsers.filter(user => user.settings.is_muted).length
     users_data.TotalFreePlusMuted = freePlusUsers.filter(user => user.settings.is_muted).length
     users_data.TotalTier1Muted = tier1Users.filter(user => user.settings.is_muted).length
+    users_data.TotalProMuted = proUsers.filter(user => user.settings.is_muted).length
+    users_data.TotalAdvancedMuted = advancedUsers.filter(user => user.settings.is_muted).length
 
     users_data.TotalCryptoEnabled = users_data.filter(user => user.settings.is_crowd_enabled).length
     users_data.ActiveToday = users_data.filter(user => user.lastActiveInteractionAt > oneDayAgo).length
@@ -71,13 +79,15 @@ var buildUserData = (users, lastRejectedSignal) => {
     users_data.TotalEula = users.filter(u => u.eula).length
     users_data.TotalFreePlus = freePlusUsers.length
     users_data.TotalTier1 = tier1Users.length
+    users_data.TotalPro = proUsers.length
+    users_data.TotalAdvanced = advancedUsers.length
 
     users_data.TotalBlocked = users_data.filter(user => user.hasBlockedOrLeft).length
     users_data.TotalBlockedFree = freeUsers.filter(user => user.eula && user.hasBlockedOrLeft).length
     users_data.TotalBlockedFreePlus = freePlusUsers.filter(user => user.eula && user.hasBlockedOrLeft).length
     users_data.TotalBlockedTier1 = tier1Users.filter(user => user.eula && user.hasBlockedOrLeft).length
 
-    users_data.AllTimePaidTokens = _.sumBy(users_data.filter(user => user.eula && user.settings.ittTransactions.length > 0), function (u) { return _.sumBy(u.settings.ittTransactions, function(t){return t.total}) })
+    users_data.AllTimePaidTokens = _.sumBy(users_data.filter(user => user.eula && user.settings.ittTransactions.length > 0), function (u) { return _.sumBy(u.settings.ittTransactions, function (t) { return t.total }) })
     users_data.TotalAllTimePayingFree = freeUsers.filter(user => user.eula && user.settings.ittTransactions.length > 0).length
     users_data.TotalAllTimePayingFreePlus = freePlusUsers.filter(user => user.eula && user.settings.ittTransactions.length > 0).length
     users_data.TotalAllTimePayingTier1 = tier1Users.filter(user => user.eula && user.settings.ittTransactions.length > 0).length
