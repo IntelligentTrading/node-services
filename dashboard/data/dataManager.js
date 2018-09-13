@@ -86,11 +86,15 @@ var buildUserData = (users, lastRejectedSignal) => {
     users_data.TotalBlockedFree = freeUsers.filter(user => user.eula && user.hasBlockedOrLeft).length
     users_data.TotalBlockedFreePlus = freePlusUsers.filter(user => user.eula && user.hasBlockedOrLeft).length
     users_data.TotalBlockedTier1 = tier1Users.filter(user => user.eula && user.hasBlockedOrLeft).length
+    users_data.TotalBlockedPro = proUsers.filter(user => user.eula && user.hasBlockedOrLeft).length
+    users_data.TotalBlockedAdvanced = advancedUsers.filter(user => user.eula && user.hasBlockedOrLeft).length
 
     users_data.AllTimePaidTokens = _.sumBy(users_data.filter(user => user.eula && user.settings.ittTransactions.length > 0), function (u) { return _.sumBy(u.settings.ittTransactions, function (t) { return t.total }) })
     users_data.TotalAllTimePayingFree = freeUsers.filter(user => user.eula && user.settings.ittTransactions.length > 0).length
     users_data.TotalAllTimePayingFreePlus = freePlusUsers.filter(user => user.eula && user.settings.ittTransactions.length > 0).length
     users_data.TotalAllTimePayingTier1 = tier1Users.filter(user => user.eula && user.settings.ittTransactions.length > 0).length
+    users_data.TotalAllTimePayingPro = proUsers.filter(user => user.settings.staking && user.settings.staking.veriSigned).length
+    users_data.TotalAllTimePayingAdvanced = advancedUsers.filter(user => user.settings.staking && user.settings.staking.veriSigned).length
     users_data.TotalAllTimePayingUsers = users_data.TotalAllTimePayingFree + users_data.TotalAllTimePayingFreePlus + users_data.TotalAllTimePayingTier1
 
     var grouped_users_data = _.groupBy(users_data, (user) => {
