@@ -23,5 +23,25 @@ module.exports = {
                 return parseFloat(finalBalance)
             })
         })
+    },
+    toContractDecimals: (decimalAmount) => toContractDecimals,
+    contract: contract,
+    getProviderName: () => {
+        return providerEndpoint
+    },
+    transfer: (toAddress, fromAddress, amount) => {
+        return toContractDecimals(amount).then(contractAmount => {
+            return contract.methods.transfer(toAddress, contractAmount).send({ from: fromAddress })
+                .on('transactionHash', function (hash) {
+                    console.log(hash);
+                }).on('error', err => console.log(err));
+        })
     }
+}
+
+
+function toContractDecimals(decimalAmount) {
+    return contract.methods.decimals().call().then((decimals) => {
+        return decimalAmount * Math.pow(10, decimals)
+    })
 }

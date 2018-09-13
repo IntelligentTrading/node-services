@@ -1,23 +1,15 @@
-var ethers = require('ethers')
 const bot = require('../util/telegramBot').bot
-const broadcast_markdown_opts = require('../util/telegramBot').markdown
 const nopreview_markdown_opts = require('../util/telegramBot').nopreview_markdown_opts
 
-var network = process.env.LOCAL_ENV ? ethers.providers.networks.ropsten : ethers.providers.networks.mainnet
-console.log(`Deploying blockchain provider on ${network.name}`)
-var etherscanProvider = new ethers.providers.EtherscanProvider(network)
-
+var blockchainUtil = require('../util/blockchainUtil')
 var coinmarketcap = require('../api/coinmarketcap')
 var marketApi = require('../api/market')
 var UserModel = require('../models/User')
 var dates = require('../util/dates')
-var wallet = require('./walletController')
-var abi = require('../util/abi')
-var ittContractAddress = process.env.CONTRACT_ADDRESS
-var contract = new ethers.Contract(ittContractAddress, abi, etherscanProvider)
 var itfEmitter = require('../util/blockchainNotifier')
-
 var walletController = require('./walletController')
+console.log(`Deploying blockchain provider on ${blockchainUtil.getProviderName()}`)
+
 
 itfEmitter.on('itfTransfer', tx => {
     console.log(`[Event] verifying transaction ${tx.transactionHash}`)
@@ -48,7 +40,8 @@ module.exports = paymentController = {
             walletAddress: user.settings.ittWalletReceiverAddress
         }
     },
-    verifyTransaction: (transaction) => verifyTransaction
+    verifyTransaction: (transaction) => verifyTransaction,
+    toHotWallet: (telegram_chat_id) => toHotWallet
 }
 
 function verifyTransaction(transaction) {
@@ -83,7 +76,7 @@ function verifyTransaction(transaction) {
 }
 
 function weiToToken(weiValue) {
-    return contract.decimals().then(decimalPlacesInfo => {
+    return blockchainUtil.contract.decimals().then(decimalPlacesInfo => {
         return parseInt(weiValue) / (10 ** parseInt(decimalPlacesInfo))
     })
 }
