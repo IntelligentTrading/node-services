@@ -6,7 +6,7 @@ var buildUserData = (users, lastRejectedSignal) => {
     var users_data = users
     users_data.map(user => {
         var currentPlan = { plan: 'FREE', exp: user.settings.subscriptions.free }
-        if (user.settings.staking) {
+        if (user.settings.staking && user.settings.staking.veriSigned) {
             if (user.settings.staking.centomila) currentPlan.plan = 'Advanced'
             else if (user.settings.staking.diecimila) currentPlan.plan = 'Pro'
         }
