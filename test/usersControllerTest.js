@@ -18,7 +18,7 @@ describe('Users Controller', () => {
 
     it('Should get all the users', () => {
 
-        return userCtrl.getUsers().then(users => {
+        return userCtrl.all().then(users => {
             return UserModel.find().then(dbusers => {
                 return expect(users).to.be.eql(dbusers)
             })

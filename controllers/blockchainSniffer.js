@@ -39,7 +39,7 @@ var blockchainEventEmitter = (startingBlockNumber) => {
 }
 
 module.exports.init = () => {
-    var lastTransaction = Transaction.findOne().then(lastTransaction => {
+    Transaction.findOne().then(lastTransaction => {
         var startingBlockNumber = lastTransaction ? lastTransaction.blockNumber : 0
         console.log(`Listening on ${providerEndpoint} from block  ${startingBlockNumber}`)
         setInterval(() => blockchainEventEmitter(startingBlockNumber), 10000)

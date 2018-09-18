@@ -3,16 +3,14 @@ var router = express.Router()
 var usersCtrl = require('../../controllers/usersController')
 var solve = require('../../util/solver')
 
-
 router.post('/', (req, res) => {
     solve(usersCtrl.createUser(req.body), res)
 })
-router.get('/:telegram_chat_id?', (req, res) => {
-    var telegram_chat_id = req.params.telegram_chat_id
-    if (telegram_chat_id)
-        solve(usersCtrl.getUser(telegram_chat_id), res)
-    else
-        solve(usersCtrl.getUsers(req.query), res)
+router.get('/', (req, res) => {
+    solve(usersCtrl.all(req.query), res)
+})
+router.get('/:telegram_chat_id', (req,res)=>{
+    solve(usersCtrl.getUser(req.params.telegram_chat_id), res)
 })
 router.put('/:telegram_chat_id', (req, res) => {
     solve(usersCtrl.updateUser(req.params.telegram_chat_id, req.body), res)

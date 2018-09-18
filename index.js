@@ -5,6 +5,7 @@ var app = express()
 var fs = require('fs')
 var path = require('path')
 var marketApi = require('./api/market')
+var usersController = require('./controllers/usersController')
 var blockchainSvc = require('./controllers/blockchainSniffer')
 var config = require('./config')
 var database = require('./database')
@@ -12,6 +13,7 @@ database.connect()
 config.boot(app)
 app.use(express.static('public'))
 
+var cacheService = require('./boot/cacheService')
 blockchainSvc.init()
 
 var apiRouterFiles = fs.readdirSync('./api/routes')
@@ -30,15 +32,10 @@ app.get('/eula', eulaController.render)
 app.get('/eula_confirm', eulaController.confirm)
 
 app.listen(app.get('port'), function () {
-
-    marketApi.init()
-        .then(() => {
-            console.log('ITT Node Service is running on port', app.get('port'));
-            app.emit('appStarted');
-        })
-        .catch((reason) => {
-            console.log(reason)
-        })
+    cacheService.load().then(() => {
+        console.log('Cache loaded')
+        console.log('ITF Node Services running on ' + app.get('port'))
+    })
 })
 
 module.exports = app
