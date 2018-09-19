@@ -57,13 +57,7 @@ module.exports = userController = {
                 throw error
             }
             return user
-        })/*.then(user => {
-            if (user.settings.staking) {
-                return stakingCtrl.updateStakingFor(user)
-            }
-
-            return user
-        })*/
+        })
     },
     createUser: (userDocument) => {
         return User.create(userDocument).then((newUser) => {
@@ -215,6 +209,13 @@ function checkUserSettings(user) {
         user.settings.referral = referral.referralGenerator(user.telegram_chat_id)
         user.settings.referred_count = 0
         user.save()
+    }
+    return user
+}
+
+function checkStakingFor(user) {
+    if (user.settings.staking) {
+        return stakingCtrl.updateStakingFor(user)
     }
     return user
 }
