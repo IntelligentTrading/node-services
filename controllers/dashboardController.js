@@ -19,7 +19,7 @@ module.exports = {
             end: moment().format()
         }
 
-        return Promise.all([tradingAlertsCtrl.getAll(), historyCtrl.getSignalHistory(opts), usersCtrl.getUsers(), historyCtrl.getSignalHistory(free),tradingAlertsCtrl.getLastRejected()])
+        return Promise.all([tradingAlertsCtrl.getAll(), historyCtrl.getSignalHistory(opts), usersCtrl.all(), historyCtrl.getSignalHistory(free),tradingAlertsCtrl.getLastRejected()])
             .then((results) => {
                 var history = JSON.parse(results[1])
                 var analysisPromises = []
