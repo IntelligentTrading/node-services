@@ -48,17 +48,17 @@ var buildUserData = (users, lastRejectedSignal) => {
 
     users_data.oneDayOldFreeUsers = freeUsers.filter(user => moment(user.createdAt).isBetween(oneDayAgo, Date.now())).length
     users_data.oneDayOldFreePlusUsers = freePlusUsers.filter(user => moment(user.createdAt).isBetween(oneDayAgo, Date.now())).length
-    users_data.oneDayOldTier1Users = users_data.filter(user => user.settings.subscriptionRenewed.on != null && moment(user.settings.subscriptionRenewed.on).isBetween(oneDayAgo, Date.now())).length
+    users_data.oneDayOldTier1Users = users_data.filter(user => user.settings.subscriptionRenewed && moment(user.settings.subscriptionRenewed.on).isBetween(oneDayAgo, Date.now())).length
 
     users_data.oneWeekOldFreeUsers = freeUsers.filter(user => moment(user.createdAt).isBetween(oneWeekAgo, Date.now())).length
     users_data.oneWeekOldFreeUsersEula = freeUsers.filter(user => user.eula && moment(user.createdAt).isBetween(oneWeekAgo, Date.now())).length
     users_data.oneWeekOldFreePlusUsers = freePlusUsers.filter(user => moment(user.createdAt).isBetween(oneWeekAgo, Date.now())).length
-    users_data.oneWeekOldTier1Users = users_data.filter(user => user.settings.subscriptionRenewed.on != null && moment(user.settings.subscriptionRenewed.on).isBetween(oneWeekAgo, Date.now())).length
+    users_data.oneWeekOldTier1Users = users_data.filter(user => user.settings.subscriptionRenewed && moment(user.settings.subscriptionRenewed.on).isBetween(oneWeekAgo, Date.now())).length
 
     users_data.oneMonthOldFreeUsers = freeUsers.filter(user => moment(user.createdAt).isBetween(oneMonthAgo, Date.now())).length
     users_data.oneMonthOldFreeUsersEula = freeUsers.filter(user => user.eula && moment(user.createdAt).isBetween(oneMonthAgo, Date.now())).length
     users_data.oneMonthOldFreePlusUsers = freePlusUsers.filter(user => moment(user.createdAt).isBetween(oneMonthAgo, Date.now())).length
-    users_data.oneMonthOldTier1Users = users_data.filter(user => user.settings.subscriptionRenewed.on != null && moment(user.settings.subscriptionRenewed.on).isBetween(oneMonthAgo, Date.now())).length
+    users_data.oneMonthOldTier1Users = users_data.filter(user => user.settings.subscriptionRenewed && moment(user.settings.subscriptionRenewed.on).isBetween(oneMonthAgo, Date.now())).length
 
     users_data.TotalMuted = users_data.filter(user => user.settings.is_muted).length
     users_data.TotalFreeMuted = freeUsers.filter(user => user.settings.is_muted).length
