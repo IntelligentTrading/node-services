@@ -2,6 +2,7 @@ const signalNotifier = require('./dispatching/signals')
 const signalHelper = require('./dispatching/signal-helper')
 const Consumer = require('sqs-consumer')
 const AWS = require('aws-sdk')
+var moment = require('moment')
 
 var database = require('./database')
 database.connect()
@@ -17,7 +18,7 @@ AWS.config.update({
   secretAccessKey: process.env.AWS_SECRET
 })
 
-console.log('Starting telegram dispatching service');
+console.log('Starting telegram dispatching service 📬');
 
 
 var aws_queue_url = process.env.LOCAL_ENV
@@ -46,9 +47,13 @@ const app = Consumer.create({
         console.log(`[Not notified] Message ${message.MessageId}`)
       })
     } else {
-      tradingAlertController.addTradingAlert({ signalId: signalValidity.decoded_message_body.id, reasons: signalValidity.reasons.split(','), awsSQSId: message.MessageId, sent_at: new Date(signalValidity.decoded_message_body.sent) }).then(() => {
+      var sent_at = moment()
+      if (moment(signalValidity.decoded_message_body.sent).isValid()) {
+        sent_at = moment(signalValidity.decoded_message_body.sent)
+      }
+      tradingAlertController.addTradingAlert({ signalId: signalValidity.decoded_message_body.id, reasons: signalValidity.reasons.split(','), awsSQSId: message.MessageId, sent_at: sent_at }).then(() => {
         console.log(`[Invalid][Sent at ${signalValidity.decoded_message_body.sent}] SQS message ${message.MessageId} for signal ${signalValidity.decoded_message_body.id} ${signalValidity.reasons}`)
-      })
+      }).catch((err) => console.log(err))
     }
     done()
   },
