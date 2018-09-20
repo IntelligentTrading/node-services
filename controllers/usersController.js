@@ -7,6 +7,22 @@ var moment = require('moment')
 var referral = require('../util/referral')
 var cache = require('../cache').redis
 
+function loadCache() {
+    return User.find({}).then(users => {
+        users.map((user) => {
+            if (user && user.telegram_chat_id) {
+                user = checkUserSettings(user)
+                cacheUser(user)
+            }
+            else {
+                console.log('WARNING: misconfigured user')
+                console.log(user)
+            }
+        })
+        return users
+    })
+}
+
 module.exports = userController = {
     all: () => {
         return cache.keysAsync('tci_*').then(keys => {
@@ -18,22 +34,11 @@ module.exports = userController = {
                 })
             }
             else {
-                return User.find({}).then(users => {
-                    users.map((user) => {
-                        if (user && user.telegram_chat_id) {
-                            user = checkUserSettings(user)
-                            cacheUser(user)
-                        }
-                        else {
-                            console.log('WARNING: misconfigured user')
-                            console.log(user)
-                        }
-                    })
-                    return users
-                })
+                return loadCache()
             }
         })
     },
+    refreshCache: () => loadCache(),
     getUser: (telegram_chat_id) => {
         return cache.getAsync(`tci_${telegram_chat_id}`).then((stringifiedUser) => {
             if (stringifiedUser) {
@@ -156,7 +161,6 @@ module.exports = userController = {
             signalId: logObject.signalId, on: moment()
         }
 
-
         return User.updateMany({ telegram_chat_id: { "$in": logObject.subscribersIds } }, { 'settings.lastSignalReceived': lastUpdateObject }, { 'multi': true })
     },
     checkReferral: (telegram_chat_id, code) => {
@@ -190,9 +194,7 @@ eventBus.on('userSaved', (user) => {
 })
 
 function cacheUser(user) {
-    var expdate = moment().add(24, 'hours').unix()
     cache.set(`tci_${user.telegram_chat_id}`, JSON.stringify(user))
-    cache.expireat(`tci_${user.telegram_chat_id}`, expdate)
 }
 
 // This method will be deleted as soon as I run it the first time to fill all the users' wallets and referrals

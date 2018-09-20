@@ -7,6 +7,9 @@ var database = require('./database')
 database.connect()
 
 var tradingAlertController = require('./controllers/tradingAlertsController')
+var userController = require('./controllers/usersController')
+
+userController.refreshCache().then(() => console.log('Users cache refreshed'))
 
 AWS.config.update({
   region: 'us-east-1',
