@@ -46,7 +46,7 @@ const app = Consumer.create({
         console.log(`[Not notified] Message ${message.MessageId}`)
       })
     } else {
-      tradingAlertController.addTradingAlert({ signal_id: signalValidity.decoded_message_body.id, reasons: signalValidity.reasons.split(','), SQSId: message.MessageId, sent_at: signalValidity.decoded_message_body.sent }).then(() => {
+      tradingAlertController.addTradingAlert({ signalId: signalValidity.decoded_message_body.id, reasons: signalValidity.reasons.split(','), awsSQSId: message.MessageId, sent_at: new Date(signalValidity.decoded_message_body.sent) }).then(() => {
         console.log(`[Invalid][Sent at ${signalValidity.decoded_message_body.sent}] SQS message ${message.MessageId} for signal ${signalValidity.decoded_message_body.id} ${signalValidity.reasons}`)
       })
     }

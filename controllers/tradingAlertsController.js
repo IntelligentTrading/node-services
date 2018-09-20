@@ -1,21 +1,39 @@
 var TradingAlert = require('../models/TradingAlert')
+var cache = require('../cache').redis
+var moment = require('moment')
+
+function loadCache() {
+    return cache.getAsync('tradingAlerts').then(tradingAlerts => {
+        if (tradingAlerts) return JSON.parse(tradingAlerts)
+        else {
+            return TradingAlert.find({'sent_at':{ $gt: moment().add(-24, 'hours').format('YYYY-MM-DD HH:MM') }}).then(alerts => {
+                console.timeEnd('Loading last day trading alerts')
+                cache.set('tradingAlerts', JSON.stringify(alerts))
+                var expdate = moment().add(24, 'hours').unix()
+                cache.expireat('tradingAlerts', expdate)
+                return alerts
+            })
+        }
+    })
+}
+
+loadCache().then(() => console.log('Trading Alerts cache loaded.'))
 
 module.exports = {
     addTradingAlert: (ta) => {
         return TradingAlert.create(ta)
     },
     getAll: () => {
-        console.time('Loading top 100 trading alerts')
-        return TradingAlert.find({}).sort({ signalId: -1 }).limit(100).then(result => {
-            console.timeEnd('Loading top 100 trading alerts')
-            return result
-        })
+        return loadCache()
     },
-    getLastRejected:() =>{
+    getLastRejected: () => {
         console.time('Loading rejections for trading alerts')
-        return TradingAlert.$where('this.rejections.length > 5').sort({ signalId: -1 }).limit(1).then(result => {
+        return loadCache().then(alerts => {
             console.timeEnd('Loading rejections for trading alerts')
-            return result
+            return alerts.filter(alert => alert.rejections.length > 5)
         })
+
+        /*return TradingAlert.$where('this.rejections.length > 5').sort({ signalId: -1 }).limit(1)
+        })*/
     }
 }
