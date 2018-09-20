@@ -31,7 +31,7 @@ app.get('/eula_confirm', eulaController.confirm)
 app.listen(app.get('port'), function () {
     cacheService.load().then(() => {
         console.log('Cache loaded')
-        console.log('ITF Node Services running on ' + app.get('port'))
+        console.log('ITF Node Services running on ' + app.get('port') + ' 🚀')
     })
 })
 

@@ -138,7 +138,7 @@ function notifyUsers(users, signal, message_data, telegram_signal_message) {
                 subscribersIds: subscribersIds
             }
             return usersController.lastNotifiedSignal(logObject).then(() => {
-                return { signal_id: message_data.id, rejections: rejections, reasons: reasons, sent_at: new Date(message_data.sent_at * 1000) }
+                return { signal_id: message_data.id, rejections: rejections, reasons: reasons, sent_at: new Date(message_data.sent) }
             })
         })
 }
