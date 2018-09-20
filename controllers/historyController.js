@@ -7,6 +7,7 @@ var core_api_key = process.env.ITT_API_KEY
 
 module.exports = {
     getSignalHistory: (queryParametersObject) => {
+        console.time('Loading history')
         var request_url = `${core_api_url}/signals/`
         if (queryParametersObject) {
             var filters = []
@@ -16,7 +17,10 @@ module.exports = {
             var queryParameters = filters.join('&')
             request_url = `${request_url}?${queryParameters}`
         }
-        return rp(request_url, { headers: { 'API-KEY': core_api_key } })
+        return rp(request_url, { headers: { 'API-KEY': core_api_key } }).then(result => {
+            console.timeEnd('Loading history')
+            return result
+        })
     },
     applyTemplate: (signal) => templateHelper.applyTemplate(signal)
 }
