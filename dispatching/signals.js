@@ -131,6 +131,8 @@ function notifyUsers(users, signal, message_data, telegram_signal_message) {
         notificationPromises.push(notificationPromise)
     })
 
+    console.log(`ℹ️ Sending to ${subscribers.length} chats`)
+
     return Promise.all(notificationPromises)
         .then(() => {
             var logObject = {
