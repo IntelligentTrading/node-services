@@ -1,8 +1,12 @@
-const signalNotifier = require('./events/signals')
-const signalHelper = require('./util/signal-helper')
+const signalNotifier = require('./dispatching/signals')
+const signalHelper = require('./dispatching/signal-helper')
 const Consumer = require('sqs-consumer')
 const AWS = require('aws-sdk')
-const api = require('./core/api')
+
+var database = require('./database')
+database.connect()
+
+var tradingAlertController = require('./controllers/tradingAlertsController')
 
 AWS.config.update({
   region: 'us-east-1',
@@ -11,6 +15,7 @@ AWS.config.update({
 })
 
 console.log('Starting telegram dispatching service');
+
 
 var aws_queue_url = process.env.LOCAL_ENV
   ? `${process.env.AWS_SQS_LOCAL_QUEUE_URL}`
@@ -23,14 +28,22 @@ const app = Consumer.create({
 
     if (signalValidity.isValid) {
       signalNotifier.notify(signalValidity.decoded_message_body).then((result) => {
-        result.SQSId = message.MessageId
-        api.saveTradingAlerts(result).then(() => { console.log(`[Notified] Message ${message.MessageId}`) })
+
+        var ta = {
+          signalId: result.signal_id,
+          awsSQSId: message.MessageId,
+          rejections: result.rejections,
+          reasons: result.reasons,
+          sent_at: result.sent_at
+        }
+
+        tradingAlertController.addTradingAlert(ta).then(() => { console.log(`[Notified] Message ${message.MessageId}`) })
       }).catch((reason) => {
         console.log(reason)
         console.log(`[Not notified] Message ${message.MessageId}`)
       })
     } else {
-      api.saveTradingAlerts({ signal_id: signalValidity.decoded_message_body.id, reasons: signalValidity.reasons.split(','), SQSId: message.MessageId, sent_at:signalValidity.decoded_message_body.sent_at * 1000 }).then(() => {
+      tradingAlertController.addTradingAlert({ signal_id: signalValidity.decoded_message_body.id, reasons: signalValidity.reasons.split(','), SQSId: message.MessageId, sent_at: signalValidity.decoded_message_body.sent_at * 1000 }).then(() => {
         console.log(`[Invalid][Sent at ${signalValidity.decoded_message_body.sent}] SQS message ${message.MessageId} for signal ${signalValidity.decoded_message_body.id} ${signalValidity.reasons}`)
       })
     }

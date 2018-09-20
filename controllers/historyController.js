@@ -1,5 +1,5 @@
 var rp = require('request-promise')
-var templateHelper = require('../util/signalTemplate')
+var templateHelper = require('../dispatching/signal-helper')
 
 var core_api_version = 'v2'
 var core_api_url = `https://${process.env.ITT_API_HOST}/${core_api_version}`
