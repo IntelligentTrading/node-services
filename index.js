@@ -3,9 +3,6 @@ var express = require('express'),
 var app = express()
 
 var fs = require('fs')
-var path = require('path')
-var marketApi = require('./api/market')
-var usersController = require('./controllers/usersController')
 var blockchainSvc = require('./controllers/blockchainSniffer')
 var config = require('./config')
 var database = require('./database')

@@ -39,7 +39,7 @@
     "lodash": "^4.17.10",
     "mocha": "^5.0.0",
     "moment": "^2.22.1",
-    "mongoose": "^4.13.7",
+    "mongoose": "^5.2.15",
     "node-cache": "^4.1.1",
     "node-telegram-bot-api": "^0.29.0",
     "redis": "^2.8.0",
@@ -47,6 +47,7 @@
     "request-promise": "^4.2.2",
     "sinon": "^4.4.2",
     "speakeasy": "^2.0.0",
+    "sqs-consumer": "^3.8.0",
     "swagger-ui-express": "^2.0.15",
     "trello": "^0.8.0",
     "web3": "^1.0.0-beta.33"

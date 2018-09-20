@@ -1,43 +1,67 @@
-var ccxt = require('ccxt')
-var NodeCache = require('node-cache')
-var cache = new NodeCache()
 var _ = require('lodash')
 var coinmarketcap = require('./coinmarketcap')
-var poloniex = new ccxt.poloniex()
 var core = require('../api/core')
+var cache = require('../cache').redis
+var moment = require('moment')
 
+function getCoinMarketCapTickers() {
+    return cache.getAsync('coinMarketCapTickers').then(coinMarketCapTickers => {
+        if (coinMarketCapTickers)
+            return Promise.resolve(JSON.parse(coinMarketCapTickers))
+        else {
+            return coinmarketcap.fetchAllTickers()
+                .then(newcoinMarketCapTickers => {
+                    cache.set('coinMarketCapTickers', JSON.stringify(newcoinMarketCapTickers))
+                    var expdate = moment().add(24, 'hours').unix()
+                    cache.expireat('coinMarketCapTickers', expdate)
+                    return newcoinMarketCapTickers
+                })
+        }
+    })
+}
+
+function cacheInitialization() {
+    return getCoinMarketCapTickers().then(tkrs => {
+        console.log('Tickers info cache initialized...');
+        return self.tickers().then(() => {
+            console.log('Tickers cache initialized...');
+        })
+    })
+}
+
+cacheInitialization().then(() => console.log('Market cache initialized'))
 
 var self = module.exports = {
     tickers: (symbol) => {
-        var values = cache.get('tickers');
+        return cache.getAsync('tickers').then((tickers) => {
+            if (tickers) {
+                var tickers = JSON.parse(tickers)
+                var result = symbol ? tickers.filter(v => v.symbol == symbol) : tickers
+                return Promise.resolve(result)
+            } else {
+                return core.get('/tickers/transaction-currencies').then(tkrsJSON => {
+                    var tkrs = JSON.parse(tkrsJSON)
+                    var tickerPromises = []
+                    var tkrs_info = []
 
-        if (values != undefined) {
-            var result = symbol ? values.filter(v => v.symbol == symbol) : values
-            return new Promise((resolve, reject) => resolve(result))
-        }
-        else {
-            return core.get('/tickers/transaction-currencies').then(tkrsJSON => {
-                var tkrs = JSON.parse(tkrsJSON)
-                var tickerPromises = []
-                var tkrs_info = []
-
-                tkrs.forEach(tkr => {
-                    //! this property 'rename' is dued to the model in the backend which uses transaction_currency
-                    //! and not symbol, but in this context it becomes confusing
-                    if (tkr.transaction_currency) tkr.symbol = tkr.transaction_currency
-                    tickerPromises.push(self.tickerInfo(tkr))
-                })
-
-                return Promise.all(tickerPromises).then((coinMarketCapTickers) => {
-                    coinMarketCapTickers.forEach(coinMarketCapTicker => {
-                        if (coinMarketCapTicker)
-                            tkrs_info.push(coinMarketCapTicker)
+                    tkrs.forEach(tkr => {
+                        //! this property 'rename' is dued to the model in the backend which uses transaction_currency
+                        //! and not symbol, but in this context it becomes confusing
+                        if (tkr.transaction_currency) tkr.symbol = tkr.transaction_currency
+                        tickerPromises.push(self.tickerInfo(tkr))
                     })
-                    cache.set('tickers', tkrs_info)
-                    return tkrs_info
+
+                    return Promise.all(tickerPromises).then((coinMarketCapTickers) => {
+                        coinMarketCapTickers.forEach(coinMarketCapTicker => {
+                            if (coinMarketCapTicker)
+                                tkrs_info.push(coinMarketCapTicker)
+                        })
+                        cache.set('tickers', JSON.stringify(tkrs_info))
+                        return tkrs_info
+                    })
                 })
-            })
-        }
+            }
+        })
     },
     tickerInfo: (ticker) => {
 
@@ -70,22 +94,6 @@ var self = module.exports = {
         return core.get('/itt')
     },
     init: () => {
-
-        return getCoinMarketCapTickers().then(tkrs => {
-            console.log('Tickers info cache initialized...');
-            return self.tickers().then(() => {
-                console.log('Tickers cache initialized...');
-            })
-        })
+        return cacheInitialization()
     }
-}
-
-var getCoinMarketCapTickers = () => {
-    var coinMarketCapTickers = cache.get('coinMarketCapTickers');
-
-    if (coinMarketCapTickers)
-        return new Promise((rs, rj) => rs(coinMarketCapTickers))
-
-    return coinmarketcap.fetchAllTickers()
-        .then(newcoinMarketCapTickers => cache.set('coinMarketCapTickers', newcoinMarketCapTickers));
 }

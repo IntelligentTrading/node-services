@@ -2,8 +2,8 @@ var mongoose = require('mongoose')
 
 module.exports.connect = () => {
     var options = {
-        useMongoClient: true,
         keepAlive: 300,
+        useNewUrlParser: true,
         reconnectTries: Number.MAX_VALUE, // Never stop trying to reconnect
         reconnectInterval: 500 // Reconnect every 500ms
     }

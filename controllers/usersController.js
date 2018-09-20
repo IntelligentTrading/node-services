@@ -1,12 +1,10 @@
 var marketapi = require('../api/market')
 var User = require('../models/User')
-var SubscriptionTemplate = require('../models/SubscriptionTemplate')
 var walletController = require('./walletController')
 var dateUtil = require('../util/dates')
 var eventBus = require('../events/eventBus')
 var moment = require('moment')
 var referral = require('../util/referral')
-var stakingCtrl = require('./stakingController')
 var cache = require('../cache').redis
 
 module.exports = userController = {
@@ -153,15 +151,13 @@ module.exports = userController = {
             return user
         })
     },
-    getSubscriptionTemplate: (label) => {
-        return SubscriptionTemplate.findOne({ label: label })
-    },
     lastNotifiedSignal: (logObject) => {
         var lastUpdateObject = {
             signalId: logObject.signalId, on: moment()
         }
 
-        return User.update({ telegram_chat_id: { "$in": logObject.subscribersIds } }, { 'settings.lastSignalReceived': lastUpdateObject }, { 'multi': true })
+
+        return User.updateMany({ telegram_chat_id: { "$in": logObject.subscribersIds } }, { 'settings.lastSignalReceived': lastUpdateObject }, { 'multi': true })
     },
     checkReferral: (telegram_chat_id, code) => {
         var checkResult = referral.check(telegram_chat_id, code)
@@ -209,13 +205,6 @@ function checkUserSettings(user) {
         user.settings.referral = referral.referralGenerator(user.telegram_chat_id)
         user.settings.referred_count = 0
         user.save()
-    }
-    return user
-}
-
-function checkStakingFor(user) {
-    if (user.settings.staking) {
-        return stakingCtrl.updateStakingFor(user)
     }
     return user
 }
