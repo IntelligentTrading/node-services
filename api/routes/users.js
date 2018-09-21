@@ -9,8 +9,8 @@ router.post('/', (req, res) => {
 router.get('/', (req, res) => {
     solve(usersCtrl.all(req.query), res)
 })
-router.get('/:telegram_chat_id', (req,res)=>{
-    solve(usersCtrl.getUser(req.params.telegram_chat_id), res)
+router.get('/:telegram_chat_id', (req, res) => {
+    solve(usersCtrl.getUser(req.params.telegram_chat_id), res).then(() => usersCtrl.updateUser(req.params.telegram_chat_id))
 })
 router.put('/:telegram_chat_id', (req, res) => {
     solve(usersCtrl.updateUser(req.params.telegram_chat_id, req.body), res)

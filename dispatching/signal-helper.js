@@ -2,14 +2,19 @@ require('./extensions')
 var tickersController = require('../controllers/tickersController')
 var _ = require('lodash')
 
-console.log('Init signal helper')
-
 var counter_currencies = undefined
 
-async function loadCounterCurrencies() {
-  var json_counter_currencies = await tickersController.counterCurrencies()
-  counter_currencies = JSON.parse(json_counter_currencies)
+function loadCounterCurrencies() {
+  if (counter_currencies) return Promise.resolve(counter_currencies)
+  else {
+    return tickersController.counterCurrencies().then(json_counter_currencies => {
+      counter_currencies = JSON.parse(json_counter_currencies)
+      return counter_currencies
+    })
+  }
 }
+
+loadCounterCurrencies().then(() => console.log('Signal helper initialized'))
 
 function applyTemplate(message_data) {
 
@@ -17,7 +22,6 @@ function applyTemplate(message_data) {
     .then((bst) => {
 
       var telegram_signal_message;
-      var footer = ''
 
       if (message_data.signal == 'SMA' || message_data.signal == 'EMA') {
 

@@ -75,20 +75,20 @@ module.exports = userController = {
         }
 
         return User.findOne({ telegram_chat_id: parseInt(telegram_chat_id) }).then(user => {
-            if (settings && user && user.eula) {
-                if (dateUtil.hasValidSubscription(user)) {
+
+            if (user && settings && Object.getOwnPropertyNames(settings).length > 0 && !user.eula)
+                return Promise.reject(new Error('You must accept the EULA in order to save settings.'))
+
+            if (user && user.eula) {
+                if (settings && dateUtil.hasValidSubscription(user)) {
                     var settingsToUpdate = Object.keys(settings);
                     settingsToUpdate.forEach(settingToUpdate => {
                         user.settings[settingToUpdate] = settings[settingToUpdate];
                     })
-                    user.save()
-                    return user
                 }
-                else {
-                    return Promise.reject(new Error('You must subscribe in order to save settings.'))
-                }
+                user.save()
+                return user
             }
-            else return Promise.reject(new Error('You must accept the EULA in order to save settings.'))
         })
     },
     updateUserCurrencies: (telegram_chat_id, currenciesPairRole, settings) => {

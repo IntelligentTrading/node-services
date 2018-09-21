@@ -11,7 +11,7 @@ module.exports = {
             return response.sendStatus(500)
         }
         var eula_url = `/eula_confirm?u=${chat_id}`;
-        response.render('eula2', { eula_url: eula_url }, );
+        response.render('eula2', { eula_url: eula_url });
     },
     confirm: (request, response) => {
         var chat_id = request.query.u;
@@ -46,8 +46,11 @@ module.exports = {
                             .then(() => {
                                 var historyEntries = JSON.parse(historyEntriesJson).results.filter(r => ["BTC", "ETH", "LTC", "BCH", "XRP", "XMR"].indexOf(r.transaction_currency) >= 0).slice(0, 3)
                                 var historySignalsPromises = historyEntries.map(entry => {
-                                    var templatedSignal = `${historyCtrl.applyTemplate(entry)}\nNotified on: ${entry.timestamp}`
-                                    return bot.sendMessage(chat_id, templatedSignal, markdown_opts)
+                                    entry.source = 'Poloniex'
+                                    entry.horizon = ['short', 'medium', 'long'][entry.horizon]
+                                    return historyCtrl.applyTemplate(entry).then(templatedSignal => {
+                                        return bot.sendMessage(chat_id, `${templatedSignal}\nNotified on: ${entry.timestamp}`, markdown_opts)
+                                    })
                                 })
                                 Promise.all(historySignalsPromises).then(() => {
                                     if (!eulaUser.alreadyAccepted) {
