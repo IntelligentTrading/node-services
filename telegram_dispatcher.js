@@ -9,7 +9,6 @@ database.connect()
 
 var tradingAlertController = require('./controllers/tradingAlertsController')
 var userController = require('./controllers/usersController')
-
 userController.refreshCache().then(() => console.log('Users cache refreshed'))
 
 AWS.config.update({
@@ -33,15 +32,16 @@ const app = Consumer.create({
     if (signalValidity.isValid) {
       signalNotifier.notify(signalValidity.decoded_message_body).then((result) => {
 
-        var ta = {
-          signalId: result.signal_id,
-          awsSQSId: message.MessageId,
-          rejections: result.rejections,
-          reasons: result.reasons,
-          sent_at: result.sent_at
-        }
-
-        tradingAlertController.addTradingAlert(ta).then(() => { console.log(`[Notified] Message ${message.MessageId}`) })
+        /* var ta = {
+           signalId: result.signal_id,
+           awsSQSId: message.MessageId,
+           rejections: result.rejections,
+           reasons: result.reasons,
+           sent_at: result.sent_at
+         }
+ 
+         tradingAlertController.addTradingAlert(ta).then(() => { console.log(`[Notified] Message ${message.MessageId}`) })*/
+        console.log(`[Notified] Message ${message.MessageId}`)
       }).catch((reason) => {
         console.log(reason)
         console.log(`[Not notified] Message ${message.MessageId}`)
@@ -62,12 +62,14 @@ const app = Consumer.create({
 
 app.on('message_received', (msg) => {
   console.log(`[Received] Message ${msg.MessageId}`);
+  console.time('Delivering')
   app.handleMessage(msg, function (err) {
     if (err) console.log(err);
   })
 })
 
 app.on('message_processed', (msg) => {
+  console.timeEnd('Delivering')
   console.log(`[Processed] Message ${msg.MessageId}`);
 })
 

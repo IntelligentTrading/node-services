@@ -7,7 +7,6 @@ function loadCache() {
         if (tradingAlerts) return JSON.parse(tradingAlerts)
         else {
             return TradingAlert.find({'sent_at':{ $gt: moment().add(-24, 'hours').format('YYYY-MM-DD HH:MM') }}).then(alerts => {
-                console.timeEnd('Loading last day trading alerts')
                 cache.set('tradingAlerts', JSON.stringify(alerts))
                 var expdate = moment().add(24, 'hours').unix()
                 cache.expireat('tradingAlerts', expdate)

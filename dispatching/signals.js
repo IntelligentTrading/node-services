@@ -4,49 +4,33 @@ var signalHelper = require('./signal-helper')
 var usersController = require('../controllers/usersController')
 var signalsController = require('../controllers/signalsController')
 var subscriptionController = require('../controllers/subscriptionController')
+var TelegramUser = require('../models/TelegramUser')
+var SignalWrapper = require('../models/SignalWrapper')
 
-const TelegramBot = require('node-telegram-bot-api')
-const token = process.env.TELEGRAM_BOT_TOKEN
-const bot = new TelegramBot(token, { polling: false })
-
-var horizons = ['long', 'medium', 'short']
 var subscriptionTemplates = []
+var signalTemplates = []
 
-subscriptionController.getSubscriptionTemplates().then(templates => {
-    return templates.map(template => {
-        subscriptionTemplates[template.label] = template
-    })
-}).then(() => console.log('Subscription templates initialized'))
+init()
 
-var opts =
-{
-    "parse_mode": "Markdown",
-    "disable_web_page_preview": "true"
-};
 
 function notify(message_data) {
 
     if (message_data != undefined) {
         console.log(`${message_data.signal} signal`);
 
-        return signalHelper.applyTemplate(message_data)
+        var signalWrapper = new SignalWrapper(message_data, subscriptionTemplates, signalTemplates[message_data.signal])
+
+        return signalHelper.applyTemplate(signalWrapper)
             .then(telegram_signal_message => {
                 if (!telegram_signal_message) throw new Error('Something went wrong, please retry!')
 
-                return signalsController.getSignals(message_data.signal).then(signal => {
-                    if (signal) {
-                        signal = signal[0]
-                        signal.trend = message_data.trend
-                        signal.source = message_data.source
-
-                        // create a method to get already the notifiable users for a signal
-                        return usersController.all().then(candidates => {
-                            return notifyUsers(candidates, signal, message_data, telegram_signal_message)
-                        })
-                    }
-                    else
-                        console.log('ERR:Signals not found')
-                }).catch(err => console.log(err))
+                // create a method to get already the notifiable users for a signal
+                return usersController.all().then(candidates => {
+                    var telegramCandidates = candidates.map(c => new TelegramUser(c))
+                    var canReceiveCandidates = telegramCandidates.filter(tc => tc.canReceive(signalWrapper))
+                    var allPromises = canReceiveCandidates.map(crc => crc.notify(telegram_signal_message))
+                    return Promise.all(allPromises)
+                })
             })
     }
 }
@@ -145,38 +129,19 @@ function notifyUsers(users, signal, message_data, telegram_signal_message) {
         })
 }
 
-function isForFree(signal, message_data) {
-
-    var isUptrend = message_data.trend > 0
-    var isUSDT = message_data.counter_currency == 2
-
-    return IsDeliverableTo('free', signal, message_data) && isUptrend && isUSDT
-}
-
-function isForNonno(signal, message_data) {
-    return IsDeliverableTo('beta', signal, message_data)
-}
-
-function isForStarter(signal, message_data) {
-    return IsDeliverableTo('paid', signal, message_data)
-}
-
-function isForPro(signal, message_data) {
-    return IsDeliverableTo('diecimila', signal, message_data)
-}
-
-function isForAdvanced(signal, message_data) {
-    return IsDeliverableTo('centomila', signal, message_data)
-}
-
-function IsDeliverableTo(pricingPlan, signal, message_data) {
-
-    var template = subscriptionTemplates[pricingPlan]
-    var isSubscribedToTickers = template.tickers.length == 0 || template.tickers.indexOf(message_data.transaction_currency) >= 0
-    var canDeliverToLevel = signal.deliverTo.indexOf(pricingPlan) >= 0
-    var hasTheRightHorizon = !template.horizon || horizons.indexOf(message_data.horizon) <= horizons.indexOf(template.horizon)
-    var isAllowedExchange = !template.exchanges || template.exchanges.length <= 0 || template.exchanges.indexOf(message_data.source.toLowerCase()) >= 0
-    return isSubscribedToTickers && canDeliverToLevel && hasTheRightHorizon && isAllowedExchange
-}
-
 module.exports = { notify: notify }
+
+function init() {
+
+    subscriptionController.getSubscriptionTemplates().then(templates => {
+        return templates.map(template => {
+            subscriptionTemplates[template.label] = template
+        })
+    }).then(() => console.log('Subscription templates initialized'))
+
+    signalsController.getSignals().then(templates => {
+        return templates.map(template => {
+            signalTemplates[template.label] = template
+        })
+    }).then(() => console.log('Signal templates initialized'))
+}

@@ -6,6 +6,8 @@ var eventBus = require('../events/eventBus')
 var moment = require('moment')
 var referral = require('../util/referral')
 var cache = require('../cache').redis
+var _ = require('lodash')
+
 
 function loadCache() {
     return User.find({}).then(users => {
