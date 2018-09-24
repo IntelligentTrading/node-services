@@ -23,6 +23,8 @@ class SignalWrapper {
 
     IsDeliverableTo(pricingPlan) {
 
+        if (pricingPlan == 'ITT') return true
+
         var template = this._subscriptionTemplates[pricingPlan]
         var isSubscribedToTickers = template.tickers.length == 0 || template.tickers.indexOf(this.transaction_currency) >= 0
         var canDeliverToLevel = this.deliverTo.indexOf(pricingPlan) >= 0

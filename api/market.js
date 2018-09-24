@@ -57,6 +57,8 @@ var self = module.exports = {
                                 tkrs_info.push(coinMarketCapTicker)
                         })
                         cache.set('tickers', JSON.stringify(tkrs_info))
+                        var expdate = moment().add(24, 'hours').unix()
+                        cache.expireat('tickers', expdate)
                         return tkrs_info
                     })
                 })
