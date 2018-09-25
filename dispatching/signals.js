@@ -20,6 +20,8 @@ function notify(message_data) {
 
         var signalWrapper = new SignalWrapper(message_data, subscriptionTemplates, signalTemplates[message_data.signal])
 
+        if(signalWrapper.HasErrors) return Promise.reject('Some signals might not be present in the database or in the templates base')
+
         return signalHelper.applyTemplate(signalWrapper)
             .then(telegram_signal_message => {
                 if (!telegram_signal_message) throw new Error('Something went wrong, please retry!')
