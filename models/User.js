@@ -91,7 +91,8 @@ userSchema.pre('update', function (next) {
 })
 
 userSchema.post('save', function (u) {
-    eventBus.emit('userSaved', u)
+    //eventBus.emit('userSaved', u)
+    eventBus.emit('cacheUser',u)
 });
 
 userSchema.post('update', function () {

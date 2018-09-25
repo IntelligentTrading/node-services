@@ -25,12 +25,14 @@ class SignalWrapper {
 
         if (pricingPlan == 'ITT') return true
 
+        var isFreeAndUptrendingOrIgnore = pricingPlan != 'free' || (pricingPlan == 'free' && parseInt(this.trend) > 0)
         var template = this._subscriptionTemplates[pricingPlan]
+        var hasTheRightCounter = !template.counter || template.counter.length <= 0 || template.counter.indexOf(parseInt(this.counter_currency)) >= 0
         var isSubscribedToTickers = template.tickers.length == 0 || template.tickers.indexOf(this.transaction_currency) >= 0
         var canDeliverToLevel = this.deliverTo.indexOf(pricingPlan) >= 0
         var hasTheRightHorizon = !template.horizon || horizons.indexOf(this.horizon) <= horizons.indexOf(template.horizon)
         var isAllowedExchange = !template.exchanges || template.exchanges.length <= 0 || template.exchanges.indexOf(this.source.toLowerCase()) >= 0
-        return isSubscribedToTickers && canDeliverToLevel && hasTheRightHorizon && isAllowedExchange
+        return isFreeAndUptrendingOrIgnore && isSubscribedToTickers && canDeliverToLevel && hasTheRightHorizon && isAllowedExchange && hasTheRightCounter
     }
 }
 

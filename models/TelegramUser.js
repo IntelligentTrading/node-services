@@ -7,11 +7,11 @@ var horizons = ['long', 'medium', 'short']
 
 var planPredicates = {
     freePredicates: () => { return [] },
-    betaPredicates: () => { return ['hasTheRightHorizon', 'isFollowingTheTicker', 'isFollowingTheCounter'] },
-    paidPredicates: () => { return ['hasTheRightHorizon', 'isFollowingTheTicker', 'isFollowingTheCounter', 'isFollowingTheExchange', 'isFollowingTheIndicator'] },
-    diecimilaPredicates: () => { return ['hasTheRightHorizon', 'isFollowingTheTicker', 'isFollowingTheCounter', 'isFollowingTheExchange', 'isFollowingTheIndicator'] },
-    centomilaPredicates: () => { return ['hasTheRightHorizon', 'isFollowingTheTicker', 'isFollowingTheCounter', 'isFollowingTheExchange', 'isFollowingTheIndicator'] },
-    ITTPredicates: () => { return ['hasTheRightHorizon', 'isFollowingTheTicker', 'isFollowingTheCounter', 'isFollowingTheExchange', 'isFollowingTheIndicator'] }
+    betaPredicates: () => { return ['hasTheRightHorizon', 'isFollowingTheTicker', 'isFollowingTheCounter','isNotMuted'] },
+    paidPredicates: () => { return ['hasTheRightHorizon', 'isFollowingTheTicker', 'isFollowingTheCounter', 'isFollowingTheExchange', 'isFollowingTheIndicator','isNotMuted'] },
+    diecimilaPredicates: () => { return ['hasTheRightHorizon', 'isFollowingTheTicker', 'isFollowingTheCounter', 'isFollowingTheExchange', 'isFollowingTheIndicator','isNotMuted'] },
+    centomilaPredicates: () => { return ['hasTheRightHorizon', 'isFollowingTheTicker', 'isFollowingTheCounter', 'isFollowingTheExchange', 'isFollowingTheIndicator','isNotMuted'] },
+    ITTPredicates: () => { return ['hasTheRightHorizon', 'isFollowingTheTicker', 'isFollowingTheCounter', 'isFollowingTheExchange', 'isFollowingTheIndicator','isNotMuted'] }
 }
 
 class TelegramUser {
@@ -27,7 +27,7 @@ class TelegramUser {
 
     canReceive(signalWrapper) {
         //check if the horizon allows delivery
-        return this._dbuser.eula && !this._dbuser.settings.is_muted &&
+        return this._dbuser.eula &&
             signalWrapper.IsDeliverableTo(this._highestSubscriptionLevel) && // check on signal side
             this.checkUserSettings(signalWrapper) // check on user's side
     }
@@ -74,8 +74,9 @@ class TelegramUser {
             hasTheRightHorizon: horizons.indexOf(signalWrapper.horizon) <= horizons.indexOf(this._dbuser.settings.horizon),
             isFollowingTheTicker: this._dbuser.settings.transaction_currencies.indexOf(signalWrapper.transaction_currency) >= 0,
             isFollowingTheCounter: this._dbuser.settings.counter_currencies.indexOf(parseInt(signalWrapper.counter_currency)) >= 0,
-            isFollowingTheExchange: this._dbuser.settings.exchanges.find(exc => exc.label.toLowerCase() == signalWrapper.source.toLowerCase()),
-            isFollowingTheIndicator: this._dbuser.settings.indicators.find(ind => ind.enabled && ind.name == signalWrapper.label)
+            isFollowingTheExchange: this._dbuser.settings.exchanges.find(exc => exc.label.toLowerCase() == signalWrapper.source.toLowerCase() && exc.enabled),
+            isFollowingTheIndicator: this._dbuser.settings.indicators.find(ind => ind.enabled && ind.name == signalWrapper.label) != undefined,
+            isNotMuted: !this._dbuser.settings.is_muted
         }
 
         var canDeliver = true
