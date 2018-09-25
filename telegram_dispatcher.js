@@ -9,7 +9,6 @@ database.connect()
 
 var tradingAlertController = require('./controllers/tradingAlertsController')
 var userController = require('./controllers/usersController')
-
 userController.refreshCache().then(() => console.log('Users cache refreshed'))
 
 AWS.config.update({
@@ -42,6 +41,7 @@ const app = Consumer.create({
         }
 
         tradingAlertController.addTradingAlert(ta).then(() => { console.log(`[Notified] Message ${message.MessageId}`) })
+        console.log(`[Notified] Message ${message.MessageId}`)
       }).catch((reason) => {
         console.log(reason)
         console.log(`[Not notified] Message ${message.MessageId}`)
@@ -61,7 +61,6 @@ const app = Consumer.create({
 })
 
 app.on('message_received', (msg) => {
-  console.log(`[Received] Message ${msg.MessageId}`);
   app.handleMessage(msg, function (err) {
     if (err) console.log(err);
   })

@@ -6,13 +6,15 @@ var eventBus = require('../events/eventBus')
 var moment = require('moment')
 var referral = require('../util/referral')
 var cache = require('../cache').redis
+var _ = require('lodash')
+
 
 function loadCache() {
     return User.find({}).then(users => {
         users.map((user) => {
             if (user && user.telegram_chat_id) {
                 user = checkUserSettings(user)
-                cacheUser(user)
+                eventBus.emit('cacheUser', user)
             }
             else {
                 console.log('WARNING: misconfigured user')
@@ -46,7 +48,8 @@ module.exports = userController = {
             }
             else {
                 return userController.getDbUser(telegram_chat_id).then(user => {
-                    cacheUser(user)
+                    eventBus.emit('cacheUser', user)
+                    //cacheUser(user)
                     return user
                 })
             }
@@ -187,14 +190,6 @@ module.exports = userController = {
 
         return Promise.reject(new Error(checkResult.reason))
     }
-}
-
-eventBus.on('userSaved', (user) => {
-    cacheUser(user)
-})
-
-function cacheUser(user) {
-    cache.set(`tci_${user.telegram_chat_id}`, JSON.stringify(user))
 }
 
 // This method will be deleted as soon as I run it the first time to fill all the users' wallets and referrals
