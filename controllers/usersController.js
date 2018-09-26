@@ -68,7 +68,6 @@ module.exports = userController = {
     createUser: (userDocument) => {
         return User.create(userDocument).then((newUser) => {
             eventBus.emit('userCreated', newUser)
-            cacheUser(newUser)
             return { statusCode: 201, object: newUser }
         })
     },

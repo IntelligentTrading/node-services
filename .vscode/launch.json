@@ -8,7 +8,7 @@
             "type": "node",
             "request": "launch",
             "name": "Launch Program",
-            "program": "${workspaceFolder}/telegram_dispatcher.js"
+            "program": "${workspaceFolder}/index.js"
         }
     ]
 }
