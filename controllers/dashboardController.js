@@ -1,8 +1,7 @@
 var historyCtrl = require('./historyController')
 var tradingAlertsCtrl = require('./tradingAlertsController')
 var usersCtrl = require('./usersController')
-var signalDispatchingUtil = require('../util/signalDispatchingUtils')
-var dateUtils = require('../util/dates')
+var signalDispatchingUtil = require('../dispatching/signalDispatchingUtils')
 var dataManager = require('../dashboard/data/dataManager')
 var dashboardSecurity = require('../dashboard/util/checkTelegramSignature')
 var moment = require('moment')
@@ -19,10 +18,12 @@ module.exports = {
             end: moment().format()
         }
 
-        return Promise.all([tradingAlertsCtrl.getAll(), historyCtrl.getSignalHistory(opts), usersCtrl.getUsers(), historyCtrl.getSignalHistory(free),tradingAlertsCtrl.getLastRejected()])
+        console.log('[Dashboard] Loading data...')
+        return Promise.all([tradingAlertsCtrl.getAll(), historyCtrl.getSignalHistory(opts), usersCtrl.all(), historyCtrl.getSignalHistory(free),tradingAlertsCtrl.getLastRejected()])
             .then((results) => {
                 var history = JSON.parse(results[1])
                 var analysisPromises = []
+                console.log('[Dashboard] Building signal analysis data...')
                 history.results.forEach(record => {
                     analysisPromises.push(signalDispatchingUtil.analyze(record).then((isForPlanResults) => {
                         record.isForPlan = isForPlanResults
@@ -36,10 +37,13 @@ module.exports = {
                 history.lastTradingAlertWithRejectionsLabel = lastSignalWithRejections ? `ID:${lastSignalWithRejections.signalId}, Rejections: ${lastSignalWithRejections.rejections.length}` : 'N/A'
 
                 var users = results[2]
+                console.log('[Dashboard] Building users data...')
                 var userData = dataManager.buildUserData(users,lastSignalWithRejections)
                 var freeSignalsHistory = JSON.parse(results[3]).results
 
+                console.log('[Dashboard] Running history analysis...')
                 return Promise.all(analysisPromises).then(() => {
+                    
                     var mostRecentSignal = _.sortBy(history.results, 'timestamp')[0]
                     var mostRecentFreeSignal = freeSignalsHistory.find(fsh => ["RSI", "kumo_breakout"].indexOf(fsh.signal) >= 0)
                     history.timeFromLastSignal = moment(mostRecentSignal.timestamp).fromNow()

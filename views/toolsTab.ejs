@@ -13,7 +13,8 @@
     <br/>
     <div style="border-color: lightgrey;padding:10">
         <samp> 🔴
-            <b>Test header</b><br/>
+            <b>Test header</b>
+            <br/>
             <a href="http://hooooooooo.com/">Interesting Link</a>
             <br/> Test
         </samp>
@@ -23,7 +24,7 @@
 <hr/>
 <form id="broadcastForm">
     <div class="form-group">
-        <label for="exampleFormControlSelect2">Deliver to the following plans (no selection = deliver to ALL):</label>
+        <label for="exampleFormControlSelect2">Deliver to the following plans (please, select 1+ groups):</label>
         <br />
         <div class="form-check form-check-inline">
             <input class="form-check-input" type="checkbox" name="cbFree" value="free">
@@ -36,6 +37,14 @@
         <div class="form-check form-check-inline">
             <input class="form-check-input" type="checkbox" name="cbPaid" value="paid">
             <label class="form-check-label" for="inlineCheckbox3">PAID</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" name="cbDiecimila" value="stakediecimila">
+            <label class="form-check-label" for="inlineCheckbox4">Pro</label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" name="cbCentomila" value="stakecentomila">
+            <label class="form-check-label" for="inlineCheckbox4">Advanced</label>
         </div>
         <div class="form-check form-check-inline">
             <input class="form-check-input" type="checkbox" name="cbITT" value="itt">
@@ -55,28 +64,41 @@
         var authUrl = new URLSearchParams(window.location.search)
         var actionUrl = "/dashboard/tools/broadcast" + '?' + authUrl.toString()
 
-        console.log('sending broadcast...')
-        console.log(actionUrl)
-        $.post({
-            url: actionUrl,
-            data: $("#broadcastForm").serialize(), // serializes the form's elements.
-            success: function (data) {
-                $("#btnSubmit").attr('class', 'btn btn-success mb-2')
-                $("#btnSubmit").text('Sent')
-                setTimeout(() => {
-                    $("#btnSubmit").attr('class', 'btn btn-primary mb-2')
-                    $("#btnSubmit").text('Broadcast')
-                }, 3000)
-            },
-            error: function (data) {
-                $("#btnSubmit").attr('class', 'btn btn-danger mb-2')
-                $("#btnSubmit").text('Error')
-                setTimeout(() => {
-                    $("#btnSubmit").attr('class', 'btn btn-primary mb-2')
-                    $("#btnSubmit").text('Broadcast')
-                }, 3000)
-            }
-        });
+        var params = $("#broadcastForm").serialize().split('&')
+        var messageIsNotEmpty = false
+        params.forEach(parameter => {
+            messageIsNotEmpty = messageIsNotEmpty || parameter.startsWith('message')
+        })
+
+        if (messageIsNotEmpty && params.length > 1) {
+
+            console.log('sending broadcast...')
+            
+            $.post({
+                url: actionUrl,
+                data: $("#broadcastForm").serialize(), // serializes the form's elements.
+                success: function (data) {
+                    console.log(data)
+                    $("#btnSubmit").attr('class', 'btn btn-success mb-2')
+                    $("#btnSubmit").text('Sent')
+                    setTimeout(() => {
+                        $("#btnSubmit").attr('class', 'btn btn-primary mb-2')
+                        $("#btnSubmit").text('Broadcast')
+                    }, 3000)
+                },
+                error: function (data) {
+                    $("#btnSubmit").attr('class', 'btn btn-danger mb-2')
+                    $("#btnSubmit").text('Error')
+                    setTimeout(() => {
+                        $("#btnSubmit").attr('class', 'btn btn-primary mb-2')
+                        $("#btnSubmit").text('Broadcast')
+                    }, 3000)
+                }
+            });
+        }
+        else{
+            alert('Missing receivers or empty message, please check')
+        }
     }
 
     $(function () {
@@ -85,4 +107,5 @@
             sendBroadcastMessage()
         })
     })
+
 </script>

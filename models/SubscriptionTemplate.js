@@ -5,7 +5,8 @@ var subscriptionTemplateSchema = new Schema({
     label: String, //free
     tickers: [String],
     exchanges: [String],
-    horizon: String
+    horizon: String,
+    counter: [Number]
 })
 
 var SubscriptionTemplate = mongoose.model('SubscriptionTemplate', subscriptionTemplateSchema);

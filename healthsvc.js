@@ -5,7 +5,6 @@ var markdown = require('./util/telegramBot').markdown
 var database = require('./database')
 database.connect()
 
-var historyCtrl = require('./controllers/historyController')
 var userCtrl = require('./controllers/usersController')
 var UserModel = require('./models/User')
 var dateUtil = require('./util/dates')
@@ -16,11 +15,6 @@ var _ = require('lodash')
 const MAX_HOURS_WITHOUT_SIGNAL_SHORT = 24
 const MAX_HOURS_WITHOUT_SIGNAL_MEDIUM = 24
 const MAX_HOURS_WITHOUT_SIGNAL_LONG = 60
-
-var free = {
-    source: 0, transaction_currencies: 'BTC+ETH+BCH+XMR+ZEC+DASH+LTC',
-    counter_currency: 2, trend: 1
-}
 
 var run = () => {
     Promise.all([lastSignalDeliveredCheck(),

@@ -1,6 +1,8 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var referral = require('../util/referral')
+var walletController = require('../controllers/walletController')
+var eventBus = require('../events/eventBus')
 
 var userSchema = new Schema({
     telegram_chat_id: Number,
@@ -76,12 +78,25 @@ userSchema.pre('save', function (next) {
         this.settings.referred_count = 0
     }
 
+    if (!this.settings.ittWalletReceiverAddress || this.settings.ittWalletReceiverAddress == 'No address generated') {
+        this.settings.ittWalletReceiverAddress = walletController.getWalletAddressFor(this.telegram_chat_id)
+    }
+
     next()
 })
 
 userSchema.pre('update', function (next) {
     this.lastActiveInteractionAt = Date.now();
     next()
+})
+
+userSchema.post('save', function (u) {
+    //eventBus.emit('userSaved', u)
+    eventBus.emit('cacheUser',u)
+});
+
+userSchema.post('update', function () {
+    console.log('Post update')
 })
 
 var User = mongoose.model('User', userSchema)

@@ -1,57 +1,67 @@
 var marketapi = require('../api/market')
 var User = require('../models/User')
-var SubscriptionTemplate = require('../models/SubscriptionTemplate')
 var walletController = require('./walletController')
 var dateUtil = require('../util/dates')
 var eventBus = require('../events/eventBus')
 var moment = require('moment')
 var referral = require('../util/referral')
-var stakingCtrl = require('./stakingController')
+var cache = require('../cache').redis
+var _ = require('lodash')
 
-module.exports = userController = {
-    getUsers: (settingsFilters) => {
-        var filters_key = settingsFilters ? Object.keys(settingsFilters) : [];
-        var query = {};
 
-        filters_key.forEach((key) => {
-            var or_conditions = settingsFilters[key].split(',');
-            if (or_conditions.length <= 1) {
-                query['settings.' + key] = settingsFilters[key];
-            } else {
-                var or_query_array = [];
-                or_conditions.forEach(or_condition => {
-                    var or_query = {};
-                    or_query['settings.' + key] = or_condition;
-                    or_query_array.push(or_query);
-                })
-                query['$or'] = or_query_array;
+function loadCache() {
+    return User.find({}).then(users => {
+        users.map((user) => {
+            if (user && user.telegram_chat_id) {
+                user = checkUserSettings(user)
+                eventBus.emit('cacheUser', user)
+            }
+            else {
+                console.log('WARNING: misconfigured user')
+                console.log(user)
             }
         })
+        return users
+    })
+}
 
-        return User.find(query)
+module.exports = userController = {
+    all: () => {
+        return cache.keysAsync('tci_*').then(keys => {
+            if (keys && keys.length > 0) {
+                return cache.mgetAsync(keys).then((values) => {
+                    if (values)
+                        return values.map(value => JSON.parse(value))
+                    return []
+                })
+            }
+            else {
+                return loadCache()
+            }
+        })
     },
+    refreshCache: () => loadCache(),
     getUser: (telegram_chat_id) => {
+        return cache.getAsync(`tci_${telegram_chat_id}`).then((stringifiedUser) => {
+            if (stringifiedUser) {
+                return JSON.parse(stringifiedUser)
+            }
+            else {
+                return userController.getDbUser(telegram_chat_id).then(user => {
+                    eventBus.emit('cacheUser', user)
+                    //cacheUser(user)
+                    return user
+                })
+            }
+        })
+    },
+    getDbUser: (telegram_chat_id) => {
         return User.findOne({ telegram_chat_id: parseInt(telegram_chat_id) }).then(user => {
             if (!user) {
                 var error = new Error('User not found')
                 error.statusCode = 404
                 throw error
             }
-            if (user.settings.ittWalletReceiverAddress == 'No address generated') {
-                user.settings.ittWalletReceiverAddress = walletController.getWalletAddressFor(telegram_chat_id)
-                user.save()
-            }
-            if (!user.settings.referral) {
-                user.settings.referral = referral.referralGenerator(telegram_chat_id)
-                user.settings.referred_count = 0
-                user.save()
-            }
-            return user
-        }).then(user => {
-            if (user.settings.staking) {
-                return stakingCtrl.updateStakingFor(user)
-            }
-
             return user
         })
     },
@@ -67,21 +77,17 @@ module.exports = userController = {
         }
 
         return User.findOne({ telegram_chat_id: parseInt(telegram_chat_id) }).then(user => {
-            if (settings && user) {
-                if (dateUtil.hasValidSubscription(user)) {
+
+            if (user && settings && Object.getOwnPropertyNames(settings).length > 0 && !user.eula)
+                return Promise.reject(new Error('You must accept the EULA in order to save settings.'))
+
+            if (user && user.eula) {
+                if (settings && dateUtil.hasValidSubscription(user)) {
                     var settingsToUpdate = Object.keys(settings);
                     settingsToUpdate.forEach(settingToUpdate => {
                         user.settings[settingToUpdate] = settings[settingToUpdate];
                     })
-                    user.save()
-                    return user
                 }
-                else {
-                    return Promise.reject(new Error('You must subscribe in order to save settings.'))
-                }
-            }
-            //Update interaction only
-            if (user && !settings) {
                 user.save()
                 return user
             }
@@ -152,15 +158,12 @@ module.exports = userController = {
             return user
         })
     },
-    getSubscriptionTemplate: (label) => {
-        return SubscriptionTemplate.findOne({ label: label })
-    },
     lastNotifiedSignal: (logObject) => {
         var lastUpdateObject = {
             signalId: logObject.signalId, on: moment()
         }
 
-        return User.update({ telegram_chat_id: { "$in": logObject.subscribersIds } }, { 'settings.lastSignalReceived': lastUpdateObject }, { 'multi': true })
+        return User.updateMany({ telegram_chat_id: { "$in": logObject.subscribersIds } }, { 'settings.lastSignalReceived': lastUpdateObject }, { 'multi': true })
     },
     checkReferral: (telegram_chat_id, code) => {
         var checkResult = referral.check(telegram_chat_id, code)
@@ -186,4 +189,18 @@ module.exports = userController = {
 
         return Promise.reject(new Error(checkResult.reason))
     }
+}
+
+// This method will be deleted as soon as I run it the first time to fill all the users' wallets and referrals
+function checkUserSettings(user) {
+    if (user.settings.ittWalletReceiverAddress == 'No address generated') {
+        user.settings.ittWalletReceiverAddress = walletController.getWalletAddressFor(user.telegram_chat_id)
+        user.save()
+    }
+    if (!user.settings.referral) {
+        user.settings.referral = referral.referralGenerator(user.telegram_chat_id)
+        user.settings.referred_count = 0
+        user.save()
+    }
+    return user
 }

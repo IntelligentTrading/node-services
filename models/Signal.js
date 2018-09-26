@@ -4,7 +4,9 @@ var Schema = mongoose.Schema;
 var signalSchema = new Schema({
     label: String,
     deliverTo: [String],
-    guide_url: String
+    guide_url: String,
+    description: String,
+    hideInSettings: Boolean
 });
 
 
