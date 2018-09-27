@@ -10,10 +10,10 @@ var _ = require('lodash')
 module.exports = {
     load: (request, response) => {
         //ad auth
-        var opts = { page_size: 100 }
+        var opts = { page_size: 30 }
         var free = {
             source: 0, transaction_currencies: 'BTC+ETH+BCH+XMR+ZEC+DASH+LTC',
-            counter_currency: 2, trend: 1, page_size: 200,
+            counter_currency: 2, trend: 1, page_size: 30,
             startdate: moment().add(-7, "days").format(),
             end: moment().format()
         }
