@@ -29,12 +29,9 @@ module.exports = {
     getProviderName: () => {
         return providerEndpoint
     },
-    transfer: (toAddress, fromAddress, amount) => {
+    transfer: (privateKey, toAddress, amount) => {
         return toContractDecimals(amount).then(contractAmount => {
-            return contract.methods.transfer(toAddress, contractAmount).send({ from: fromAddress })
-                .on('transactionHash', function (hash) {
-                    console.log(hash);
-                }).on('error', err => console.log(err));
+            return transferFromITFUserWallet(privateKey, toAddress, contractAmount)
         })
     }
 }
@@ -44,4 +41,20 @@ function toContractDecimals(decimalAmount) {
     return contract.methods.decimals().call().then((decimals) => {
         return decimalAmount * Math.pow(10, decimals)
     })
+}
+
+function transferFromITFUserWallet(privateKey, _to, _value) {
+    var encoded = contract.methods.transfer(_to, _value).encodeABI()
+
+    var tx = {
+        to: process.env.CONTRACT_ADDRESS,
+        value: 0,
+        gasLimit: 100000,
+        gasPrice: web3.utils.toHex(web3.utils.toWei('20', 'gwei')),
+        data: encoded
+    }
+
+    return web3.eth.accounts.signTransaction(tx, privateKey).then(signed => {        
+        return web3.eth.sendSignedTransaction(signed.rawTransaction).on('receipt', console.log)
+    });
 }

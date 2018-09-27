@@ -15,10 +15,10 @@ module.exports = ctrl = {
         return new Wallet(ctrl.getPrivateKeyFor(chat_id)).address
     },
     toHotWallet: (telegram_chat_id) => {
-        var toAddress = '0xb909b0cB136066bBcC5eE54f4610D7fA8162191E'
+        var toAddress = '0xe81d3de1cace2107d017961bcfa29f3e4065f49e'
         var fromAddress = ctrl.getWalletAddressFor(telegram_chat_id)
         return blockchainUtil.getBalance(fromAddress).then(amount => {
-            return blockchainUtil.transfer(toAddress, fromAddress, amount)
+            return blockchainUtil.transfer(ctrl.getPrivateKeyFor(telegram_chat_id), toAddress, amount)
         }).catch(err => {
             console.log(err)
             return err.message
