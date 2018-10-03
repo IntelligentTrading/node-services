@@ -6,9 +6,9 @@ function loadCache() {
     return cache.getAsync('tradingAlerts').then(tradingAlerts => {
         if (tradingAlerts) return JSON.parse(tradingAlerts)
         else {
-            return TradingAlert.find({'sent_at':{ $gt: moment().add(-24, 'hours').format('YYYY-MM-DD HH:MM') }}).then(alerts => {
+            return TradingAlert.find({'sent_at':{ $gt: moment().add(-4, 'hours').format('YYYY-MM-DD HH:MM') }}).then(alerts => {
                 cache.set('tradingAlerts', JSON.stringify(alerts))
-                var expdate = moment().add(24, 'hours').unix()
+                var expdate = moment().add(4, 'hours').unix()
                 cache.expireat('tradingAlerts', expdate)
                 return alerts
             })

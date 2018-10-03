@@ -1,12 +1,12 @@
 
-var marketApi = require('../api/market')
+//var marketApi = require('../api/market')
 var usersController = require('../controllers/usersController')
 
-var marketApiPromise = marketApi.init()
-var usersPromise = usersController.all()
+var cacheableControllers = []
+cacheableControllers.push(usersController.all())
 
 module.exports = {
     load: () => {
-        return Promise.all([marketApiPromise, usersPromise])
+        return Promise.all(cacheableControllers)
     }
 }
