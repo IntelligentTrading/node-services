@@ -82,14 +82,17 @@ module.exports = userController = {
                 return Promise.reject(new Error('You must accept the EULA in order to save settings.'))
 
             if (user && user.eula) {
-                if (settings && dateUtil.hasValidSubscription(user)) {
-                    var settingsToUpdate = Object.keys(settings);
-                    settingsToUpdate.forEach(settingToUpdate => {
-                        user.settings[settingToUpdate] = settings[settingToUpdate];
-                    })
+                if (settings) {
+                    if (dateUtil.hasValidSubscription(user)) {
+                        var settingsToUpdate = Object.keys(settings);
+                        settingsToUpdate.forEach(settingToUpdate => {
+                            user.settings[settingToUpdate] = settings[settingToUpdate];
+                        })
+                    }
+                    user.settings.is_crowd_enabled = settings.is_crowd_enabled
+                    user.save()
+                    return user
                 }
-                user.save()
-                return user
             }
         })
     },
