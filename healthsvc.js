@@ -17,27 +17,30 @@ const MAX_HOURS_WITHOUT_SIGNAL_MEDIUM = 24
 const MAX_HOURS_WITHOUT_SIGNAL_LONG = 60
 
 var run = () => {
-    Promise.all([lastSignalDeliveredCheck(),
-    checkWrongConfigurations(),
-    checkWeakConfigurations(),
-    eulaCheck()]).then(() => {
-        console.log('Health check completed')
-        process.exit()
+    userCtrl.all().then(users => {
+        Promise.all([lastSignalDeliveredCheck(users),
+        checkWrongConfigurations(users),
+        checkWeakConfigurations(users),
+        eulaCheck(users)])
+            .then(() => {
+                console.log('Health check completed')
+                process.exit()
+            })
     })
 }
 
-function eulaCheck() {
+function eulaCheck(users) {
     if (moment().date() % 3 == 0 && moment().hour() == 13) {
         console.log('Checking EULA status for bot users...')
-        return UserModel.find({ eula: 'false' }).then(users => {
-            var notification_promises = []
-            users.forEach(user => {
-                var eulaMsg = `*ITT Team*\n\nWe noticed that your bot is not working. In order to use the bot you MUST accept the [End User Licensing Agreement](https://${process.env.DOMAIN}/eula?u=${user.telegram_chat_id})`
-                notification_promises.push(telegramBot.sendMessage(user.telegram_chat_id, eulaMsg, markdown).catch(err => console.log(err)))
-            })
-            return Promise.all(notification_promises).then((fulfillments) => {
-                console.log('EULA reminders sent.')
-            })
+
+        var notification_promises = []
+        users.filter(user => !user.settings.eula).map(user => {
+            var eulaMsg = `*ITT Team*\n\nWe noticed that your bot is not working. In order to use the bot you MUST accept the [End User Licensing Agreement](https://${process.env.DOMAIN}/eula?u=${user.telegram_chat_id})`
+            notification_promises.push(telegramBot.sendMessage(user.telegram_chat_id, eulaMsg, markdown).catch(err => console.log(err)))
+        })
+
+        return Promise.all(notification_promises).then(() => {
+            console.log('EULA reminders sent.')
         })
     }
     else
@@ -73,7 +76,7 @@ Our [User Guide](http://intelligenttrading.org/guides/bot-user-guide/) can help 
         })
 }
 
-function checkWrongConfigurations() {
+function checkWrongConfigurations(users) {
     console.log('Checking possible misconfigurations...')
 
     var no_counter_currencies_message = '⚠️ *Configuration Warning*\n\nYou have no valid trading pairs selected and no signals can be delivered!\n Check your signals /settings to be sure you have at least one valid trading pair!'
