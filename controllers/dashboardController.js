@@ -49,7 +49,7 @@ module.exports = {
                     history.timeFromLastSignal = moment(mostRecentSignal.timestamp).fromNow()
                     history.signalHealth = Math.abs(moment(mostRecentSignal.timestamp).diff(moment(), 'hours')) <= 2
                     history.timeFromLastFreeSignal = mostRecentFreeSignal ? moment(mostRecentFreeSignal.timestamp).fromNow() : '???'
-                    history.freeSignalHealth = Math.abs(moment(mostRecentFreeSignal.timestamp).diff(moment(), 'hours')) <= 8
+                    history.freeSignalHealth = mostRecentFreeSignal ? Math.abs(moment(mostRecentFreeSignal.timestamp).diff(moment(), 'hours')) <= 8 : false
 
                     return { login: loginData(request), history: history, tradingAlerts: results[0], users: userData }
                 })
