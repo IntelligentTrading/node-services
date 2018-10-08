@@ -1,23 +1,20 @@
 var ethers = require('ethers')
 const bot = require('../util/telegramBot').bot
-const broadcast_markdown_opts = require('../util/telegramBot').markdown
 const nopreview_markdown_opts = require('../util/telegramBot').nopreview_markdown_opts
 
 var network = process.env.LOCAL_ENV ? ethers.providers.networks.ropsten : ethers.providers.networks.mainnet
+var itfEthWallet = process.env.LOCAL_ENV ? '0xe81d3de1cace2107d017961bcfa29f3e4065f49e' : process.env.ITF_ETH_PAYMENT_WALLET
 console.log(`Deploying blockchain provider on ${network.name}`)
 var etherscanProvider = new ethers.providers.EtherscanProvider(network)
 
-var coinmarketcap = require('../api/coinmarketcap')
 var marketApi = require('../api/market')
 var UserModel = require('../models/User')
 var dates = require('../util/dates')
-var wallet = require('./walletController')
 var abi = require('../util/abi')
 var ittContractAddress = process.env.CONTRACT_ADDRESS
 var contract = new ethers.Contract(ittContractAddress, abi, etherscanProvider)
 var itfEmitter = require('../util/blockchainNotifier')
-
-var walletController = require('./walletController')
+var blockchainUtil = require('../util/blockchainUtil')
 
 itfEmitter.on('itfTransfer', tx => {
     console.log(`[Event] verifying transaction ${tx.transactionHash}`)
@@ -48,7 +45,8 @@ module.exports = paymentController = {
             walletAddress: user.settings.ittWalletReceiverAddress
         }
     },
-    verifyTransaction: (transaction) => verifyTransaction
+    verifyTransaction: (transaction) => verifyTransaction(transaction),
+    verifyEthTransaction: (signatureObj) => verifyEthTransaction(signatureObj)
 }
 
 function verifyTransaction(transaction) {
@@ -80,6 +78,21 @@ function verifyTransaction(transaction) {
                     })
             }
         })
+}
+
+//msg: transaction hash without 0x
+function verifyEthTransaction(signatureObj) {
+    const { telegram_chat_id, address, msg, sig } = signatureObj
+    var result = blockchainUtil.verifySignature(sig, address, msg)
+    if (result.verified) {
+        return blockchainUtil.getTransaction(`0x${msg}`).then(txResult => {
+            const { from, to, value } = txResult
+            if (from.toLowerCase() == address.toLowerCase() && to.toLowerCase() == itfEthWallet.toLowerCase()) {
+                console.log(`✅ ${telegram_chat_id} is getting a nice subscription upgrade of ${value} wei to ITF to days`)
+            } else
+                console.log('Ooops, impossible to verify your tx')
+        })
+    }
 }
 
 function weiToToken(weiValue) {
