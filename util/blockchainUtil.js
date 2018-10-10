@@ -1,4 +1,3 @@
-var ethereumjs_util = require('ethereumjs-util')
 var Web3 = require('web3')
 require('request-promise')
 var providerEndpoint = process.env.ETH_TEST ? 'ropsten' : 'mainnet'
@@ -23,5 +22,8 @@ module.exports = {
                 return parseFloat(finalBalance)
             })
         })
+    },
+    getTransaction: (txHash) => {
+        return web3.eth.getTransaction(txHash)
     }
 }

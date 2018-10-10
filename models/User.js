@@ -40,7 +40,7 @@ var userSchema = new Schema({
         exchanges: [{
             label: { type: String }, index: { type: Number }, enabled: { type: Boolean },
         }],
-        ittTransactions: [{ tx: { type: String }, total: { type: Number } }],
+        ittTransactions: [{ tx: String, total: Number, paid_with: String, timestamp: { type: Date, default: Date.now() }, usdt_rate: Number }],
         subscriptionRenewed: { plan: String, on: Date },
         lastSignalReceived: { signalId: String, on: Date },
         ittWalletReceiverAddress: { type: String, default: 'No address generated' },
@@ -92,7 +92,7 @@ userSchema.pre('update', function (next) {
 
 userSchema.post('save', function (u) {
     //eventBus.emit('userSaved', u)
-    eventBus.emit('cacheUser',u)
+    eventBus.emit('cacheUser', u)
 });
 
 userSchema.post('update', function () {
