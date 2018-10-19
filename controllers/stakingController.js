@@ -17,6 +17,7 @@ module.exports = stakingController = {
                 user.settings.staking.diecimila = false
                 user.settings.staking.centomila = false
                 user.settings.staking.veriSigned = false
+                user.settings.staking.lastRetrievedBalance = 0
                 user.save()
                 return user.settings.staking.confirmationCode
             })
