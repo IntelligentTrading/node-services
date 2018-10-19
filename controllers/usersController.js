@@ -207,7 +207,7 @@ function checkUserSettings(user) {
         user.settings.referred_count = 0
         user.save()
     }
-    if (!user.settings.staking) {
+    if (!user.settings.staking || user.settings.staking.lastRetrievedBalance == undefined) {
         user.settings.staking = {
             diecimila: false,
             centomila: false,
