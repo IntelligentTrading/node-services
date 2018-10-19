@@ -7,6 +7,9 @@ var eventBus = require('../events/eventBus')
 var userSchema = new Schema({
     telegram_chat_id: Number,
     settings: {
+        username: {
+            type: String, default: 'unknown'
+        },
         horizon: {
             type: String, default: 'short'
         },
