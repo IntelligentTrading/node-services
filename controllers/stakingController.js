@@ -5,8 +5,8 @@ var hashid = new Hashids();
 var moment = require('moment')
 var _ = require('lodash')
 
-var DIECIMILA_THRESHOLD = process.env.ETH_TEST ? 6 : 10000
-var CENTOMILA_THRESHOLD = process.env.ETH_TEST ? 7 : 100000
+var DIECIMILA_THRESHOLD = 10000
+var CENTOMILA_THRESHOLD = 100000
 
 module.exports = stakingController = {
     addWallet: (telegram_chat_id, wallet) => {
@@ -72,8 +72,8 @@ module.exports = stakingController = {
                 // user becomes stakeholder but it doesn't lose the previous subscription
                 if (user.settings.staking.diecimila && !user.settings.subscriptions.frozen) {
                     var leftoverHours = moment().diff(user.settings.subscriptions.paid, "hours")
-                    if (leftoverHours > 0) {
-                        user.settings.subscriptions.frozenHours = leftoverHours
+                    if (leftoverHours < 0) {
+                        user.settings.subscriptions.frozenHours = Math.abs(leftoverHours)
                         user.settings.subscriptions.frozen = true
                     }
                 }
