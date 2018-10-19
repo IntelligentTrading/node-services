@@ -7,6 +7,8 @@ var moment = require('moment')
 var referral = require('../util/referral')
 var cache = require('../cache').redis
 var _ = require('lodash')
+var Hashids = require('hashids')
+var hashids = new Hashids()
 
 
 function loadCache() {
@@ -205,5 +207,15 @@ function checkUserSettings(user) {
         user.settings.referred_count = 0
         user.save()
     }
+    if (!user.settings.staking) {
+        user.settings.staking = {
+            diecimila: false,
+            centomila: false,
+            veriSigned: false,
+            lastRetrievedBalance: 0
+        }
+        user.save()
+    }
+
     return user
 }
