@@ -218,8 +218,8 @@ function checkUserSettings(user) {
         user.settings.ittTransactions.filter(tx => !tx.total_in_itt).forEach(tx => {
             tx.paid_with = 'ITT'
             tx.timestamp = Date.now()
-            usdt_rate = 0.021
-            total_in_itt = tx.total
+            tx.usdt_rate = 0.021
+            tx.total_in_itt = tx.total
         })
     }
 
