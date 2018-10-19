@@ -2,9 +2,11 @@ var User = require('../models/User')
 var blockchainUtil = require('../util/blockchainUtil')
 var Hashids = require('hashids')
 var hashid = new Hashids();
+var moment = require('moment')
+var _ = require('lodash')
 
-var DIECIMILA_THRESHOLD = process.env.ETH_TEST ? 4 : 10000
-var CENTOMILA_THRESHOLD = process.env.ETH_TEST ? 5 : 100000
+var DIECIMILA_THRESHOLD = process.env.ETH_TEST ? 6 : 10000
+var CENTOMILA_THRESHOLD = process.env.ETH_TEST ? 7 : 100000
 
 module.exports = stakingController = {
     addWallet: (telegram_chat_id, wallet) => {
@@ -19,6 +21,8 @@ module.exports = stakingController = {
                 return user.settings.staking.confirmationCode
             })
         }
+
+        return Promise.reject('Impossible to add this address, check the spelling and be sure this is an actual wallet address.')
     },
     verify: (telegram_chat_id, signature) => {
         return User.findOne({ telegram_chat_id: telegram_chat_id }).then(user => {
@@ -42,19 +46,49 @@ module.exports = stakingController = {
     refreshSingleStakingStatus: (telegram_chat_id) => {
         return User.findOne({ 'settings.staking.veriSigned': true, telegram_chat_id: telegram_chat_id })
             .then(stakingUser => {
-                return stakingController.updateStakingFor(stakingUser)
+                if (stakingUser)
+                    return stakingController.updateStakingFor(stakingUser)
+                else
+                    return Promise.reject('User not verified!')
             })
     },
     updateStakingFor: (user) => {
-        if (!user.settings.staking || !user.settings.staking.walletAddress)
+        if (!user.settings.staking || !user.settings.staking.walletAddress) {
+            user.settings.staking.lastRetrievedBalance = 0
+            user.save()
             return user
+        }
 
         return blockchainUtil.getBalance(user.settings.staking.walletAddress)
             .then(balance => {
-                user.settings.staking.diecimila = balance >= DIECIMILA_THRESHOLD
-                user.settings.staking.centomila = balance >= CENTOMILA_THRESHOLD
+
+                var totalIttSent = _.sum(user.settings.ittTransactions.map(tx => tx.total_in_itt))
+
+                user.settings.staking.lastRetrievedBalance = balance
+                user.settings.staking.diecimila = balance + totalIttSent >= DIECIMILA_THRESHOLD
+                user.settings.staking.centomila = balance + totalIttSent >= CENTOMILA_THRESHOLD
+
+                // user becomes stakeholder but it doesn't lose the previous subscription
+                if (user.settings.staking.diecimila && !user.settings.subscriptions.frozen) {
+                    var leftoverHours = moment().diff(user.settings.subscriptions.paid, "hours")
+                    if (leftoverHours > 0) {
+                        user.settings.subscriptions.frozenHours = leftoverHours
+                        user.settings.subscriptions.frozen = true
+                    }
+                }
+
+                // restore previous subscription in case staking is broken
+                if (!user.settings.staking.diecimila && user.settings.subscriptions.frozen) {
+                    user.settings.subscriptions.paid = moment().add(user.settings.subscriptions.frozenHours, 'hours')
+                    user.settings.subscriptions.frozen = false
+                    user.settings.subscriptions.frozenHours = 0
+                }
+
                 user.save()
                 return user
             })
+    },
+    balanceFor: (address) => {
+        return blockchainUtil.getBalance(address).then(ittBalance => { return { ittBalance: ittBalance } })
     }
 }

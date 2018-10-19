@@ -5,20 +5,16 @@ var network = process.env.LOCAL_ENV ? ethers.providers.networks.ropsten : ethers
 var itfEthWallet = process.env.ITF_ETH_PAYMENT_WALLET
 var marketApi = require('../api/market')
 var UserModel = require('../models/User')
+var userController = require('../controllers/usersController')
 var dates = require('../util/dates')
 
 console.log(`Deploying blockchain provider on ${network.name}`)
-//var etherscanProvider = new ethers.providers.EtherscanProvider(network)
-//var abi = require('../util/abi')
-//var ittContractAddress = process.env.CONTRACT_ADDRESS
-//var contract = new ethers.Contract(ittContractAddress, abi, etherscanProvider)
 
 const TEST_DECIMALS = 18
 const ITT_DECIMALS = 8
 const ETH_DECIMALS = 18
 
 const smartContractDecimals = process.env.LOCAL_ENV ? TEST_DECIMALS : ITT_DECIMALS
-const smartContractTokenSymbol = process.env.LOCAL_ENV ? 'ABC' : 'ITT'
 var itfEmitter = require('../util/blockchainNotifier')
 var blockchainUtil = require('../util/blockchainUtil')
 
@@ -62,12 +58,17 @@ function verifyTransaction(transaction) {
         })
 }
 
-
 //msg: transaction hash without 0x
-function verifyEthTransaction(signatureObj) {
+async function verifyEthTransaction(signatureObj) {
     const { telegram_chat_id, address, msg, sig } = signatureObj
     var result = blockchainUtil.verifySignature(sig, address, msg)
     if (result.verified) {
+
+        var allusers = await userController.all()
+        if (allusers.some(u => u.settings.ittTransactions.map(t => t.tx).some(tx => tx == `0x${msg}`))) {
+            return { telegram_chat_id: telegram_chat_id, success: false, reason: `Transaction 0x${msg} already verified.` }
+        }
+
         return blockchainUtil.getTransaction(`0x${msg}`).then(txResult => {
             const { from, to, value } = txResult
             if (from.toLowerCase() == address.toLowerCase() && to.toLowerCase() == itfEthWallet.toLowerCase()) {
@@ -91,15 +92,16 @@ function verifyEthTransaction(signatureObj) {
 async function registerPayment(user, txHash, amount, symbol) {
     if (user && user.settings.ittTransactions.map(t => t.tx).indexOf(txHash) < 0) {
 
+        var ittJson = await marketApi.itt()
+        var itt = JSON.parse(ittJson)
+
         var ticker_price_usd = -1
         if (symbol == 'ETH') {
             tickerJson = await marketApi.tickers(symbol)
             ticker_price_usd = tickerJson[0].price_usd
         }
         else {
-            tickerJson = await marketApi.itt()
-            ticker = JSON.parse(tickerJson)
-            ticker_price_usd = ticker.close
+            ticker_price_usd = itt.close
         }
 
         var tokens = weiToToken(amount, symbol)
@@ -115,7 +117,8 @@ async function registerPayment(user, txHash, amount, symbol) {
             tx: txHash,
             total: tokens,
             usdt_rate: ticker_price_usd,
-            paid_with: symbol
+            paid_with: symbol,
+            total_in_itt: tokens * ticker_price_usd / itt.close
         })
         user.settings.subscriptionRenewed = { plan: 'paid', on: Date.now() }
         user.save()

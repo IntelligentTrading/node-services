@@ -15,5 +15,8 @@ router.get('/forceRefresh/:telegram_chat_id', (req, res) => {
     else
         solve(stakingCtrl.refreshStakingStatus(), res)
 })
+router.get('/balance/:address', (req, res) => {
+    solve(stakingCtrl.balanceFor(req.params.address), res)
+})
 
 module.exports = router
