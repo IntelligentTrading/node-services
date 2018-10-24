@@ -7,6 +7,7 @@ var marketApi = require('../api/market')
 var UserModel = require('../models/User')
 var userController = require('../controllers/usersController')
 var dates = require('../util/dates')
+var moment = require('moment')
 
 console.log(`Deploying blockchain provider on ${network.name}`)
 
@@ -112,7 +113,15 @@ async function registerPayment(user, txHash, amount, symbol) {
         var secondsToAdd = tokens * ticker_price_usd / usdPricePerSecond
         var startingDate = new Date(Math.max(new Date(), user.settings.subscriptions.paid))
         var newExpirationDate = startingDate.setSeconds(startingDate.getSeconds() + secondsToAdd)
-        user.settings.subscriptions.paid = newExpirationDate
+
+        //if the user is a stakeholder the remaining hours will be frozen
+        if (user.settings.staking.diecimila) {
+            var leftoverHours = moment().diff(newExpirationDate, "hours")
+            user.settings.subscriptions.frozenHours += Math.abs(leftoverHours)
+            user.settings.subscriptions.frozen = true
+        } else {
+            user.settings.subscriptions.paid = newExpirationDate
+        }
         user.settings.ittTransactions.push({
             tx: txHash,
             total: tokens,
