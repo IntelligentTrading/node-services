@@ -7,6 +7,8 @@ var moment = require('moment')
 var referral = require('../util/referral')
 var cache = require('../cache').redis
 var _ = require('lodash')
+var Hashids = require('hashids')
+var hashids = new Hashids()
 
 
 function loadCache() {
@@ -198,12 +200,30 @@ module.exports = userController = {
 function checkUserSettings(user) {
     if (user.settings.ittWalletReceiverAddress == 'No address generated') {
         user.settings.ittWalletReceiverAddress = walletController.getWalletAddressFor(user.telegram_chat_id)
-        user.save()
     }
     if (!user.settings.referral) {
         user.settings.referral = referral.referralGenerator(user.telegram_chat_id)
         user.settings.referred_count = 0
-        user.save()
     }
+    if (!user.settings.staking || user.settings.staking.lastRetrievedBalance == undefined) {
+        user.settings.staking = {
+            diecimila: false,
+            centomila: false,
+            veriSigned: false,
+            lastRetrievedBalance: 0
+        }
+    }
+
+    if (user.settings.ittTransactions) {
+        user.settings.ittTransactions.filter(tx => !tx.total_in_itt).forEach(tx => {
+            tx.paid_with = 'ITT'
+            tx.timestamp = Date.now()
+            tx.usdt_rate = 0.021
+            tx.total_in_itt = tx.total
+        })
+    }
+
+    user.save()
+
     return user
 }

@@ -7,6 +7,9 @@ var eventBus = require('../events/eventBus')
 var userSchema = new Schema({
     telegram_chat_id: Number,
     settings: {
+        username: {
+            type: String, default: 'unknown'
+        },
         horizon: {
             type: String, default: 'short'
         },
@@ -27,12 +30,15 @@ var userSchema = new Schema({
             diecimila: { type: Boolean, default: false },
             centomila: { type: Boolean, default: false },
             confirmationCode: String,
-            veriSigned: { type: Boolean, default: false }
+            veriSigned: { type: Boolean, default: false },
+            lastRetrievedBalance: Number, default: 0
         },
         subscriptions: {
             free: { type: Date, default: new Date(2020, 12, 31) },
             beta: { type: Date, default: Date.now() },
-            paid: { type: Date, default: Date.now() }
+            paid: { type: Date, default: Date.now() },
+            frozen: { type: Boolean, default: false },
+            frozenHours: { type: Number }
         },
         indicators: [{
             label: { type: String }, name: { type: String }, available: { type: Boolean }, enabled: { type: Boolean },
@@ -40,7 +46,7 @@ var userSchema = new Schema({
         exchanges: [{
             label: { type: String }, index: { type: Number }, enabled: { type: Boolean },
         }],
-        ittTransactions: [{ tx: { type: String }, total: { type: Number } }],
+        ittTransactions: [{ tx: String, total: Number, paid_with: String, timestamp: { type: Date, default: Date.now() }, usdt_rate: Number, total_in_itt: Number }],
         subscriptionRenewed: { plan: String, on: Date },
         lastSignalReceived: { signalId: String, on: Date },
         ittWalletReceiverAddress: { type: String, default: 'No address generated' },
@@ -92,7 +98,7 @@ userSchema.pre('update', function (next) {
 
 userSchema.post('save', function (u) {
     //eventBus.emit('userSaved', u)
-    eventBus.emit('cacheUser',u)
+    eventBus.emit('cacheUser', u)
 });
 
 userSchema.post('update', function () {
