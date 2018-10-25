@@ -205,7 +205,6 @@ function checkUserSettings(user) {
     if (!user.settings.staking || user.settings.staking.lastRetrievedBalance == undefined) {
         user.settings.staking = {
             diecimila: false,
-            centomila: false,
             veriSigned: false,
             lastRetrievedBalance: 0
         }

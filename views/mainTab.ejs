@@ -104,9 +104,9 @@
     var totalUsersChartObj = new Chart(ctx, {
         type: 'doughnut',
         data: {
-            labels: ["FREE", "FREE+", "Tier1","Pro","Advanced"],
+            labels: ["FREE", "FREE+", "Tier1","Pro"],
             datasets: [{
-                data: [ <%- users.TotalFree %>,  <%- users.TotalFreePlus %>,  <%- users.TotalTier1 %>, <%- users.TotalPro %>,  <%- users.TotalAdvanced %>],
+                data: [ <%- users.TotalFree %>,  <%- users.TotalFreePlus %>,  <%- users.TotalTier1 %>, <%- users.TotalPro %>],
                 backgroundColor: [
                     'rgba(255, 99, 132, 0.2)',
                     'rgba(54, 162, 235, 0.2)',
@@ -124,9 +124,9 @@
     var totalBlockedUsersChartObj = new Chart(ctx1, {
         type: 'doughnut',
         data: {
-            labels: ["FREE", "FREE+", "Tier1",'Pro','Advanced'],
+            labels: ["FREE", "FREE+", "Tier1",'Pro'],
             datasets: [{
-                data: [ <%- users.TotalBlockedFree %>,  <%- users.TotalBlockedFreePlus %>,  <%- users.TotalBlockedTier1 %>,<%- users.TotalBlockedPro %>,<%- users.TotalBlockedAdvanced %>],
+                data: [ <%- users.TotalBlockedFree %>,  <%- users.TotalBlockedFreePlus %>,  <%- users.TotalBlockedTier1 %>,<%- users.TotalBlockedPro %>],
                 backgroundColor: [
                     'rgba(255, 99, 132, 0.2)',
                     'rgba(54, 162, 235, 0.2)',
@@ -144,9 +144,9 @@
     var totalEverPaidUsersChartObj = new Chart(ctx11, {
         type: 'doughnut',
         data: {
-            labels: ["FREE", "FREE+", "Tier1",'Pro','Advanced'],
+            labels: ["FREE", "FREE+", "Tier1",'Pro'],
             datasets: [{
-                data: [ <%- users.TotalAllTimePayingFree %>,  <%- users.TotalAllTimePayingFreePlus %>,  <%- users.TotalAllTimePayingTier1 %>,<%- users.TotalAllTimePayingPro %>,<%- users.TotalAllTimePayingAdvanced %>],
+                data: [ <%- users.TotalAllTimePayingFree %>,  <%- users.TotalAllTimePayingFreePlus %>,  <%- users.TotalAllTimePayingTier1 %>,<%- users.TotalAllTimePayingPro %>],
                 backgroundColor: [
                     'rgba(255, 99, 132, 0.2)',
                     'rgba(54, 162, 235, 0.2)',
@@ -235,10 +235,10 @@
     var totalMutedChartObj = new Chart(ctx6, {
         type: 'doughnut',
         data: {
-            labels: ["Alert On", "Free Muted","Free+ Muted","Tier1 Muted",'Pro','Advanced'],
+            labels: ["Alert On", "Free Muted","Free+ Muted","Tier1 Muted",'Pro'],
             datasets: [
             {
-                data: [ <%- users.length - users.TotalMuted %>, <%- users.TotalFreeMuted %>,  <%- users.TotalFreePlusMuted %>,<%- users.TotalTier1Muted %>,<%- users.TotalProMuted %>,<%- users.TotalAdvancedMuted %>],
+                data: [ <%- users.length - users.TotalMuted %>, <%- users.TotalFreeMuted %>,  <%- users.TotalFreePlusMuted %>,<%- users.TotalTier1Muted %>,<%- users.TotalProMuted %>],
                 backgroundColor:  [
                 'rgba(148, 240, 250, 0.2)',
                     'rgba(255, 99, 132, 0.2)',
