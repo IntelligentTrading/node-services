@@ -7,9 +7,6 @@ var moment = require('moment')
 var referral = require('../util/referral')
 var cache = require('../cache').redis
 var _ = require('lodash')
-var Hashids = require('hashids')
-var hashids = new Hashids()
-
 
 function loadCache() {
     return User.find({}).then(users => {
