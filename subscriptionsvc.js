@@ -15,7 +15,7 @@ var run = () => {
 
 function checkSubscriptionExpDate() {
     var days5Ago = moment().add(-5, 'days').format('YYYY-MM-DD')
-    return UserModel.find({ $and: [{ $where: "this.settings.ittTransactions.length > 0" }, { 'settings.subscriptions.paid': { $gte: days5Ago } }] })
+    return UserModel.find({ $and: [{ $where: "this.settings.ittTransactions.length > 0" }, { 'settings.subscriptions.paid': { $gte: days5Ago } }, { 'settings.staking.diecimila': false }] })
         .then(users => {
             var notifications = []
 
