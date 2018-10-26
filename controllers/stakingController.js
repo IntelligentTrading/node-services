@@ -6,7 +6,6 @@ var moment = require('moment')
 var _ = require('lodash')
 
 var DIECIMILA_THRESHOLD = 10000
-var CENTOMILA_THRESHOLD = 100000
 
 function defrost(user) {
     user.settings.subscriptions.paid = moment().add(user.settings.subscriptions.frozenHours, 'hours')
@@ -29,7 +28,6 @@ module.exports = stakingController = {
                 user.settings.staking.walletAddress = wallet
                 user.settings.staking.confirmationCode = hashid.encode(telegram_chat_id)
                 user.settings.staking.diecimila = false
-                user.settings.staking.centomila = false
                 user.settings.staking.veriSigned = false
                 user.settings.staking.lastRetrievedBalance = 0
                 if (user.settings.subscriptions.frozen)
@@ -84,7 +82,6 @@ module.exports = stakingController = {
 
                 user.settings.staking.lastRetrievedBalance = balance
                 user.settings.staking.diecimila = balance + totalIttSent >= DIECIMILA_THRESHOLD
-                user.settings.staking.centomila = balance + totalIttSent >= CENTOMILA_THRESHOLD
 
                 // user becomes stakeholder but it doesn't lose the previous subscription
                 if (user.settings.staking.diecimila && !user.settings.subscriptions.frozen)

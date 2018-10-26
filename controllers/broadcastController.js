@@ -34,12 +34,8 @@ module.exports = {
                             receivers = receivers.concat(paidUsrs)
                         }
                         if(userPlans.indexOf('stakediecimila') > -1){
-                            var diecimilaUsrs = users.filter(user => user.settings.staking && user.settings.staking.diecimila && !user.settings.staking.centomila)
+                            var diecimilaUsrs = users.filter(user => user.settings.staking && user.settings.staking.diecimila)
                             receivers = receivers.concat(diecimilaUsrs)
-                        }
-                        if(userPlans.indexOf('stakecentomila') > -1){
-                            var centomilaUsrs = users.filter(user => user.settings.staking && user.settings.staking.centomila)
-                            receivers = receivers.concat(centomilaUsrs)
                         }
                     }
                 }

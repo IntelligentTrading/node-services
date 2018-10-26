@@ -94,7 +94,7 @@ function checkWeakConfigurations(users) {
 
         var not_enough_currencies_message = '⚠️ *Configuration Warning*\n\nYou might not have enough valid trading pairs selected!\n Check your /settings and choose more coins to get more signals!'
 
-        var few_currencies_users = users.filter(u => dateUtil.hasValidSubscription(u) && (!u.settings.transaction_currencies || u.settings.transaction_currencies.length < 9))
+        var few_currencies_users = users.filter(u => (!u.settings.transaction_currencies || u.settings.transaction_currencies.length < 9))
 
         var promises = few_currencies_users.map(fcu => {
             return telegramBot.sendMessage(fcu.telegram_chat_id, not_enough_currencies_message, markdown)

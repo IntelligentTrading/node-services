@@ -28,7 +28,6 @@ var userSchema = new Schema({
         staking: {
             walletAddress: { type: String },
             diecimila: { type: Boolean, default: false },
-            centomila: { type: Boolean, default: false },
             confirmationCode: String,
             veriSigned: { type: Boolean, default: false },
             lastRetrievedBalance: Number, default: 0

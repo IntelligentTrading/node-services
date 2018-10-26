@@ -14,7 +14,6 @@ var dateUtil = {
     hasValidSubscription: (user) => {
 
         return dateUtil.getDaysLeftFrom(user.settings.subscriptions.paid) > 0 ||
-            dateUtil.getDaysLeftFrom(user.settings.subscriptions.beta) > 0 ||
             (user.settings.staking.veriSigned && user.settings.staking.diecimila) ||
             user.settings.is_ITT_team
     }
