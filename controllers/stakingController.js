@@ -82,7 +82,6 @@ module.exports = stakingController = {
 
                 user.settings.staking.lastRetrievedBalance = balance
                 user.settings.staking.diecimila = balance + totalIttSent >= DIECIMILA_THRESHOLD
-                user.settings.staking.centomila = balance + totalIttSent >= CENTOMILA_THRESHOLD
 
                 // user becomes stakeholder but it doesn't lose the previous subscription
                 if (user.settings.staking.diecimila && !user.settings.subscriptions.frozen)

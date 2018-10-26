@@ -82,12 +82,10 @@ module.exports = userController = {
 
             if (user && user.eula) {
                 if (settings) {
-                    if (dateUtil.hasValidSubscription(user)) {
-                        var settingsToUpdate = Object.keys(settings);
-                        settingsToUpdate.forEach(settingToUpdate => {
-                            user.settings[settingToUpdate] = settings[settingToUpdate];
-                        })
-                    }
+                    var settingsToUpdate = Object.keys(settings);
+                    settingsToUpdate.forEach(settingToUpdate => {
+                        user.settings[settingToUpdate] = settings[settingToUpdate];
+                    })
                     user.settings.is_crowd_enabled = settings.is_crowd_enabled
                     user.save()
                     return user
@@ -107,28 +105,23 @@ module.exports = userController = {
             return User.findOne({ telegram_chat_id: parseInt(telegram_chat_id) })
                 .then(user => {
 
-                    if (dateUtil.hasValidSubscription(user)) {
+                    settings.currencies.forEach((currency) => {
+                        var isTransactionCurrency = currenciesPairRole == 'transaction';
+                        var key = isTransactionCurrency ? currency.symbol : currency.index;
 
-                        settings.currencies.forEach((currency) => {
-                            var isTransactionCurrency = currenciesPairRole == 'transaction';
-                            var key = isTransactionCurrency ? currency.symbol : currency.index;
-
-                            if (currency.follow == 'True' || currency.follow == 'true') {
-                                user.settings[`${currenciesPairRole}_currencies`].push(key)
+                        if (currency.follow == 'True' || currency.follow == 'true') {
+                            user.settings[`${currenciesPairRole}_currencies`].push(key)
+                        }
+                        else {
+                            var index_of_victim = user.settings[`${currenciesPairRole}_currencies`].indexOf(key)
+                            if (index_of_victim >= 0) {
+                                user.settings[`${currenciesPairRole}_currencies`].splice(index_of_victim, 1);
                             }
-                            else {
-                                var index_of_victim = user.settings[`${currenciesPairRole}_currencies`].indexOf(key)
-                                if (index_of_victim >= 0) {
-                                    user.settings[`${currenciesPairRole}_currencies`].splice(index_of_victim, 1);
-                                }
-                            }
-                        })
+                        }
+                    })
 
-                        user.save();
-                        return user
-                    } else {
-                        return Promise.reject(new Error('You must subscribe in order to save settings.'))
-                    }
+                    user.save();
+                    return user
                 })
         }
     },
