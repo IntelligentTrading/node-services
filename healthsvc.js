@@ -50,26 +50,33 @@ function eulaCheck(users) {
 }
 
 function lastSignalDeliveredCheck(users) {
-    console.log('Checking signals delivered to users...')
 
-    var not_enough_signals_message =
-        `⚠️*Configuration Warning*
+    if (moment().hour() % 6 == 0) {
+
+        console.log('Checking signals delivered to users...')
+
+        var not_enough_signals_message =
+            `⚠️*Configuration Warning*
 
 It looks like you're missing signals and cryptomarket updates due to your current subscription plan or configuration.
 Check your /settings or /subscribe for a better experience!
 Our [User Guide](http://intelligenttrading.org/guides/bot-user-guide/) can help to configure the bot properly.`
 
-    var blindUsers = users.filter(u => u.settings.lastSignalReceived && (
-        (moment().diff(u.settings.lastSignalReceived.on, 'hours') > MAX_HOURS_WITHOUT_SIGNAL_SHORT && u.settings.horizon == 'short') ||
-        (moment().diff(u.settings.lastSignalReceived.on, 'hours') > MAX_HOURS_WITHOUT_SIGNAL_MEDIUM && u.settings.horizon == 'medium') ||
-        (moment().diff(u.settings.lastSignalReceived.on, 'hours') > MAX_HOURS_WITHOUT_SIGNAL_LONG && u.settings.horizon == 'long')))
+        var blindUsers = users.filter(u => u.settings.lastSignalReceived && (
+            (moment().diff(u.settings.lastSignalReceived.on, 'hours') > MAX_HOURS_WITHOUT_SIGNAL_SHORT && u.settings.horizon == 'short') ||
+            (moment().diff(u.settings.lastSignalReceived.on, 'hours') > MAX_HOURS_WITHOUT_SIGNAL_MEDIUM && u.settings.horizon == 'medium') ||
+            (moment().diff(u.settings.lastSignalReceived.on, 'hours') > MAX_HOURS_WITHOUT_SIGNAL_LONG && u.settings.horizon == 'long')))
 
-    var lastSignalReminderPromises = blindUsers.map(blind_user => {
-        return telegramBot.sendMessage(blind_user.telegram_chat_id, not_enough_signals_message, markdown)
-            .catch(err => console.log(`Last signal delivered check not sent to ${blind_user.telegram_chat_id}`))
-    })
+        var lastSignalReminderPromises = blindUsers.map(blind_user => {
+            return telegramBot.sendMessage(blind_user.telegram_chat_id, not_enough_signals_message, markdown)
+                .catch(err => console.log(`Last signal delivered check not sent to ${blind_user.telegram_chat_id}`))
+        })
 
-    return Promise.all(lastSignalReminderPromises).then(() => { return blindUsers })
+        return Promise.all(lastSignalReminderPromises).then(() => { return blindUsers })
+    }
+    else{
+        console.warn('Last signal received check sent every 6 hours only...')
+    }
 }
 
 function checkWrongConfigurations(users) {
