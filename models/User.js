@@ -68,7 +68,8 @@ userSchema.pre('save', function (next) {
             { label: 'RSI', name: 'RSI', available: true, enabled: true },
             { label: 'Ichimoku', name: 'kumo_breakout', available: true, enabled: true },
             { label: 'ITF Proprietary 1', name: 'RSI_Cumulative', available: false, enabled: true },
-            { label: 'Volume Based Indicator', name: 'VBI', available: false, enabled: true },]
+            { label: 'Volume Based Indicator', name: 'VBI', available: false, enabled: true },
+            { label: 'AI Signals', name: 'ANN_Simple', available: false, enabled: true }]
     }
 
     if (!this.settings.exchanges || this.settings.exchanges.length <= 0) {
