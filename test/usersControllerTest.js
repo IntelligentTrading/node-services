@@ -20,7 +20,7 @@ describe('Users Controller', () => {
 
         return userCtrl.all().then(users => {
             return UserModel.find().then(dbusers => {
-                return expect(users).to.be.eql(dbusers)
+                return expect(users.length).to.be.eql(dbusers.length)
             })
         })
     })
