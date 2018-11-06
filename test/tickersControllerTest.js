@@ -10,13 +10,6 @@ chai.use(chaiHttp)
 
 describe('Tickers Controller', () => {
 
-    it('Ticker Controller returns Ethereum if symbol is ETH', () => {
-        tickersCtrl.tickers('ETH').then(ticker => {
-            expect(ticker.name).to.be.equal('Ethereum')
-            expect(ticker.symbol).to.be.equal('ETH')
-        })
-    })
-
     it('GET /ticker Returns 500 if symbol is undefined or empty', () => {
 
         return chai.request(app)
