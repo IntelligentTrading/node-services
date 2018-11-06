@@ -24,14 +24,17 @@ module.exports = promoController = {
                     user.settings.subscriptions.paid = moment.max(moment(), moment(user.settings.subscriptions.paid)).add(promoDurationInDays, 'days')
 
                 user.save()
-                promo.redeem(telegram_chat_id)
+                var redeemedObject = promo.redeem(telegram_chat_id)
                 promo.save()
 
-                return { success: true, message: promo.label + ' applied!' }
+                return { success: redeemedObject.redeemed, message: redeemedObject.message }
             }
             else {
                 return { success: false, reason: 'Promo already applied to this user' }
             }
+        }
+        else {
+            return !promo ? { success: false, reason: 'Promo not active or invalid' } : { success: false, reason: 'User not existing' }
         }
     },
     get: async (code) => {

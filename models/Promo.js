@@ -19,12 +19,19 @@ promoSchema.methods.toDays = function () {
 }
 
 promoSchema.methods.redeem = function (telegram_chat_id) {
-    this.totalVouchersRedeemed += 1
+
+    var redeemedMessage = this.totalVouchersAvailable <= 0 ? this.label + ' is not active or available anymore!' : this.label + ' redeemed correctly!'
+    var redeemed = this.totalVouchersAvailable > 0
+
     if (this.totalVouchersAvailable) {
+        this.totalVouchersRedeemed += 1
         this.totalVouchersAvailable -= 1
-        this.active = this.totalVouchersAvailable > 0
+        console.log(`${redeemedMessage} [${telegram_chat_id}]`)
     }
-    console.log(`${this.label} redeemed by ${telegram_chat_id}`)
+
+    this.active = this.totalVouchersAvailable > 0
+    return { redeemed: redeemed, message: redeemedMessage }
+
 }
 
 var Promo = mongoose.model('Promo', promoSchema);

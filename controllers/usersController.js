@@ -47,22 +47,19 @@ module.exports = userController = {
             }
             else {
                 return userController.getDbUser(telegram_chat_id).then(user => {
-                    eventBus.emit('cacheUser', user)
-                    //cacheUser(user)
-                    return user
+                    if (user) {
+                        eventBus.emit('cacheUser', user)
+                        return user
+                    }
+                    else{
+                        throw new Error('User not found')
+                    }
                 })
             }
         })
     },
     getDbUser: (telegram_chat_id) => {
-        return User.findOne({ telegram_chat_id: parseInt(telegram_chat_id) }).then(user => {
-            if (!user) {
-                var error = new Error('User not found')
-                error.statusCode = 404
-                throw error
-            }
-            return user
-        })
+        return User.findOne({ telegram_chat_id: parseInt(telegram_chat_id) })
     },
     createUser: (userDocument) => {
         return User.create(userDocument).then((newUser) => {
