@@ -2,6 +2,9 @@
   "name": "itf-node-services",
   "version": "1.0.0",
   "description": "ITT Node Services",
+  "engines": {
+    "node": "9.4.0"
+  },
   "main": "index.js",
   "scripts": {
     "test": "mocha",
