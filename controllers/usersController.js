@@ -51,7 +51,7 @@ module.exports = userController = {
                         eventBus.emit('cacheUser', user)
                         return user
                     }
-                    else{
+                    else {
                         throw new Error('User not found')
                     }
                 })
@@ -180,6 +180,16 @@ module.exports = userController = {
         }
 
         return Promise.reject(new Error(checkResult.reason))
+    },
+    stop: (telegram_chat_id, toggle) => {
+        return User.findOne({ telegram_chat_id: telegram_chat_id }).then(user => {
+            if (user) {
+                user.settings.stopped = toggle
+                user.save()
+                return true
+            }
+            return false
+        })
     }
 }
 
