@@ -8,11 +8,11 @@ var horizons = ['long', 'medium', 'short']
 
 // I will keep this system active for a while but it needs to be deleted because it's ugly as much as this smelly comment
 var planPredicates = {
-    freePredicates: () => { return ['hasTheRightHorizon', 'isFollowingTheTicker', 'isFollowingTheCounter', 'isFollowingTheExchange', 'isFollowingTheIndicator','isNotMuted'] },
-    betaPredicates: () => { return ['hasTheRightHorizon', 'isFollowingTheTicker', 'isFollowingTheCounter', 'isFollowingTheExchange', 'isFollowingTheIndicator','isNotMuted'] },
-    paidPredicates: () => { return ['hasTheRightHorizon', 'isFollowingTheTicker', 'isFollowingTheCounter', 'isFollowingTheExchange', 'isFollowingTheIndicator','isNotMuted'] },
-    diecimilaPredicates: () => { return ['hasTheRightHorizon', 'isFollowingTheTicker', 'isFollowingTheCounter', 'isFollowingTheExchange', 'isFollowingTheIndicator','isNotMuted'] },
-    ITTPredicates: () => { return ['hasTheRightHorizon', 'isFollowingTheTicker', 'isFollowingTheCounter', 'isFollowingTheExchange', 'isFollowingTheIndicator','isNotMuted'] }
+    freePredicates: () => { return ['hasTheRightHorizon', 'isFollowingTheTicker', 'isFollowingTheCounter', 'isFollowingTheExchange', 'isFollowingTheIndicator', 'isNotMuted'] },
+    betaPredicates: () => { return ['hasTheRightHorizon', 'isFollowingTheTicker', 'isFollowingTheCounter', 'isFollowingTheExchange', 'isFollowingTheIndicator', 'isNotMuted'] },
+    paidPredicates: () => { return ['hasTheRightHorizon', 'isFollowingTheTicker', 'isFollowingTheCounter', 'isFollowingTheExchange', 'isFollowingTheIndicator', 'isNotMuted'] },
+    diecimilaPredicates: () => { return ['hasTheRightHorizon', 'isFollowingTheTicker', 'isFollowingTheCounter', 'isFollowingTheExchange', 'isFollowingTheIndicator', 'isNotMuted'] },
+    ITTPredicates: () => { return ['hasTheRightHorizon', 'isFollowingTheTicker', 'isFollowingTheCounter', 'isFollowingTheExchange', 'isFollowingTheIndicator', 'isNotMuted'] }
 }
 
 class TelegramUser {
@@ -85,5 +85,6 @@ class TelegramUser {
         return canDeliver
     }
 }
+
 
 module.exports = TelegramUser
