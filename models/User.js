@@ -55,7 +55,8 @@ var userSchema = new Schema({
         referred_by_code: String,
         referred_count: { type: Number, default: 0 },
         promos: [{ code: String, expiresOn: Date, active: Boolean }],
-        stopped: { type: Boolean, default: false }
+        stopped: { type: Boolean, default: false },
+        email: String
     },
     lastActiveInteractionAt: Date,
     eula: { type: Boolean, default: false },

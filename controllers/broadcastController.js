@@ -53,7 +53,7 @@ module.exports = {
             inline_keyboard: [[{ text: "Continue", callback_data: callbackData }]]
         }
 
-        return UserModel.find().then(users => {
+        return userController.all().then(users => {
             var freeBetaUsers = users.filter(user => !dateUtil.hasValidSubscription(user))
             var maxSimultaneousBroadcastSize = 20
             var slices = Math.ceil(freeBetaUsers.length / maxSimultaneousBroadcastSize)
