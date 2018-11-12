@@ -8,11 +8,11 @@ var horizons = ['long', 'medium', 'short']
 
 // I will keep this system active for a while but it needs to be deleted because it's ugly as much as this smelly comment
 var planPredicates = {
-    freePredicates: () => { return ['hasTheRightHorizon', 'isFollowingTheTicker', 'isFollowingTheCounter', 'isFollowingTheExchange', 'isFollowingTheIndicator', 'isNotMuted'] },
-    betaPredicates: () => { return ['hasTheRightHorizon', 'isFollowingTheTicker', 'isFollowingTheCounter', 'isFollowingTheExchange', 'isFollowingTheIndicator', 'isNotMuted'] },
-    paidPredicates: () => { return ['hasTheRightHorizon', 'isFollowingTheTicker', 'isFollowingTheCounter', 'isFollowingTheExchange', 'isFollowingTheIndicator', 'isNotMuted'] },
-    diecimilaPredicates: () => { return ['hasTheRightHorizon', 'isFollowingTheTicker', 'isFollowingTheCounter', 'isFollowingTheExchange', 'isFollowingTheIndicator', 'isNotMuted'] },
-    ITTPredicates: () => { return ['hasTheRightHorizon', 'isFollowingTheTicker', 'isFollowingTheCounter', 'isFollowingTheExchange', 'isFollowingTheIndicator', 'isNotMuted'] }
+    freePredicates: () => { return ['hasTheRightHorizon', 'isFollowingTheTicker', 'isFollowingTheCounter', 'isFollowingTheExchange', 'isFollowingTheIndicator', 'isNotMuted', 'isNotStopped'] },
+    betaPredicates: () => { return ['hasTheRightHorizon', 'isFollowingTheTicker', 'isFollowingTheCounter', 'isFollowingTheExchange', 'isFollowingTheIndicator', 'isNotMuted', 'isNotStopped'] },
+    paidPredicates: () => { return ['hasTheRightHorizon', 'isFollowingTheTicker', 'isFollowingTheCounter', 'isFollowingTheExchange', 'isFollowingTheIndicator', 'isNotMuted', 'isNotStopped'] },
+    diecimilaPredicates: () => { return ['hasTheRightHorizon', 'isFollowingTheTicker', 'isFollowingTheCounter', 'isFollowingTheExchange', 'isFollowingTheIndicator', 'isNotMuted', 'isNotStopped'] },
+    ITTPredicates: () => { return ['hasTheRightHorizon', 'isFollowingTheTicker', 'isFollowingTheCounter', 'isFollowingTheExchange', 'isFollowingTheIndicator', 'isNotMuted', 'isNotStopped'] }
 }
 
 class TelegramUser {
@@ -75,7 +75,8 @@ class TelegramUser {
             isFollowingTheCounter: this._dbuser.settings.counter_currencies.indexOf(parseInt(signalWrapper.counter_currency)) >= 0,
             isFollowingTheExchange: this._dbuser.settings.exchanges.find(exc => exc.label.toLowerCase() == signalWrapper.source.toLowerCase() && exc.enabled),
             isFollowingTheIndicator: this._dbuser.settings.indicators.find(ind => ind.enabled && ind.name == signalWrapper.label) != undefined,
-            isNotMuted: !this._dbuser.settings.is_muted
+            isNotMuted: !this._dbuser.settings.is_muted,
+            isNotStopped: !this._dbuser.settings.stopped,
         }
 
         var canDeliver = true
