@@ -1,4 +1,3 @@
-var TelegramUser = require('../models/TelegramUser')
 var userController = require('../controllers/usersController')
 const bot = require('../util/telegramBot').bot
 const broadcast_markdown_opts = require('../util/telegramBot').markdown
@@ -44,5 +43,28 @@ module.exports = {
                 }
             })
             .then(() => { return {} })
+    },
+    ask: (question) => {
+
+        var callbackData = `{"cmd":"settings","d":{"stopped":false},"n":"Biz"}`
+
+        var options = { parse_mode: "Markdown", disable_web_page_preview: "true" }
+        options.reply_markup = {
+            inline_keyboard: [[{ text: "Continue", callback_data: callbackData }]]
+        }
+
+        return userController.all().then(users => {
+            var freeBetaUsers = users.filter(user => !dateUtil.hasValidSubscription(user))
+            var maxSimultaneousBroadcastSize = 20
+            var slices = Math.ceil(freeBetaUsers.length / maxSimultaneousBroadcastSize)
+
+            for (current_slice = 0; current_slice < slices; current_slice++) {
+                freeBetaUsers.slice(current_slice * maxSimultaneousBroadcastSize, maxSimultaneousBroadcastSize * (current_slice + 1) - 1)
+                    .map(user => {
+                        bot.sendMessage(user.telegram_chat_id, question, options)
+                            .catch(reason => console.log(`${user.telegram_chat_id}:${reason}`));
+                    })
+            }
+        })
     }
 }

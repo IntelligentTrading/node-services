@@ -30,6 +30,9 @@ router.post('/notified', (req, res) => {
 router.post('/referral', (req, res) => {
     solve(usersCtrl.checkReferral(req.body.telegram_chat_id, req.body.code), res)
 })
+router.put('/stop/:telegram_chat_id', (req, res) => {
+    solve(usersCtrl.stop(req.params.telegram_chat_id, req.query.toggle.toLowerCase() === 'true'), res)
+})
 
 
 module.exports = router
