@@ -15,7 +15,7 @@ module.exports = promoController = {
         var itt = JSON.parse(ittJson)
 
         var usdPricePerDay = 20 * 12 / 365.25
-        var promoAmountInITT = 10 * usdPricePerDay / itt.close
+        var promoAmountInITT = promo.toDays() * usdPricePerDay / itt.close
 
         if (promo && user) {
             if (!user.settings.promos.map(p => p.code).includes(promo.code)) {
@@ -23,7 +23,7 @@ module.exports = promoController = {
                 var promoDurationInDays = promo.toDays()
 
                 if (user.settings.subscriptions.frozen)
-                    user.settings.subscriptions.frozenHours += promoDurationInDays
+                    user.settings.subscriptions.frozenHours += promoDurationInDays * 24
                 else
                     user.settings.subscriptions.paid = moment.max(moment(), moment(user.settings.subscriptions.paid)).add(promoDurationInDays, 'days')
 
