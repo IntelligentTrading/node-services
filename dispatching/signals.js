@@ -1,4 +1,3 @@
-var dateUtil = require('../util/dates')
 var _ = require('lodash')
 var signalHelper = require('./signal-helper')
 var usersController = require('../controllers/usersController')
@@ -6,6 +5,8 @@ var signalsController = require('../controllers/signalsController')
 var subscriptionController = require('../controllers/subscriptionController')
 var TelegramUser = require('../models/TelegramUser')
 var SignalWrapper = require('../models/SignalWrapper')
+
+var socketDispatcher = require('../socket_dispatcher')
 
 var subscriptionTemplates = []
 var signalTemplates = []
@@ -20,7 +21,7 @@ function notify(message_data) {
 
         var signalWrapper = new SignalWrapper(message_data, subscriptionTemplates, signalTemplates[message_data.signal])
 
-        if(signalWrapper.HasErrors) return Promise.reject('Some signals might not be present in the database or in the templates base')
+        if (signalWrapper.HasErrors) return Promise.reject('Some signals might not be present in the database or in the templates base')
 
         return signalHelper.applyTemplate(signalWrapper)
             .then(telegram_signal_message => {
@@ -33,6 +34,8 @@ function notify(message_data) {
                     var allPromises = canReceiveCandidates.map(crc => crc.notify(telegram_signal_message))
 
                     console.log(`ℹ️ Sending to ${allPromises.length} chats`)
+
+                    socketDispatcher.dispatch(signalWrapper, canReceiveCandidates.map(crc => crc._dbuser.telegram_chat_id))
 
                     return Promise.all(allPromises)
                         .then((results) => {
