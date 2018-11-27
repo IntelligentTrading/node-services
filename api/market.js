@@ -1,27 +1,27 @@
 var _ = require('lodash')
-var coinmarketcap = require('./coinmarketcap')
+var marketCap = require('./marketcap')
 var core = require('../api/core')
 var cache = require('../cache').redis
 var moment = require('moment')
 
-function getCoinMarketCapTickers() {
-    return cache.getAsync('coinMarketCapTickers').then(coinMarketCapTickers => {
-        if (coinMarketCapTickers)
-            return Promise.resolve(JSON.parse(coinMarketCapTickers))
+function getMarketCapTickers() {
+    return cache.getAsync('marketCapTickers').then(marketCapTickers => {
+        if (marketCapTickers)
+            return Promise.resolve(JSON.parse(marketCapTickers))
         else {
-            return coinmarketcap.fetchAllTickers()
-                .then(newcoinMarketCapTickers => {
-                    cache.set('coinMarketCapTickers', JSON.stringify(newcoinMarketCapTickers))
+            return marketCap.assets()
+                .then(newMarketCapTickers => {
+                    cache.set('marketCapTickers', JSON.stringify(newMarketCapTickers))
                     var expdate = moment().add(24, 'hours').unix()
-                    cache.expireat('coinMarketCapTickers', expdate)
-                    return newcoinMarketCapTickers
+                    cache.expireat('marketCapTickers', expdate)
+                    return newMarketCapTickers
                 })
         }
     })
 }
 
 function cacheInitialization() {
-    return getCoinMarketCapTickers().then(tkrs => {
+    return getMarketCapTickers().then(tkrs => {
         console.log('Tickers info cache initialized...');
         return self.tickers().then(() => {
             console.log('Tickers cache initialized...');
@@ -51,8 +51,8 @@ var self = module.exports = {
                         tickerPromises.push(self.tickerInfo(tkr))
                     })
 
-                    return Promise.all(tickerPromises).then((coinMarketCapTickers) => {
-                        coinMarketCapTickers.forEach(coinMarketCapTicker => {
+                    return Promise.all(tickerPromises).then((marketCapTickers) => {
+                        marketCapTickers.forEach(coinMarketCapTicker => {
                             if (coinMarketCapTicker)
                                 tkrs_info.push(coinMarketCapTicker)
                         })
@@ -67,16 +67,16 @@ var self = module.exports = {
     },
     tickerInfo: (ticker) => {
 
-        return getCoinMarketCapTickers().then(coinMarketCapTickers => {
+        return getMarketCapTickers().then(marketCapTickers => {
 
             if (!ticker || !ticker.symbol)
                 throw new Error('Ticker cannot be null')
 
-            var matchingTickers = coinMarketCapTickers
+            var matchingTickers = marketCapTickers
                 .filter(coinMarketCapTicker => coinMarketCapTicker.symbol == ticker.symbol);
 
             if (matchingTickers.length <= 0) {
-                matchingTickers = coinMarketCapTickers
+                matchingTickers = marketCapTickers
                     .filter(coinMarketCapTicker => coinMarketCapTicker.name == ticker.symbol);
             }
             if (matchingTickers.length > 0) {
