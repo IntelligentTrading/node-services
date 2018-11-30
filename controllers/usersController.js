@@ -1,7 +1,7 @@
 var marketapi = require('../api/market')
 var User = require('../models/User')
 var walletController = require('./walletController')
-var dateUtil = require('../util/dates')
+var promoCtrl = require('../controllers/promoController')
 var eventBus = require('../events/eventBus')
 var moment = require('moment')
 var referral = require('../util/referral')
@@ -190,6 +190,30 @@ module.exports = userController = {
             }
             return false
         })
+    },
+    getPromoUsers: async () => {
+        var promos = await promoCtrl.get()
+
+        var promoUsers = await userController.all()
+        promoUsers = promoUsers.filter(user => { return user.settings.promos && user.settings.promos.length > 0 })
+
+        var activePromoUsers = []
+        var expiredPromoUsers = []
+
+        promoUsers.forEach(user => {
+            return user.settings.promos.some(p => {
+                var matchingPromos = promos.filter(dbp => { return dbp.code == p.code })
+                var promoDuration = matchingPromos && matchingPromos.length > 0 ? matchingPromos[0].voucherValue : 10000
+                promoDuration = parseInt(promoDuration)
+
+                if (moment(p.reedemedOn).add(promoDuration).isAfter(moment()))
+                    activePromoUsers.push(user)
+                if (moment(p.reedemedOn).add(promoDuration).isBefore(moment()))
+                    expiredPromoUsers.push(user)
+            })
+        })
+
+        return { activePromoUsers: activePromoUsers, expiredPromoUsers: expiredPromoUsers }
     }
 }
 

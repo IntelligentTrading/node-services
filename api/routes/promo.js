@@ -11,4 +11,8 @@ router.get('/:code', (req, res) => {
     solve(promoCtrl.get(req.params.code), res)
 })
 
+router.get('/', (req, res) => {
+    solve(promoCtrl.get(), res)
+})
+
 module.exports = router
