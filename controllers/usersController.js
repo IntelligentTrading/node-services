@@ -206,9 +206,9 @@ module.exports = userController = {
                 var promoDuration = matchingPromos && matchingPromos.length > 0 ? matchingPromos[0].voucherValue : 10000
                 promoDuration = parseInt(promoDuration)
 
-                if (moment(p.reedemedOn).add(promoDuration).isAfter(moment()))
+                if (moment(p.reedemedOn).add(promoDuration,'days').isAfter(moment()))
                     activePromoUsers.push(user)
-                if (moment(p.reedemedOn).add(promoDuration).isBefore(moment()))
+                if (moment(p.reedemedOn).add(promoDuration,'days').isBefore(moment()))
                     expiredPromoUsers.push(user)
             })
         })
