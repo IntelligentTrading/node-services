@@ -42,6 +42,9 @@ module.exports = promoController = {
         }
     },
     get: async (code) => {
+        if (!code)
+            return await PromoModel.find()
+
         return await PromoModel.findOne({ code: code })
     }
 }
