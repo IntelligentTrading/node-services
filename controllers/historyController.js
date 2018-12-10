@@ -1,13 +1,13 @@
 var rp = require('request-promise')
 var templateHelper = require('../dispatching/signal-helper')
 
-var core_api_version = 'v2'
-var core_api_url = `https://${process.env.ITT_API_HOST}/${core_api_version}`
-var core_api_key = process.env.ITT_API_KEY
+var coreApiVersion = 'v2'
+var coreApiUrl = `https://${process.env.ITT_API_HOST}/${coreApiVersion}`
+var coreApiKey = process.env.ITT_API_KEY
 
 module.exports = {
     getSignalHistory: (queryParametersObject) => {
-        var request_url = `${core_api_url}/signals/`
+        var request_url = `${coreApiUrl}/signals/`
         if (queryParametersObject) {
             var filters = []
             Object.keys(queryParametersObject).forEach(property => {
@@ -16,7 +16,7 @@ module.exports = {
             var queryParameters = filters.join('&')
             request_url = `${request_url}?${queryParameters}`
         }
-        return rp(request_url, { headers: { 'API-KEY': core_api_key } })
+        return rp(request_url, { headers: { "Authorization": `Token ${coreApiKey}` } })
     },
     applyTemplate: (signal) => templateHelper.applyTemplate(signal)
 }
