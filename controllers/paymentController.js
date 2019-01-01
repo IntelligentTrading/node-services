@@ -162,7 +162,7 @@ async function registerPayment(user, txHash, amount, symbol) {
     var ticker_price_usd = -1;
     if (symbol == "ETH") {
       tickerJson = await marketApi.tickers(symbol);
-      ticker_price_usd = tickerJson[0].price_usd;
+      ticker_price_usd = tickerJson[0].priceUsd;
     } else {
       ticker_price_usd = itt.close;
     }
