@@ -188,6 +188,7 @@ async function registerPayment(user, txHash, amount, symbol) {
     } else {
       user.settings.subscriptions.paid = newExpirationDate;
     }
+    user.settings.stopped = false;
     user.settings.ittTransactions.push({
       tx: txHash,
       total: tokens,
