@@ -10,9 +10,9 @@ var horizons = ['long', 'medium', 'short']
 var planPredicates = {
     freePredicates: () => { return ['hasTheRightHorizon', 'isFollowingTheTicker', 'isFollowingTheCounter', 'isFollowingTheExchange', 'isFollowingTheIndicator', 'isNotMuted', 'isNotStopped'] },
     betaPredicates: () => { return ['hasTheRightHorizon', 'isFollowingTheTicker', 'isFollowingTheCounter', 'isFollowingTheExchange', 'isFollowingTheIndicator', 'isNotMuted', 'isNotStopped'] },
-    paidPredicates: () => { return ['hasTheRightHorizon', 'isFollowingTheTicker', 'isFollowingTheCounter', 'isFollowingTheExchange', 'isFollowingTheIndicator', 'isNotMuted', 'isNotStopped'] },
-    diecimilaPredicates: () => { return ['hasTheRightHorizon', 'isFollowingTheTicker', 'isFollowingTheCounter', 'isFollowingTheExchange', 'isFollowingTheIndicator', 'isNotMuted', 'isNotStopped'] },
-    ITTPredicates: () => { return ['hasTheRightHorizon', 'isFollowingTheTicker', 'isFollowingTheCounter', 'isFollowingTheExchange', 'isFollowingTheIndicator', 'isNotMuted', 'isNotStopped'] }
+    paidPredicates: () => { return ['hasTheRightHorizon', 'isFollowingTheTicker', 'isFollowingTheCounter', 'isFollowingTheExchange', 'isFollowingTheIndicator', 'isNotMuted'] },
+    diecimilaPredicates: () => { return ['hasTheRightHorizon', 'isFollowingTheTicker', 'isFollowingTheCounter', 'isFollowingTheExchange', 'isFollowingTheIndicator', 'isNotMuted'] },
+    ITTPredicates: () => { return ['hasTheRightHorizon', 'isFollowingTheTicker', 'isFollowingTheCounter', 'isFollowingTheExchange', 'isFollowingTheIndicator', 'isNotMuted'] }
 }
 
 class TelegramUser {
