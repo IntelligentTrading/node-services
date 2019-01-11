@@ -33,6 +33,9 @@ router.post('/referral', (req, res) => {
 router.put('/stop/:telegram_chat_id', (req, res) => {
     solve(usersCtrl.stop(req.params.telegram_chat_id, req.query.toggle.toLowerCase() === 'true'), res)
 })
+router.get('/promo/all', (req, res) => {
+    solve(usersCtrl.getPromoUsers(), res)
+})
 
 
 module.exports = router

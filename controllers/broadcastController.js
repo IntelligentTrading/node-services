@@ -1,4 +1,5 @@
 var userController = require('../controllers/usersController')
+var promoController = require('../controllers/promoController')
 const bot = require('../util/telegramBot').bot
 const broadcast_markdown_opts = require('../util/telegramBot').markdown
 const broadcast_html_opts = require('../util/telegramBot').html
@@ -12,8 +13,9 @@ module.exports = {
      * no filter = deliver to everybody
      */
     broadcast: (message, deliverTo, useHTML = false) => {
+
         return userController.all()
-            .then(users => {
+            .then(async (users) => {
                 var receivers = []
                 if (deliverTo && deliverTo.plan.length > 0) {
                     var userPlans = deliverTo.plan.split(',').map(p => p.toLowerCase())
@@ -28,6 +30,10 @@ module.exports = {
                     if (userPlans.indexOf('pro') > -1) {
                         var proUsers = users.filter(user => dateUtil.getDaysLeftFrom(user.settings.subscriptions.paid) > 0 || (user.settings.staking && user.settings.staking.diecimila))
                         receivers = receivers.concat(proUsers)
+                    }
+                    if (userPlans.indexOf('trial') > -1) {
+                        var promoUsers = await userController.getPromoUsers()
+                        receivers = receivers.concat(promoUsers.activePromoUsers)
                     }
                 }
 
