@@ -202,7 +202,7 @@ function cleanSortedCache() {
 function checkTimestamp(messageBody) {
 
   return messageBody != undefined &&
-    messageBody.sent_at != undefined &&
+    messageBody.sent != undefined &&
     Date.now() - Date.parse(messageBody.sent) < 20 * 60000;
 }
 
