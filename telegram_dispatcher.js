@@ -3,7 +3,6 @@ const signalHelper = require('./dispatching/signal-helper')
 const Consumer = require('sqs-consumer')
 const AWS = require('aws-sdk')
 var moment = require('moment')
-
 var database = require('./database')
 database.connect()
 
