@@ -1,7 +1,7 @@
 var express = require("express");
 var app = express();
 var server = app.listen(9991);
-var io = require("socket.io").listen(server);
+var io = require("socket.io")(server, { transports: ["websocket"] });
 
 console.log(`Running socket dispatcher on 9991`);
 var signalsClients = [];
