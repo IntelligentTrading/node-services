@@ -1,4 +1,5 @@
-var io = require("socket.io")(80);
+var io = require("socket.io")(80, { origins: "*:*" });
+io.origins("*:*");
 
 console.log("Running socket dispatcher on port 80 🎵");
 var signalsClients = [];
