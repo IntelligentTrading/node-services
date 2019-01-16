@@ -1,7 +1,9 @@
-var io = require("socket.io")(80, { origins: "*herokuapp.com*:*" });
-io.origins("*herokuapp.com*:*");
+var express = require("express");
+var app = express();
+var server = app.listen(9991);
+var io = require("socket.io").listen(server);
 
-console.log("Running socket dispatcher on port 80 🎵");
+console.log(`Running socket dispatcher on ${process.env.ITT_SOCKET}`);
 var signalsClients = [];
 
 io.on("connection", function(socket) {
