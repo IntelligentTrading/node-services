@@ -3,7 +3,7 @@ var app = express();
 var server = app.listen(9991);
 var io = require("socket.io").listen(server);
 
-console.log(`Running socket dispatcher on ${process.env.ITT_SOCKET}`);
+console.log(`Running socket dispatcher on 9991`);
 var signalsClients = [];
 
 io.on("connection", function(socket) {
