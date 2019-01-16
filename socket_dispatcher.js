@@ -1,5 +1,5 @@
-var io = require("socket.io")(80, { origins: "*:*" });
-io.origins("*:*");
+var io = require("socket.io")(80, { origins: "*herokuapp.com*:*" });
+io.origins("*herokuapp.com*:*");
 
 console.log("Running socket dispatcher on port 80 🎵");
 var signalsClients = [];
