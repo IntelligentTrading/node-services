@@ -8,7 +8,6 @@ const io = require("socket.io")(server);
 var signalsClients = [];
 
 setInterval(() => {
-  console.log("Emitting heartbeat...");
   io.emit("heartbeat", `Emitting heartbeat...`);
 }, 20000);
 

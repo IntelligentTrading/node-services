@@ -6,7 +6,7 @@ var subscriptionController = require('../controllers/subscriptionController')
 var TelegramUser = require('../models/TelegramUser')
 var SignalWrapper = require('../models/SignalWrapper')
 
-var socketDispatcher = require('../socket_dispatcher')
+//var socketDispatcher = require('../socket_dispatcher')
 
 var subscriptionTemplates = []
 var signalTemplates = []
@@ -35,7 +35,7 @@ function notify(message_data) {
 
                     console.log(`ℹ️ Sending to ${allPromises.length} chats`)
 
-                    socketDispatcher.dispatch(signalWrapper, canReceiveCandidates.map(crc => crc._dbuser.telegram_chat_id))
+                    //socketDispatcher.dispatch(signalWrapper, canReceiveCandidates.map(crc => crc._dbuser.telegram_chat_id))
 
                     return Promise.all(allPromises)
                         .then((results) => {
