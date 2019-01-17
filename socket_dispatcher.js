@@ -1,9 +1,16 @@
 var express = require("express");
 const PORT = 9991;
-const server = express().listen(PORT, () => console.log(`Socket listening on ${ PORT }`));
+const server = express().listen(PORT, () =>
+  console.log(`Socket listening on ${PORT}`)
+);
 const io = require("socket.io")(server);
 
 var signalsClients = [];
+
+setInterval(() => {
+  console.log("Emitting heartbeat...");
+  io.emit("heartbeat", `Emitting heartbeat...`);
+}, 20000);
 
 io.on("connection", function(socket) {
   console.log("Client connected");
