@@ -47,7 +47,7 @@
     "mongoose": "^5.2.15",
     "node-cache": "^4.1.1",
     "node-telegram-bot-api": "^0.29.0",
-    "redis": "^2.8.0",
+    "redis": "^3.1.1",
     "request": "^2.81.0",
     "request-promise": "^4.2.2",
     "sinon": "^4.4.2",
